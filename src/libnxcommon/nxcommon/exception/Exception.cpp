@@ -115,7 +115,7 @@ char* Exception::buildFullMessage() const throw()
 	int messageLen = (message ? strlen(message) : 10);
 	int len = messageLen + strlen(exceptionName) + 2;
 
-#ifdef EXCEPTION_POSITION_INFO
+#ifdef NXCOMMON_EXCEPTION_POSITION_INFO
 	if (srcFile != NULL) {
 		len += strlen(srcFile)+3;
 	}
@@ -129,7 +129,7 @@ char* Exception::buildFullMessage() const throw()
 	strcpy(formMsg, exceptionName);
 	strcat(formMsg, ": ");
 
-#ifdef EXCEPTION_POSITION_INFO
+#ifdef NXCOMMON_EXCEPTION_POSITION_INFO
 	if (srcFile != NULL) {
 		strcat(formMsg, srcFile);
 

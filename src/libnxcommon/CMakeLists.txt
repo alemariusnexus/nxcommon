@@ -26,10 +26,10 @@ INCLUDE(TestBigEndian)
 
 ADD_DEFINITIONS(-D__STDC_LIMIT_MACROS)
 
-SET(EXCEPTION_POSITION_INFO OFF CACHE BOOL "If true, exception messages will include the full path to the source file and the line in which the exception was thrown.")
-SET(NXCOMMON_FILE_IMG_SUPPORT_ENABLED OFF CACHE BOOL "Enable this for the File* classes to support treating IMG archives like plain directories, and IMG entries like plain files (more or less).")
-
 TEST_BIG_ENDIAN(NXCOMMON_BIG_ENDIAN)
+
+
+SET(NXCOMMON_EXCEPTION_POSITION_INFO OFF CACHE BOOL "If true, exception messages will include the full path to the source file and the line in which the exception was thrown.")
 
 
 #FIND_PATH(ICU_INCLUDE_PATH unicode/utypes.h)
