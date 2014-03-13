@@ -27,16 +27,9 @@
 #include "cxx11hash.h"
 #include "exception/InvalidStateException.h"
 #include <utility>
-
-#ifdef CXX0X_AVAILABLE
 #include <unordered_map>
 
 using std::unordered_map;
-#else
-#include <map>
-using std::map;
-#endif
-
 using std::pair;
 using std::less;
 using std::equal_to;
@@ -88,11 +81,7 @@ private:
 		bool locked;
 	};
 
-#ifdef CXX0X_AVAILABLE
 	typedef unordered_map<K, Entry, MapHash, KeyEqual> EntryMap;
-#else
-	typedef map<K, Entry, Compare> EntryMap;
-#endif
 
 public:
 	/**	\brief Creates a new, empty cache.

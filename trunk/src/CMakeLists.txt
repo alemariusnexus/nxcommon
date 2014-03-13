@@ -22,13 +22,37 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 PROJECT(nxcommon-parent C CXX)
 
+SET(NXCOMMON_VERSION_MAJOR "0") # Major version, must be numeric
+SET(NXCOMMON_VERSION_MINOR "1") # Minor version, must be numeric
+SET(NXCOMMON_VERSION_SUFFIX "-dev") # A suffix for the version string, could e.g. be 'b' for beta versions, or empty
+
 INCLUDE(TestBigEndian)
 INCLUDE(Utilities.cmake)
 
 ADD_DEFINITIONS(-D__STDC_LIMIT_MACROS)
 
-SET(EXCEPTION_POSITION_INFO OFF CACHE BOOL "If true, exception messages will include the full path to the source file and the line in which the exception was thrown.")
-SET(NXCOMMON_FILE_IMG_SUPPORT_ENABLED OFF CACHE BOOL "Enable this for the File* classes to support treating IMG archives like plain directories, and IMG entries like plain files (more or less).")
+
+FIND_PACKAGE(Subversion)
+
+SET(_CMAKE_NXCOMMON_HAVE_SVNREV OFF)
+IF(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.svn" OR EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../.svn")
+    IF(Subversion_FOUND)
+        Subversion_WC_INFO(${CMAKE_CURRENT_SOURCE_DIR} Project)
+        SET(NXCOMMON_VERSION_SVNREV "${Project_WC_REVISION}")
+        SET(_CMAKE_NXCOMMON_HAVE_SVNREV ON)
+    ELSE(Subversion_FOUND)
+        MESSAGE(WARNING "Subversion client not found. The current subversion revision number will not be available to nxcommon!")
+    ENDIF(Subversion_FOUND)
+ENDIF(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.svn" OR EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../.svn")
+
+IF(NXCOMMON_VERSION_SVNREV)
+    MESSAGE(STATUS "Subversion revision of nxcommon is r${NXCOMMON_VERSION_SVNREV}.")
+    
+    SET(NXCOMMON_VERSION "${NXCOMMON_VERSION_MAJOR}.${NXCOMMON_VERSION_MINOR}${NXCOMMON_VERSION_SUFFIX}-r${NXCOMMON_VERSION_SVNREV}")
+ELSE(NXCOMMON_VERSION_SVNREV)
+    SET(NXCOMMON_VERSION "${NXCOMMON_VERSION_MAJOR}.${NXCOMMON_VERSION_MINOR}${NXCOMMON_VERSION_SUFFIX}")
+ENDIF(NXCOMMON_VERSION_SVNREV)
+
 
 SET(NXCOMMON_TEST_BUILD OFF CACHE BOOL "Whether you want to build the unit tests")
 
