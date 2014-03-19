@@ -25,3 +25,9 @@
 
 
 CString testRootPath = CString();
+
+CString mysqlHost = CString();
+CString mysqlUser = CString();
+CString mysqlPass = CString();
+CString mysqlDb = CString();
+unsigned int mysqlPort = 0;

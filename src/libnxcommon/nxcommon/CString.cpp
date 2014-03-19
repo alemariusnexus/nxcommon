@@ -24,71 +24,35 @@
 
 
 
-void CString::grow(size_t minSize)
-{
-	if (minSize == 0) {
-		bufSize = 64;
-		realloc(bufSize);
-	} else {
-		if (minSize > bufSize) {
-			bufSize = minSize*2;
-			realloc(bufSize);
-		} else {
-			ensureUniqueness();
-		}
-	}
-}
-
-
-void CString::realloc(size_t size)
-{
-	bufSize = size;
-	shared_ptr<char> cpy(new char[bufSize], default_delete<char[]>());
-	if (cstr.get())
-		strcpy(cpy.get(), cstr.get());
-	else
-		cpy.get()[0] = '\0';
-	cstr = cpy;
-}
 
 
 CString& CString::ltrim(const char* chars)
 {
-	char* s = cstr.get();
-
-	if (!s)
-		return *this;
+	char* s = d.get();
 
 	char* os = s;
-	int len = strlen(s);
 
-	//while (s-os != len  &&  *s == c) s++;
+	size_t len = length();
 	while (s-os != len  &&  strchr(chars, *s)  !=  NULL) s++;
 
-	char* nStr = new char[bufSize];
+	growWithOffset(capacity, s-os, 0, size-(s-os));
+
+	return *this;
+
+	/*char* nStr = new char[bufSize];
 	strcpy(nStr, s);
 
 	cstr = shared_ptr<char>(nStr, default_delete<char[]>());
 
-	return *this;
-}
-
-
-CString& CString::append(const CString& other)
-{
-	if (other.get()) {
-		grow(length() + other.length() + 1);
-		strcat(cstr.get(), other.cstr.get());
-	}
-
-	return *this;
+	return *this;*/
 }
 
 
 CString CString::substr(size_t begin, size_t len) const
 {
 	char* sub = new char[len+1];
-	strncpy(sub, cstr.get() + begin, len);
+	memcpy(sub, d.get() + begin, len);
 	sub[len] = '\0';
 	return CString::from(sub);
 }
+

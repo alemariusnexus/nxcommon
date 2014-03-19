@@ -72,7 +72,7 @@ void TestFileIterator(const File& file, const CString* fnames)
 TEST(FileTest, ExistenceTest)
 {
 	if (!testRootPath.isNull()) {
-		File testdir(testRootPath);
+		File testdir(testRootPath, "filetest");
 
 		ASSERT_TRUE(testdir.exists()) << "Test directory " << testRootPath << " does not exist!";
 
@@ -94,7 +94,7 @@ TEST(FileTest, ExistenceTest)
 TEST(FileTest, HierarchyTest)
 {
 	if (!testRootPath.isNull()) {
-		File testdir(testRootPath);
+		File testdir(testRootPath, "filetest");
 
 		ASSERT_TRUE(testdir.exists()) << "Test directory " << testRootPath << " does not exist!";
 
@@ -121,7 +121,7 @@ TEST(FileTest, HierarchyTest)
 TEST(FileTest, MiscTest)
 {
 	if (!testRootPath.isNull()) {
-		File testdir(testRootPath);
+		File testdir(testRootPath, "filetest");
 
 		ASSERT_TRUE(testdir.exists()) << "Test directory " << testRootPath << " does not exist!";
 

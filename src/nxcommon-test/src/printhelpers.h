@@ -25,6 +25,7 @@
 
 #include <ostream>
 #include <nxcommon/CString.h>
+#include <nxcommon/UString.h>
 #include <nxcommon/file/FilePath.h>
 #include <nxcommon/file/File.h>
 
@@ -32,6 +33,7 @@ using std::ostream;
 
 
 ostream& operator<<(ostream& stream, const CString& cstr);
+ostream& operator<<(ostream& stream, const UString& cstr);
 ostream& operator<<(ostream& stream, const FilePath& fp);
 ostream& operator<<(ostream& stream, const File& f);
 
