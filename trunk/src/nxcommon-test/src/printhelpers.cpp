@@ -30,6 +30,13 @@ ostream& operator<<(ostream& stream, const CString& cstr)
 }
 
 
+ostream& operator<<(ostream& stream, const UString& cstr)
+{
+	ByteArray utf8 = cstr.toUTF8();
+	return stream << utf8.get();
+}
+
+
 ostream& operator<<(ostream& stream, const FilePath& fp)
 {
 	return stream << fp.toString();

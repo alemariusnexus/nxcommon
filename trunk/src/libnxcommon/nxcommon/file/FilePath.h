@@ -155,7 +155,7 @@ public:
 
 	FilePath getAbsolutePath(const FilePath& cdir) const;
 
-	bool isNull() const { return path.get() == NULL; }
+	bool isNull() const { return path.isNull(); }
 
 	bool operator==(const FilePath& other) const;
 	bool operator!=(const FilePath& other) const { return !(*this == other); }

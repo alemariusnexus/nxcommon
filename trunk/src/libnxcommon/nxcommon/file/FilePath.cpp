@@ -245,7 +245,7 @@ FileContentType FilePath::guessContentType() const
 {
 	CString tmpExt = getExtension();
 
-	if (tmpExt.get() == NULL) {
+	if (tmpExt.isNull()) {
 		return CONTENT_TYPE_UNKNOWN;
 	}
 
@@ -305,10 +305,10 @@ FileContentType FilePath::guessContentType() const
 
 CString FilePath::normalize(const CString& src, uint8_t syntax)
 {
-	const char* csrc = src.get();
-
-	if (csrc == NULL)
+	if (src.isNull())
 		return src;
+
+	const char* csrc = src.get();
 
 	size_t srcLen = src.length();
 	char* cdest = new char[srcLen+1];
@@ -344,8 +344,10 @@ CString FilePath::normalize(const CString& src, uint8_t syntax)
 	// Strip all slashes from the end
 	rtrim(cdest, '/');
 
-	if (cdest[0] == '\0')
+	if (cdest[0] == '\0') {
+		delete[] cdest;
 		return CString(".");
+	}
 
 	return CString::from(cdest);
 }

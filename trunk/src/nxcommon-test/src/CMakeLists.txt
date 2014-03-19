@@ -19,4 +19,4 @@
 # GPLADDITIONS.
 
 
-ADD_SOURCES(main printhelpers filepath file global)
+ADD_SOURCES(main printhelpers filepath file global string bytearray sql)

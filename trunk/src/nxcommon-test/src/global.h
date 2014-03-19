@@ -30,4 +30,10 @@
 
 extern CString testRootPath;
 
+extern CString mysqlHost;
+extern CString mysqlUser;
+extern CString mysqlPass;
+extern CString mysqlDb;
+extern unsigned int mysqlPort;
+
 #endif /* GLOBAL_H_ */

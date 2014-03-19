@@ -22,16 +22,26 @@
 
 #include "global.h"
 #include <nxcommon/CLIParser.h>
+#include <cstdlib>
 
 
 int main(int argc, char** argv)
 {
+	printf("Run with --nxcommon-test-help for help on command line options!\n\n");
+
 	testing::InitGoogleTest(&argc, argv);
+
+	srand(time(NULL));
 
 	CLIParser cli;
 
 	int helpOpt = cli.addOption(0, "nxcommon-test-help", "Print help", false);
 	int testdirPathOpt = cli.addOption(0, "testdir", "Path to the root test directory 'testdir'", true);
+	int mysqlHostOpt = cli.addOption(0, "mysql-host", "Host of the MySQL server used for the SQL unit tests", true);
+	int mysqlUserOpt = cli.addOption(0, "mysql-user", "User name of the MySQL server used for the SQL unit tests", true);
+	int mysqlPassOpt = cli.addOption(0, "mysql-pass", "Password for the MySQL server used for the SQL unit tests", true);
+	int mysqlDbOpt = cli.addOption(0, "mysql-db", "Database name on the MySQL server used for the SQL unit tests", true);
+	int mysqlPortOpt = cli.addOption(0, "mysql-port", "Port of the MySQL server used for the SQL unit tests", true);
 
 	argv++;
 	argc--;
@@ -45,11 +55,21 @@ int main(int argc, char** argv)
 			exit(0);
 		} else if (opt == testdirPathOpt) {
 			testRootPath = CString(arg);
+		} else if (opt == mysqlHostOpt) {
+			mysqlHost = CString(arg);
+		} else if (opt == mysqlUserOpt) {
+			mysqlUser = CString(arg);
+		} else if (opt == mysqlPassOpt) {
+			mysqlPass = CString(arg);
+		} else if (opt == mysqlDbOpt) {
+			mysqlDb = CString(arg);
+		} else if (opt == mysqlPortOpt) {
+			mysqlPort = atoi(arg);
 		}
 	}
 
 	if (testRootPath.isNull()) {
-		fprintf(stderr, "WARNING: No test root directory given. Most File tests will be disabled. Consider giving the "
+		fprintf(stderr, "WARNING: No test root directory given. Many tests will be disabled. Consider giving the "
 				"path to the test root directory with the --testdir option!\n\n");
 	}
 

@@ -23,108 +23,105 @@
 #ifndef CSTRING_H_
 #define CSTRING_H_
 
-#include <memory>
-#include <cstring>
+#include "AbstractSharedBuffer.h"
 #include "strutil.h"
-
-using std::shared_ptr;
-using std::default_delete;
+#include "ByteArray.h"
 
 
 
-class CString {
+
+class CString : public AbstractSharedBuffer<char, 1>
+{
 public:
+	static CString from(char* s, size_t len, size_t bufCapacity)
+			{ return CString(s, len+1, bufCapacity, false); }
+	static CString from(char* s, size_t len)
+			{ return from(s, len, len+1); }
 	static CString from(char* s)
+			{ return from(s, strlen(s)); }
+
+	static CString writeAlias(char* s, size_t len, size_t bufCapacity)
+			{ return CString(s, len+1, bufCapacity, false, false); }
+	static CString writeAlias(char* s, size_t len)
+			{ return writeAlias(s, len, len+1); }
+	static CString writeAlias(char* s)
+			{ return writeAlias(s, strlen(s)); }
+
+	static CString readAlias(const char* s, size_t len)
+			{ return CString(s, len+1, false, false, false); }
+	static CString readAlias(const char* s)
+			{ return readAlias(s, strlen(s)); }
+
+	/*static CString from(char* s)
 			{ return from(s, strlen(s)+1); }
 	static CString from(char* s, size_t bufSize)
-			{ CString c; c.cstr = shared_ptr<char>(s, default_delete<char[]>()); c.bufSize = bufSize; return c; }
+			{ CString c; c.cstr = shared_ptr<char>(s, default_delete<char[]>()); c.bufSize = bufSize; return c; }*/
 
 public:
 	CString(const char* cstr, size_t len)
+			: AbstractSharedBuffer(cstr, len+1, len+1)
 	{
-		if (cstr) {
-			bufSize = len+1;
-			this->cstr = shared_ptr<char>(new char[bufSize], default_delete<char[]>());
-			this->cstr.get()[len] = '\0';
-			strncpy(this->cstr.get(), cstr, len);
-		} else {
-			bufSize = 0;
-			this->cstr = shared_ptr<char>((char*) NULL, default_delete<char[]>());
-		}
+		if (cstr)
+			d.get()[len] = '\0';
 	}
 	CString(const char* cstr)
+			: AbstractSharedBuffer(cstr, cstr ? strlen(cstr)+1 : 1)
 	{
-		if (cstr) {
-			size_t len = strlen(cstr);
-			bufSize = len+1;
-			this->cstr = shared_ptr<char>(new char[len+1], default_delete<char[]>());
-			strcpy(this->cstr.get(), cstr);
-		} else {
-			bufSize = 0;
-			this->cstr = shared_ptr<char>((char*) NULL, default_delete<char[]>());
-		}
 	}
-	CString(const CString& other) : cstr(other.cstr), bufSize(other.bufSize) {}
-	CString() : cstr((char*) NULL), bufSize(0) {}
-	size_t length() const { return cstr.get() ? strlen(cstr.get()) : 0; }
-	CString& lower() { ensureUniqueness(); strtolower(cstr.get(), cstr.get()); return *this; }
-	CString& upper() { ensureUniqueness(); strtoupper(cstr.get(), cstr.get()); return *this; }
+	CString(const CString& other) : AbstractSharedBuffer(other) {}
+	CString() : AbstractSharedBuffer() {}
+	size_t length() const { return size-1; }
+	size_t getSize() const { return length(); }
+	CString& lower() { ensureUniqueness(); strtolower(d.get(), d.get()); return *this; }
+	CString& upper() { ensureUniqueness(); strtoupper(d.get(), d.get()); return *this; }
 	CString& ltrim(char c) { char b[2]; b[0] = c; b[1] = '\0'; return ltrim(b); }
 	CString& ltrim(const char* chars);
 	CString& ltrim() { return ltrim(" \t\r\n"); }
-	CString& rtrim(char c) { ensureUniqueness(); ::rtrim(cstr.get(), c); return *this; }
-	CString& rtrim(const char* chars) { ensureUniqueness(); ::rtrim(cstr.get(), chars); return *this; }
+	CString& rtrim(char c) { ensureUniqueness(); ::rtrim(d.get(), c); recalculateSize(); return *this; }
+	CString& rtrim(const char* chars) { ensureUniqueness(); ::rtrim(d.get(), chars); recalculateSize(); return *this; }
 	CString& rtrim() { return rtrim(" \t\r\n"); }
 	CString& trim(char c) { rtrim(c); ltrim(c); return *this; }
 	CString& trim(const char* chars) { rtrim(chars); ltrim(chars); return *this; }
 	CString& trim() { return trim(" \t\r\n"); }
-	const char* get() const { return cstr.get(); }
-	CString& append(const CString& other);
+	const char* get() const { return d.get(); }
+	CString& append(const CString& other) { AbstractSharedBuffer::append(other); return *this; }
+	CString& append(char c) { AbstractSharedBuffer::append(c); return *this;  }
 
 	CString substr(size_t begin, size_t len) const;
 	CString substr(size_t begin) const { return substr(begin, length()-begin); }
 
-	bool operator<(const CString& other) const { return strcmp(cstr.get(), other.cstr.get()) < 0; }
-	bool operator>(const CString& other) const { return strcmp(cstr.get(), other.cstr.get()) > 0; }
+	bool operator<(const CString& other) const { return strcmp(d.get(), other.d.get()) < 0; }
+	bool operator>(const CString& other) const { return strcmp(d.get(), other.d.get()) > 0; }
 	bool operator<=(const CString& other) const { return !(*this > other); }
 	bool operator>=(const CString& other) const { return !(*this < other); }
-	bool operator==(const CString& other) const
-	{
-		return cstr.get() == 0  ||  other.cstr.get() == 0
-				? cstr.get() == other.cstr.get()
-				: strcmp(cstr.get(), other.cstr.get()) == 0;
-	}
+	bool operator==(const CString& other) const { return strcmp(d.get(), other.d.get()) == 0; }
 	bool operator!=(const CString& other) const { return !(*this == other); }
-	char& operator[](size_t idx) { ensureUniqueness(); return cstr.get()[idx]; }
-	const char& operator[](size_t idx) const { return cstr.get()[idx]; }
-	CString& operator=(const CString& other) { cstr = other.cstr; bufSize = other.bufSize; return *this; }
+	char& operator[](size_t idx) { ensureUniqueness(); return d.get()[idx]; }
+	const char& operator[](size_t idx) const { return d.get()[idx]; }
+	CString& operator=(const CString& other) { assign(other); return *this; }
 	CString& operator+=(const CString& other) { append(other); return *this; }
-	void reserve(size_t size) { grow(size); }
+	void reserve(size_t size) { return grow(size); }
 
-	bool isNull() const { return cstr.get() == NULL; }
-	bool isEmpty() const { return isNull()  ||  cstr.get()[0] == '\0'; }
-
-private:
-	void ensureUniqueness() { if (!cstr.unique()) copy(); }
-	void grow(size_t minSize);
-	void realloc(size_t size);
-	void copy() { realloc(bufSize); }
+	bool isNull() const { return AbstractSharedBuffer::isNull(); }
+	bool isEmpty() const { return isNull()  ||  d.get()[0] == '\0'; }
 
 private:
-	shared_ptr<char> cstr;
-	size_t bufSize;
+	CString(char* data, size_t size, size_t capacity, bool)
+			: AbstractSharedBuffer(data, size, capacity, default_delete<char[]>())
+	{
+	}
+
+	CString(char* data, size_t size, size_t capacity, bool, bool)
+			: AbstractSharedBuffer(data, size, capacity, false)
+	{
+	}
+
+	CString(const char* data, size_t size, bool, bool, bool)
+			: AbstractSharedBuffer(data, size, false, false)
+	{
+	}
+
+	void recalculateSize() { size = strlen(d.get())+1; }
 };
-
-
-
-
-inline CString operator+(const CString& s1, const CString& s2)
-{
-	CString s;
-	s.reserve(s1.length() + s2.length());
-	s.append(s1);
-	s.append(s2);
-	return s;
-}
 
 #endif /* CSTRING_H_ */

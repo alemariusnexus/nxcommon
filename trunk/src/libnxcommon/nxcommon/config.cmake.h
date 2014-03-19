@@ -42,6 +42,9 @@
 #endif
 
 #cmakedefine NXCOMMON_EXCEPTION_POSITION_INFO
+#cmakedefine NXCOMMON_SQLITE_ENABLED
+#cmakedefine NXCOMMON_MYSQL_ENABLED
+
 #cmakedefine _CMAKE_NXCOMMON_HAVE_SVNREV
 
 // Special check on Mac OS X to allow building of universal binaries.
