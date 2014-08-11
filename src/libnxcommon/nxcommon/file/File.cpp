@@ -110,7 +110,7 @@ File File::getCurrentDirectory()
 void File::setCurrentDirectory(const File& cdir)
 {
 #ifdef _POSIX_VERSION
-	if (!chdir(cdir.getPath().toString().get())) {
+	if (chdir(cdir.getPath().toString().get()) != 0) {
 		throw FileException("Error calling chdir(const char*)!", __FILE__, __LINE__);
 	}
 #elif defined(_WIN32)
@@ -138,7 +138,7 @@ File File::createTemporaryFile()
 #endif // P_tmpdir
 
 	char* tmpTemplate = new char[strlen(tmpDir)+16];
-	sprintf(tmpTemplate, "%s/gff-XXXXXX", tmpDir);
+	sprintf(tmpTemplate, "%s/nxc-XXXXXX", tmpDir);
 	close(mkstemp(tmpTemplate));
 	File file(tmpTemplate);
 	delete[] tmpTemplate;
@@ -154,7 +154,7 @@ File File::createTemporaryFile()
 		throw ex;
 	}
 	char tmpFilePath[1024];
-	if ((status = GetTempFileName(tmpPath, "gff", 0, tmpFilePath))  ==  0) {
+	if ((status = GetTempFileName(tmpPath, "nxc", 0, tmpFilePath))  ==  0) {
 		char* errmsg = new char[128];
 		sprintf(errmsg, "Internal error creating temporary file (in GetTempFileName()): %d.", (int) status);
 		FileException ex(errmsg, __FILE__, __LINE__);
@@ -165,6 +165,84 @@ File File::createTemporaryFile()
 #else
 	return File(tmpnam());
 #endif // _POSIX_VERSION
+}
+
+
+File File::createTemporaryDirectory()
+{
+	// tmpnam() is dangerous, so we try to use platform-specific functions
+
+#if defined(_POSIX_VERSION)  &&  !defined(__ANDROID__)
+	const char* tmpDir;
+#ifdef P_tmpdir
+	tmpDir = P_tmpdir;
+#else
+	tmpDir = getenv("TMPDIR");
+
+	if (!tmpDir) {
+		tmpDir = "/tmp";
+	}
+#endif // P_tmpdir
+
+	char* tmpTemplate = new char[strlen(tmpDir)+16];
+	sprintf(tmpTemplate, "%s/nxc-XXXXXX", tmpDir);
+	mkdtemp(tmpTemplate);
+	File file(tmpTemplate);
+	delete[] tmpTemplate;
+	return file;
+#elif defined(_WIN32)
+	DWORD status;
+	char tmpPath[512];
+	if ((status = GetTempPath(sizeof(tmpPath), tmpPath))  ==  0) {
+		char* errmsg = new char[128];
+		sprintf(errmsg, "Internal error creating temporary file (in GetTempPath()): %d.", (int) status);
+		FileException ex(errmsg, __FILE__, __LINE__);
+		delete[] errmsg;
+		throw ex;
+	}
+
+	UUID uuid;
+
+	UuidCreate(&uuid);
+
+	char* uuidStr;
+
+	UuidToString(&uuid, &uuidStr);
+
+	char tmpDirPath[1024];
+	sprintf(tmpDirPath, "%s/nxc-%s.TMP", tmpPath, uuidStr);
+
+	RpcStringFree(&uuidStr);
+
+	File dir(tmpDirPath);
+	dir.mkdir();
+
+	return dir;
+#else
+	File dir(tmpnam(NULL));
+	dir.mkdir();
+	return dir;
+#endif // _POSIX_VERSION
+}
+
+
+File File::getExecutableFile()
+{
+#ifdef _POSIX_VERSION
+	File exe("/proc/self/exe");
+
+	if (exe.physicallyExists()) {
+		return exe.getCanonicalFile();
+	} else {
+		return File();
+	}
+#elif defined(_WIN32)
+	char path[MAX_PATH];
+
+	GetModuleFileName(NULL, path, sizeof(path));
+
+	return File(path);
+#endif
 }
 
 
@@ -411,6 +489,21 @@ iostream* File::openInputOutputStream(iostream::openmode mode) const
 		tmp.close();
 	}
 	return new fstream(path.toString().get(), mode | iostream::out | iostream::in);
+}
+
+
+ByteArray File::readAll(ifstream::openmode mode) const
+{
+	filesize sz = getSize();
+	istream* in = openInputStream(mode);
+
+	char* content = new char[sz];
+
+	in->read(content, sz);
+
+	delete in;
+
+	return ByteArray::from(content, sz);
 }
 
 

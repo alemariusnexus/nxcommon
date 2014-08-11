@@ -24,7 +24,14 @@
 #define SQLDATABASEIMPL_H_
 
 #include "../../CString.h"
+#include "../../UString.h"
+#include "../../ByteArray.h"
+#include "sqlbase.h"
 #include "SQLPreparedStatementImpl.h"
+#include "SQLResultImpl.h"
+#include <set>
+
+using std::set;
 
 
 
@@ -32,9 +39,24 @@
 class SQLDatabaseImpl
 {
 public:
+	SQLDatabaseImpl();
 	virtual ~SQLDatabaseImpl() {}
 	virtual SQLPreparedStatementImpl* createPreparedStatement() = 0;
+	virtual SQLResultImpl* sendQuery(const UString& query) = 0;
+	virtual SQLResultImpl* sendQueryUTF8(const ByteArray& query) = 0;
 	virtual uint64_t getLastInsertID() const = 0;
+	virtual UString escapeString(const UString& str) const = 0;
+	virtual ByteArray escapeStringUTF8(const ByteArray& str) const = 0;
+	virtual void setTimeout(uint64_t timeoutMillis) {}
+
+	virtual uint64_t getCapabilities() const;
+	virtual bool hasCapability(uint64_t cap) const;
+
+protected:
+	virtual void setCapabilities(uint64_t caps);
+
+private:
+	uint64_t caps;
 };
 
 #endif /* SQLDATABASEIMPL_H_ */

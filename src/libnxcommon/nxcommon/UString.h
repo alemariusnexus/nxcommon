@@ -30,6 +30,10 @@
 #include <unicode/utf16.h>
 #include <unicode/ustring.h>
 
+#ifdef NXCOMMON_QT_SUPPORT_ENABLED
+#include <QtCore/QString>
+#endif
+
 
 class UString : public AbstractSharedBuffer<UChar, 1>
 {
@@ -54,6 +58,7 @@ public:
 			{ return readAlias(s, u_strlen(s)); }
 
 	static UString fromUTF8(const ByteArray& utf8);
+	static UString fromASCII(const CString& ascii);
 
 public:
 	UString() : AbstractSharedBuffer() {}
@@ -61,12 +66,34 @@ public:
 	UString(const UChar* str, size_t len) : AbstractSharedBuffer(str, len+1) {}
 	UString(const UChar* str) : AbstractSharedBuffer(str, u_strlen(str)+1) {}
 
+#ifdef NXCOMMON_QT_SUPPORT_ENABLED
+	UString(const QString& str) : UString((const UChar*) str.utf16()) {}
+
+	operator QString() const { return QString((const QChar*) get(), length()); }
+#endif
+
 	size_t length() const { return size-1; }
 	bool isEmpty() const { return size == 1; }
 	const UChar* get() const { return d.get(); }
 
 	UString& append(const UString& other) { AbstractSharedBuffer::append(other); return *this; }
 	UString& append(UChar c) { AbstractSharedBuffer::append(c); return *this; }
+
+	UString& append(long val);
+	UString& append(unsigned long val);
+	UString& append(int val);
+	UString& append(unsigned int val);
+	UString& append(float val);
+	UString& append(double val);
+
+	UString& operator<<(const UString& other) { return append(other); }
+	UString& operator<<(UChar c) { return append(c); }
+	UString& operator<<(long val) { return append(val); }
+	UString& operator<<(unsigned long val) { return append(val); }
+	UString& operator<<(int val) { return append(val); }
+	UString& operator<<(unsigned int val) { return append(val); }
+	UString& operator<<(float val) { return append(val); }
+	UString& operator<<(double val) { return append(val); }
 
 	UString& prepend(const UString& other) { AbstractSharedBuffer::prepend(other); return *this; }
 	UString& prepend(UChar c) { AbstractSharedBuffer::prepend(c); return *this; }

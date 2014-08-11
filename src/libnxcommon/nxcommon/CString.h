@@ -27,6 +27,10 @@
 #include "strutil.h"
 #include "ByteArray.h"
 
+#ifdef NXCOMMON_QT_SUPPORT_ENABLED
+#include <QtCore/QString>
+#endif
+
 
 
 
@@ -68,8 +72,19 @@ public:
 			: AbstractSharedBuffer(cstr, cstr ? strlen(cstr)+1 : 1)
 	{
 	}
+	CString(const ByteArray& barr)
+			: CString(barr.get(), nxstrnlen(barr.get(), barr.length()))
+	{
+	}
 	CString(const CString& other) : AbstractSharedBuffer(other) {}
 	CString() : AbstractSharedBuffer() {}
+
+#ifdef NXCOMMON_QT_SUPPORT_ENABLED
+	CString(const QString& str) : CString(str.toUtf8().constData()) {}
+
+	operator QString() const { return QString::fromUtf8(get(), length()); }
+#endif
+
 	size_t length() const { return size-1; }
 	size_t getSize() const { return length(); }
 	CString& lower() { ensureUniqueness(); strtolower(d.get(), d.get()); return *this; }
@@ -86,6 +101,21 @@ public:
 	const char* get() const { return d.get(); }
 	CString& append(const CString& other) { AbstractSharedBuffer::append(other); return *this; }
 	CString& append(char c) { AbstractSharedBuffer::append(c); return *this;  }
+	CString& append(long val);
+	CString& append(unsigned long val);
+	CString& append(int val);
+	CString& append(unsigned int val);
+	CString& append(float val);
+	CString& append(double val);
+
+	CString& operator<<(const CString& other) { return append(other); }
+	CString& operator<<(char c) { return append(c); }
+	CString& operator<<(long val) { return append(val); }
+	CString& operator<<(unsigned long val) { return append(val); }
+	CString& operator<<(int val) { return append(val); }
+	CString& operator<<(unsigned int val) { return append(val); }
+	CString& operator<<(float val) { return append(val); }
+	CString& operator<<(double val) { return append(val); }
 
 	CString substr(size_t begin, size_t len) const;
 	CString substr(size_t begin) const { return substr(begin, length()-begin); }

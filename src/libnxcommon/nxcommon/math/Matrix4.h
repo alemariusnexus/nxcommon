@@ -233,6 +233,8 @@ public:
 
 	void toEuler(float& x, float& y, float& z);
 
+	Matrix3 getUpperLeft() const;
+
 public:
 	/**	\brief Builds a translation matrix.
 	 *

@@ -26,3 +26,25 @@
 
 
 
+SQLDatabaseImpl::SQLDatabaseImpl()
+		: caps(0)
+{
+}
+
+
+void SQLDatabaseImpl::setCapabilities(uint64_t caps)
+{
+	this->caps = caps;
+}
+
+
+uint64_t SQLDatabaseImpl::getCapabilities() const
+{
+	return caps;
+}
+
+
+bool SQLDatabaseImpl::hasCapability(uint64_t cap) const
+{
+	return (getCapabilities() & cap) == cap;
+}

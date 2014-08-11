@@ -22,6 +22,8 @@
 
 #include "SQLDatabase.h"
 #include "SQLPreparedStatement.h"
+#include "SQLResult.h"
+
 
 
 
@@ -36,6 +38,12 @@ SQLDatabase::SQLDatabase(SQLDatabaseImpl* impl)
 SQLDatabase::SQLDatabase(const SQLDatabase& other)
 		: data(other.data)
 {
+}
+
+
+void SQLDatabase::close()
+{
+	data = NULL;
 }
 
 
@@ -62,17 +70,33 @@ SQLPreparedStatement SQLDatabase::createPreparedStatementUTF8(const ByteArray& q
 }
 
 
-SQLPreparedStatement SQLDatabase::sendQuery(const UString& query)
+SQLResult SQLDatabase::sendQuery(const UString& query)
 {
-	SQLPreparedStatement stmt = createPreparedStatement(query);
-	stmt.execute();
-	return stmt;
+	SQLResultImpl* impl = data->impl->sendQuery(query);
+	return SQLResult(*this, SQLPreparedStatement(), shared_ptr<SQLResultImpl>(impl));
 }
 
 
-SQLPreparedStatement SQLDatabase::sendQueryUTF8(const ByteArray& query)
+SQLResult SQLDatabase::sendQueryUTF8(const ByteArray& query)
 {
-	SQLPreparedStatement stmt = createPreparedStatementUTF8(query);
-	stmt.execute();
-	return stmt;
+	SQLResultImpl* impl = data->impl->sendQueryUTF8(query);
+	return SQLResult(*this, SQLPreparedStatement(), shared_ptr<SQLResultImpl>(impl));
+}
+
+
+UString SQLDatabase::escapeString(const UString& str) const
+{
+	return data->impl->escapeString(str);
+}
+
+
+ByteArray SQLDatabase::escapeStringUTF8(const ByteArray& str) const
+{
+	return data->impl->escapeStringUTF8(str);
+}
+
+
+void SQLDatabase::setTimeout(uint64_t timeoutMillis)
+{
+	data->impl->setTimeout(timeoutMillis);
 }

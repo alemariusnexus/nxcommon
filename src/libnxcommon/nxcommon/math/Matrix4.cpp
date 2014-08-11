@@ -561,3 +561,13 @@ Matrix4 Matrix4::ortho(float l, float r, float b, float t, float n, float f)
 			-((r+l) / (r-l)),	-((t+b) / (t-b)),	-((f+n) / (f-n)),	1
 	);
 }
+
+
+Matrix3 Matrix4::getUpperLeft() const
+{
+	return Matrix3 (
+			data[0], data[1], data[2],
+			data[4], data[5], data[6],
+			data[8], data[9], data[10]
+	);
+}

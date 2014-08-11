@@ -158,5 +158,45 @@ inline hash_t LowerHash(const char* str)
 
 void FormatByteSize(char* str, uint64_t size, int precision = 3);
 
+size_t EscapeString(char* dest, const char* src, size_t srcLen, size_t destLen, const char* charsToEscape, char escapeChar = '\\');
+
+size_t EscapeString(char* dest, const char* src, size_t destLen, const char* charsToEscape, char escapeChar = '\\');
+
+size_t nxstrnlen(const char* s, size_t maxlen);
+
+
+
+uint8_t StringToUInt8(const char* str, size_t len, int base = 0, bool* success = NULL);
+int8_t StringToInt8(const char* str, size_t len, int base = 0, bool* success = NULL);
+uint16_t StringToUInt16(const char* str, size_t len, int base = 0, bool* success = NULL);
+int16_t StringToInt16(const char* str, size_t len, int base = 0, bool* success = NULL);
+uint32_t StringToUInt32(const char* str, size_t len, int base = 0, bool* success = NULL);
+int32_t StringToInt32(const char* str, size_t len, int base = 0, bool* success = NULL);
+uint64_t StringToUInt64(const char* str, size_t len, int base = 0, bool* success = NULL);
+int64_t StringToInt64(const char* str, size_t len, int base = 0, bool* success = NULL);
+
+inline uint8_t StringToUInt8(const char* str, int base = 0, bool* success = NULL)
+		{ return StringToUInt8(str, strlen(str), base, success); }
+inline int8_t StringToInt8(const char* str, int base = 0, bool* success = NULL)
+		{ return StringToInt8(str, strlen(str), base, success); }
+inline uint16_t StringToUInt16(const char* str, int base = 0, bool* success = NULL)
+		{ return StringToUInt16(str, strlen(str), base, success); }
+inline int16_t StringToInt16(const char* str, int base = 0, bool* success = NULL)
+		{ return StringToInt16(str, strlen(str), base, success); }
+inline uint32_t StringToUInt32(const char* str, int base = 0, bool* success = NULL)
+		{ return StringToUInt32(str, strlen(str), base, success); }
+inline int32_t StringToInt32(const char* str, int base = 0, bool* success = NULL)
+		{ return StringToInt32(str, strlen(str), base, success); }
+inline uint64_t StringToUInt64(const char* str, int base = 0, bool* success = NULL)
+		{ return StringToUInt64(str, strlen(str), base, success); }
+inline int64_t StringToInt64(const char* str, int base = 0, bool* success = NULL)
+		{ return StringToInt64(str, strlen(str), base, success); }
+
+double StringToDouble(const char* str, bool* success = NULL);
+double StringToDouble(const char* str, size_t len, bool* success = NULL);
+
+float StringToFloat(const char* str, bool* success = NULL);
+float StringToFloat(const char* str, size_t len, bool* success = NULL);
+
 
 #endif /* STRUTIL_H_ */

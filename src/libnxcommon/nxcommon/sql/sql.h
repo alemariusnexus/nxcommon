@@ -23,8 +23,10 @@
 #ifndef SQL_H_
 #define SQL_H_
 
+#include <nxcommon/config.h>
 #include "SQLDatabase.h"
 #include "SQLPreparedStatement.h"
+#include "SQLResult.h"
 
 #ifdef NXCOMMON_SQLITE_ENABLED
 #include "SQLiteDriver.h"
@@ -32,6 +34,10 @@
 
 #ifdef NXCOMMON_MYSQL_ENABLED
 #include "MySQLDriver.h"
+#endif
+
+#ifdef NXCOMMON_PSQL_ENABLED
+#include "PSQLDriver.h"
 #endif
 
 #endif /* SQL_H_ */

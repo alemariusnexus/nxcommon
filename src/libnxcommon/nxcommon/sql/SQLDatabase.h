@@ -24,6 +24,7 @@
 #define SQLDATABASE_H_
 
 #include "driver/SQLDatabaseImpl.h"
+#include "driver/sqlbase.h"
 #include <memory>
 
 using std::shared_ptr;
@@ -31,12 +32,15 @@ using std::shared_ptr;
 
 
 class SQLPreparedStatement;
+class SQLResult;
+
+
 
 
 
 class SQLDatabase
 {
-private:
+public:
 	class Data
 	{
 	public:
@@ -51,17 +55,30 @@ public:
 	SQLDatabase(SQLDatabaseImpl* impl);
 	SQLDatabase(const SQLDatabase& other);
 
+	void close();
 	bool isValid() const { return data.get() != NULL; }
 
 	SQLPreparedStatement createPreparedStatement();
 	SQLPreparedStatement createPreparedStatement(const UString& query);
 	SQLPreparedStatement createPreparedStatementUTF8(const ByteArray& query);
-	SQLPreparedStatement sendQuery(const UString& query);
-	SQLPreparedStatement sendQueryUTF8(const ByteArray& query);
+
+	SQLResult sendQuery(const UString& query);
+	SQLResult sendQueryUTF8(const ByteArray& query);
+
+	UString escapeString(const UString& str) const;
+	ByteArray escapeStringUTF8(const ByteArray& str) const;
+
+	uint64_t getCapabilities() const { return data->impl->getCapabilities(); }
+	bool hasCapability(uint64_t cap) const { return data->impl->hasCapability(cap); }
 
 	uint64_t getLastInsertID() const { return data->impl->getLastInsertID(); }
 
-private:
+	void setTimeout(uint64_t timeoutMillis);
+
+	SQLDatabaseImpl* getImplementation() { return data->impl.get(); }
+	const SQLDatabaseImpl* getImplementation() const { return data->impl.get(); }
+
+public:
 	shared_ptr<Data> data;
 };
 

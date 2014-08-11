@@ -56,3 +56,51 @@ CString CString::substr(size_t begin, size_t len) const
 	return CString::from(sub);
 }
 
+
+CString& CString::append(long val)
+{
+	char buf[64];
+	sprintf(buf, "%ld", val);
+	return append(buf);
+}
+
+
+CString& CString::append(unsigned long val)
+{
+	char buf[64];
+	sprintf(buf, "%lu", val);
+	return append(buf);
+}
+
+
+CString& CString::append(int val)
+{
+	char buf[32];
+	sprintf(buf, "%d", val);
+	return append(buf);
+}
+
+
+CString& CString::append(unsigned int val)
+{
+	char buf[32];
+	sprintf(buf, "%u", val);
+	return append(buf);
+}
+
+
+CString& CString::append(float val)
+{
+	return append((double) val);
+}
+
+
+CString& CString::append(double val)
+{
+	char buf[64];
+	sprintf(buf, "%f", val);
+	return append(buf);
+}
+
+
+

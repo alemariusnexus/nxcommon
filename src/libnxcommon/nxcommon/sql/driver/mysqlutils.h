@@ -24,11 +24,14 @@
 #define MYSQLUTILS_H_
 
 #include <mysql/mysql.h>
+#include "sqlbase.h"
 #include "../SQLException.h"
 
 
 
 void ThrowMySQLException(MYSQL* mysql, const char* msg, const char* srcFile = NULL, int srcLine = -1);
 void ThrowMySQLPreparedStatementException(MYSQL_STMT* stmt, const char* msg, const char* srcFile = NULL, int srcLine = -1);
+
+int ConvertFromMySQLType(enum_field_types type, unsigned int flags);
 
 #endif /* MYSQLUTILS_H_ */

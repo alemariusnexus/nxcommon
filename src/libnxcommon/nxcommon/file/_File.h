@@ -104,8 +104,10 @@ private:
 
 public:
 	static File createTemporaryFile();
+	static File createTemporaryDirectory();
 	static File getCurrentDirectory();
 	static void setCurrentDirectory(const File& cdir);
+	static File getExecutableFile();
 
 public:
 	/**	\brief Constructs a file from the given path.
@@ -218,6 +220,8 @@ public:
 	ostream* openOutputStream(ostream::openmode mode = ostream::out) const;
 
 	iostream* openInputOutputStream(iostream::openmode mode = iostream::in | iostream::out) const;
+
+	ByteArray readAll(ifstream::openmode mode = ifstream::in) const;
 
 	unsigned int getChildCount(bool recursive = false, bool archiveEntries = false) const;
 

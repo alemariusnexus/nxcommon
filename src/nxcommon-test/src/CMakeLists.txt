@@ -18,5 +18,9 @@
 # Additional permissions are granted, which are listed in the file
 # GPLADDITIONS.
 
+FILE(MAKE_DIRECTORY "${nxcommon-test_BINARY_DIR}/includes")
+FILE(MAKE_DIRECTORY "${nxcommon-test_BINARY_DIR}/includes/nxcommon-test")
 
-ADD_SOURCES(main printhelpers filepath file global string bytearray sql)
+CONFIGURE_FILE(config.cmake.h "${nxcommon-test_BINARY_DIR}/includes/nxcommon-test/config.h")
+
+ADD_SOURCES(main printhelpers filepath file global string bytearray sql util)

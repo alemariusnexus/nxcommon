@@ -28,6 +28,7 @@ SET(NXCOMMON_VERSION_SUFFIX "-dev") # A suffix for the version string, could e.g
 
 INCLUDE(TestBigEndian)
 INCLUDE(Utilities.cmake)
+INCLUDE(ResourceCompiler.cmake)
 
 ADD_DEFINITIONS(-D__STDC_LIMIT_MACROS)
 
@@ -55,6 +56,8 @@ ENDIF(NXCOMMON_VERSION_SVNREV)
 
 
 SET(NXCOMMON_TEST_BUILD OFF CACHE BOOL "Whether you want to build the unit tests")
+
+CREATE_RESOURCE(libnxcommon/nxcommon/script/scriptsys.lua scriptsys_script)
 
 ADD_SUBDIRECTORY(libnxcommon)
 

@@ -22,17 +22,37 @@
 
 #include "MySQLDatabaseImpl.h"
 #include "MySQLPreparedStatementImpl.h"
+#include "MySQLResultImpl.h"
 #include "mysqlutils.h"
 
 
 
 
+MySQLDatabaseImpl::MySQLDatabaseImpl(MYSQL* mysql, const CString& host, const CString& user, const CString& pass,
+			const CString& db, unsigned int port)
+{
+	init(mysql, host, user, pass, db, port);
+}
+
+
 MySQLDatabaseImpl::MySQLDatabaseImpl(const CString& host, const CString& user, const CString& pass,
 			const CString& db, unsigned int port)
 {
-	mysql = mysql_init(NULL);
+	MYSQL* mysql = mysql = mysql_init(NULL);
+
+	init(mysql, host, user, pass, db, port);
+}
+
+
+void MySQLDatabaseImpl::init(MYSQL* mysql, const CString& host, const CString& user, const CString& pass,
+			const CString& db, unsigned int port)
+{
+	this->mysql = mysql;
+
+	setCapabilities(SQL_CAP_LAST_INSERT_ID);
+
 	if (!mysql_real_connect(mysql, host.get(), user.isNull() ? NULL : user.get(), pass.isNull() ? NULL : pass.get(),
-			db.isNull() ? NULL : db.get(), port, NULL, 0)) {
+			db.isNull() ? NULL : db.get(), port, NULL, CLIENT_MULTI_STATEMENTS | CLIENT_MULTI_RESULTS)) {
 		mysql_close(mysql);
 		ThrowMySQLException(mysql, "Error connecting to database", __FILE__, __LINE__);
 	}
@@ -53,8 +73,57 @@ SQLPreparedStatementImpl* MySQLDatabaseImpl::createPreparedStatement()
 }
 
 
+SQLResultImpl* MySQLDatabaseImpl::sendQuery(const UString& query)
+{
+	return sendQueryUTF8(query.toUTF8());
+}
+
+
+SQLResultImpl* MySQLDatabaseImpl::sendQueryUTF8(const ByteArray& query)
+{
+	if (mysql_real_query(mysql, query.get(), query.length()) != 0) {
+		ThrowMySQLException(mysql, "Error executing query", __FILE__, __LINE__);
+	}
+
+	int status;
+
+	while ((status = mysql_more_results(mysql))) {
+		MYSQL_RES* res = mysql_use_result(mysql);
+
+		if (res) {
+			while (mysql_fetch_row(res));
+
+			mysql_free_result(res);
+		}
+
+		mysql_next_result(mysql);
+	}
+
+	MYSQL_RES* res = mysql_store_result(mysql);
+
+	return new MySQLResultImpl(this, res);
+}
+
+
 uint64_t MySQLDatabaseImpl::getLastInsertID() const
 {
 	uint64_t id = mysql_insert_id(mysql);
 	return id == 0 ? 0 : id + mysql_affected_rows(mysql) - 1;
+}
+
+
+UString MySQLDatabaseImpl::escapeString(const UString& str) const
+{
+	return UString::fromUTF8(escapeStringUTF8(str.toUTF8()));
+}
+
+
+ByteArray MySQLDatabaseImpl::escapeStringUTF8(const ByteArray& str) const
+{
+	size_t size = str.length()*2 + 1;
+	char* outBuf = new char[size];
+
+	unsigned int outLen = mysql_real_escape_string(mysql, outBuf, str.get(), str.length());
+
+	return ByteArray::from(outBuf, outLen, size);
 }

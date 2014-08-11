@@ -20,6 +20,8 @@
 	GPLADDITIONS.
  */
 
+#ifndef __ANDROID__
+
 #include "encoding.h"
 #include <iostream>
 #include <errno.h>
@@ -380,3 +382,6 @@ size_t strlenUTF16(const char* str)
 	while (*utf16++ != 0) len++;
 	return len;
 }
+
+
+#endif /* #ifndef __ANDROID__ */

@@ -25,6 +25,7 @@
 
 #include <map>
 #include <vector>
+#include "CString.h"
 
 using std::map;
 using std::vector;
@@ -60,6 +61,9 @@ private:
 		const char* description;
 		bool takesArgument;
 	};
+
+public:
+	static CString splitArgumentString(const char*& src, size_t& srcLen);
 
 public:
 	CLIParser() : indentation(""), textWrapLength(60) {}
@@ -105,6 +109,8 @@ public:
 	void setPrintIndentation(const char* ind) { indentation = ind; }
 
 	void setTextWrapLength(int twl) { textWrapLength = twl; }
+
+	CLIParser& printOption(int option, CString& str);
 
 	CLIParser& printOption(int option);
 

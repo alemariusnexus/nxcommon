@@ -24,6 +24,7 @@
 #define SQLPREPAREDSTATEMENTIMPL_H_
 
 #include <unicode/unistr.h>
+#include "SQLResultImpl.h"
 #include "../../CString.h"
 #include "../../UString.h"
 #include "../../ByteArray.h"
@@ -46,26 +47,13 @@ public:
 	virtual void bindStringUTF8(size_t index, const ByteArray& value) = 0;
 	virtual void bindBLOB(size_t index, const ByteArray& value) = 0;
 	virtual void bindNull(size_t index) = 0;
+	virtual void bindBool(size_t index, bool value) = 0;
 
 	virtual void prepare(const UString& query) = 0;
 	virtual void prepareUTF8(const ByteArray& query) = 0;
-	virtual void execute() = 0;
+	virtual SQLResultImpl* execute() = 0;
 	virtual void reset() = 0;
 	virtual void finalize() = 0;
-
-	virtual bool nextRecord() = 0;
-
-	virtual uint32_t getUInt32(size_t index) const = 0;
-	virtual int32_t getInt32(size_t index) const = 0;
-	virtual uint64_t getUInt64(size_t index) const = 0;
-	virtual int64_t getInt64(size_t index) const = 0;
-	virtual float getFloat(size_t index) const = 0;
-	virtual double getDouble(size_t index) const = 0;
-	virtual ByteArray getBLOB(size_t index) const = 0;
-	virtual UString getString(size_t index) const = 0;
-	virtual ByteArray getStringUTF8(size_t index) const = 0;
-
-	virtual uint64_t getAffectedRowCount() const = 0;
 };
 
 #endif /* SQLPREPAREDSTATEMENTIMPL_H_ */
