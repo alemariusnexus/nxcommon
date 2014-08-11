@@ -24,6 +24,7 @@
 #include <string>
 #include <cstring>
 #include <cstdio>
+#include <cstdlib>
 
 using std::string;
 
@@ -274,4 +275,253 @@ void FormatByteSize(char* str, uint64_t size, int precision)
 	} else {
 		sprintf(str, "%llu", (long long unsigned int) size);
 	}
+}
+
+
+size_t EscapeString(char* dest, const char* src, size_t srcLen, size_t destLen, const char* charsToEscape, char escapeChar)
+{
+	if (destLen == 0)
+		return 0;
+
+	char* destStart = dest;
+	const char* srcEnd = src+srcLen;
+	char* destEnd = dest+destLen - 1;
+
+	while (src != srcEnd  &&  dest != destEnd) {
+		char c = *src++;
+
+		if (strchr(charsToEscape, c) != NULL) {
+			*dest++ = escapeChar;
+
+			if (dest != destEnd) {
+				*dest++ = c;
+			}
+		} else {
+			*dest++ = c;
+		}
+	}
+
+	*dest = '\0';
+
+	return dest - destStart;
+}
+
+
+size_t EscapeString(char* dest, const char* src, size_t destLen, const char* charsToEscape, char escapeChar)
+{
+	return EscapeString(dest, src, strlen(src), destLen, charsToEscape, escapeChar);
+}
+
+
+size_t nxstrnlen(const char* s, size_t maxlen)
+{
+#if (_XOPEN_SOURCE >= 700 || _POSIX_C_SOURCE >= 200809L)  ||  (_GNU_SOURCE)
+	return strnlen(s, maxlen);
+#elif defined(_MSC_VER)
+	return strnlen(s, maxlen);
+#else
+	size_t len;
+	for (len = 0 ; len < maxlen  &&  s[len] != '\0' ; len++);
+	return len;
+#endif
+}
+
+
+template <typename T, bool allowSigned, T maxValue>
+T _StringToIntTExtended(const char* str, size_t len, int base, bool* success)
+{
+	if (len == 0) {
+		if (success) {
+			*success = false;
+		}
+
+		return 0;
+	}
+
+	if (base > 36) {
+		if (success) {
+			*success = false;
+		}
+
+		return 0;
+	}
+
+	int signMultiplier = 1;
+
+	// First, see if there is a plus or minus sign in the beginning
+
+	if (*str == '+') {
+		str++;
+		len--;
+	} else if (*str == '-') {
+		if (allowSigned) {
+			signMultiplier = -1;
+			str++;
+			len--;
+		} else {
+			if (success) {
+				*success = false;
+			}
+
+			return 0;
+		}
+	}
+
+	// Now, see if there are any base specifiers at the beginning
+
+	if (*str == '0') {
+		if (base == 0  ||  base == 8) {
+			// For base 0 (auto-determine) or 8, a leading zero means an octal value
+			base = 8;
+		}
+
+		// For all other fixed bases, it's just ignored.
+		str++;
+		len--;
+	}
+	if (len >= 2  &&  str[0] == '0'  &&  str[1] == 'x') {
+		if (base == 0  ||  base == 16) {
+			// For base 0 (auto-determine) or 16, a leading '0x' signals a hexadecimal value
+			base = 16;
+		} else {
+			// For all other fixed bases, it is invalid (because of the 'x').
+
+			if (success) {
+				*success = false;
+			}
+
+			return 0;
+		}
+
+		str += 2;
+		len -= 2;
+	}
+
+	if (base == 0) {
+		// If base is still 0 here, no base prefix was found, so we assume decimal numbers.
+		base = 10;
+	}
+
+	T value = 0;
+	T digitMultiplier = signMultiplier;
+
+	const char* cstr = str + len;
+
+	do {
+		cstr--;
+
+		char c = *cstr;
+
+		T unitVal = 0xFF; // Anything invalid initially
+
+		if (c >= '0'  &&  c <= '9') {
+			unitVal = c-'0';
+		} else if (c >= 'A'  &&  c <= 'Z') {
+			unitVal = c-'A' + 10;
+		} else if (c >= 'a'  &&  c <= 'z') {
+			unitVal = c-'a' + 10;
+		}
+
+		if (unitVal >= base) {
+			if (success) {
+				*success = false;
+			}
+
+			return 0;
+		}
+
+		value += unitVal * digitMultiplier;
+
+		digitMultiplier *= base;
+	} while (cstr != str);
+
+	if (success) {
+		*success = true;
+	}
+
+	return value;
+}
+
+
+uint8_t StringToUInt8(const char* str, size_t len, int base, bool* success)
+{
+	return _StringToIntTExtended<uint8_t, false, UINT8_MAX>(str, len, base, success);
+}
+
+
+int8_t StringToInt8(const char* str, size_t len, int base, bool* success)
+{
+	return _StringToIntTExtended<int8_t, true, UINT8_MAX>(str, len, base, success);
+}
+
+
+uint16_t StringToUInt16(const char* str, size_t len, int base, bool* success)
+{
+	return _StringToIntTExtended<uint16_t, false, UINT16_MAX>(str, len, base, success);
+}
+
+
+int16_t StringToInt16(const char* str, size_t len, int base, bool* success)
+{
+	return _StringToIntTExtended<int16_t, true, UINT16_MAX>(str, len, base, success);
+}
+
+
+uint32_t StringToUInt32(const char* str, size_t len, int base, bool* success)
+{
+	return _StringToIntTExtended<uint32_t, false, UINT32_MAX>(str, len, base, success);
+}
+
+
+int32_t StringToInt32(const char* str, size_t len, int base, bool* success)
+{
+	return _StringToIntTExtended<int32_t, true, UINT32_MAX>(str, len, base, success);
+}
+
+
+uint64_t StringToUInt64(const char* str, size_t len, int base, bool* success)
+{
+	return _StringToIntTExtended<uint64_t, false, UINT64_MAX>(str, len, base, success);
+}
+
+
+int64_t StringToInt64(const char* str, size_t len, int base, bool* success)
+{
+	return _StringToIntTExtended<int64_t, true, UINT64_MAX>(str, len, base, success);
+}
+
+
+double StringToDouble(const char* str, bool* success)
+{
+	char* endPtr;
+	double val = strtod(str, &endPtr);
+
+	if (success) {
+		*success = (*endPtr == '\0')  &&  (*str != '\0');
+	}
+
+	return val;
+}
+
+
+double StringToDouble(const char* str, size_t len, bool* success)
+{
+	char* termStr = new char[len+1];
+	termStr[len] = '\0';
+	memcpy(termStr, str, len);
+	double val = StringToDouble(termStr, success);
+	delete[] termStr;
+	return val;
+}
+
+
+float StringToFloat(const char* str, bool* success)
+{
+	return StringToDouble(str, success);
+}
+
+
+float StringToFloat(const char* str, size_t len, bool* success)
+{
+	return StringToDouble(str, len, success);
 }

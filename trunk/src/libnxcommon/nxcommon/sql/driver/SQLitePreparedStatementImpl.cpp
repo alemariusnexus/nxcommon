@@ -21,8 +21,10 @@
  */
 
 #include "SQLitePreparedStatementImpl.h"
+#include "sqlbase.h"
 #include "../SQLException.h"
 #include "sqliteutils.h"
+#include "SQLiteResultImpl.h"
 #include <unicode/schriter.h>
 #include <unicode/uchar.h>
 #include <unicode/utf8.h>
@@ -44,13 +46,27 @@ SQLitePreparedStatementImpl::~SQLitePreparedStatementImpl()
 }
 
 
+void SQLitePreparedStatementImpl::prepare(const UString& query, const UChar** codeLeft)
+{
+	if (sqlite3_prepare16_v2(db->getSQLiteHandle(), query.get(), query.length()*2, &stmt, (const void**) codeLeft) != SQLITE_OK) {
+		ThrowSQLiteException(db->getSQLiteHandle(), "Error preparing SQLite statement", __FILE__, __LINE__);
+	}
+}
+
+
+void SQLitePreparedStatementImpl::prepareUTF8(const ByteArray& query, const char** codeLeft)
+{
+	if (sqlite3_prepare_v2(db->getSQLiteHandle(), query.get(), query.length(), &stmt, codeLeft) != SQLITE_OK) {
+		ThrowSQLiteException(db->getSQLiteHandle(), "Error preparing SQLite statement", __FILE__, __LINE__);
+	}
+}
+
+
 void SQLitePreparedStatementImpl::prepare(const UString& query)
 {
 	const UChar* codeLeft = NULL;
 
-	if (sqlite3_prepare16_v2(db->getSQLiteHandle(), query.get(), query.length()*2, &stmt, (const void**) &codeLeft) != SQLITE_OK) {
-		ThrowSQLiteException(db->getSQLiteHandle(), "Error preparing SQLite statement", __FILE__, __LINE__);
-	}
+	prepare(query, &codeLeft);
 
 	UString leftStr = UString::readAlias(codeLeft);
 
@@ -68,9 +84,7 @@ void SQLitePreparedStatementImpl::prepareUTF8(const ByteArray& query)
 {
 	const char* codeLeft = NULL;
 
-	if (sqlite3_prepare_v2(db->getSQLiteHandle(), query.get(), query.length(), &stmt, &codeLeft) != SQLITE_OK) {
-		ThrowSQLiteException(db->getSQLiteHandle(), "Error preparing SQLite statement", __FILE__, __LINE__);
-	}
+	prepareUTF8(query, &codeLeft);
 
 	if (!IsWhitespaceOnlyUTF8(ByteArray::readAlias(codeLeft, strlen(codeLeft)))) {
 		sqlite3_finalize(stmt);
@@ -160,22 +174,27 @@ void SQLitePreparedStatementImpl::bindNull(size_t index)
 }
 
 
-void SQLitePreparedStatementImpl::execute()
+void SQLitePreparedStatementImpl::bindBool(size_t index, bool value)
+{
+	bindInt32(index, value ? 1 : 0);
+}
+
+
+SQLResultImpl* SQLitePreparedStatementImpl::execute()
 {
 	int status = sqlite3_step(stmt);
-	firstStep = true;
+
+	bool firstStepHasData;
 
 	if (status == SQLITE_DONE) {
 		firstStepHasData = false;
-		return;
 	} else if (status == SQLITE_ROW) {
 		firstStepHasData = true;
-		return;
 	} else {
 		ThrowSQLiteException(db->getSQLiteHandle(), "Error executing SQLite prepared statement", __FILE__, __LINE__);
 	}
 
-	return;
+	return new SQLiteResultImpl(stmt, firstStepHasData, sqlite3_changes(db->getSQLiteHandle()));
 }
 
 
@@ -193,82 +212,6 @@ void SQLitePreparedStatementImpl::reset()
 }
 
 
-bool SQLitePreparedStatementImpl::nextRecord()
-{
-	if (firstStep) {
-		firstStep = false;
 
-		if (firstStepHasData)
-			return true;
-		else
-			return false;
-	}
-	int res = sqlite3_step(stmt);
-
-	if (res == SQLITE_DONE)
-		return false;
-
-	return true;
-}
-
-
-uint32_t SQLitePreparedStatementImpl::getUInt32(size_t index) const
-{
-	return sqlite3_column_int64(stmt, index);
-}
-
-
-int32_t SQLitePreparedStatementImpl::getInt32(size_t index) const
-{
-	return sqlite3_column_int(stmt, index);
-}
-
-
-uint64_t SQLitePreparedStatementImpl::getUInt64(size_t index) const
-{
-	return sqlite3_column_int64(stmt, index);
-}
-
-
-int64_t SQLitePreparedStatementImpl::getInt64(size_t index) const
-{
-	return sqlite3_column_int64(stmt, index);
-}
-
-
-float SQLitePreparedStatementImpl::getFloat(size_t index) const
-{
-	return getDouble(index);
-}
-
-
-double SQLitePreparedStatementImpl::getDouble(size_t index) const
-{
-	return sqlite3_column_double(stmt, index);
-}
-
-
-ByteArray SQLitePreparedStatementImpl::getBLOB(size_t index) const
-{
-	return ByteArray::readAlias((const char*) sqlite3_column_blob(stmt, index), sqlite3_column_bytes(stmt, index));
-}
-
-
-UString SQLitePreparedStatementImpl::getString(size_t index) const
-{
-	return UString::readAlias((const UChar*) sqlite3_column_text16(stmt, index), sqlite3_column_bytes16(stmt, index));
-}
-
-
-ByteArray SQLitePreparedStatementImpl::getStringUTF8(size_t index) const
-{
-	return ByteArray::readAlias((const char*) sqlite3_column_text(stmt, index), sqlite3_column_bytes(stmt, index));
-}
-
-
-uint64_t SQLitePreparedStatementImpl::getAffectedRowCount() const
-{
-	return sqlite3_changes(db->getSQLiteHandle());
-}
 
 

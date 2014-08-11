@@ -27,6 +27,11 @@
 #include <cstddef>
 
 
+#ifdef __ANDROID__
+#error encoding.h/.cpp are currently not supported on Android due to lack of iconv.
+#endif
+
+
 #if		defined(_HAVE_ICONV) \
 	||	defined(_POSIX_VERSION)  &&  _POSIX_VERSION >= 200112 \
 	||	defined(__GLIBC__) && __GLIBC__ >= 2 && __GLIBC_MINOR__ >= 1

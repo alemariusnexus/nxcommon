@@ -26,6 +26,10 @@
 #include "AbstractSharedBuffer.h"
 #include <cstring>
 
+#ifdef NXCOMMON_QT_SUPPORT_ENABLED
+#include <QtCore/QString>
+#endif
+
 
 
 class ByteArray : public AbstractSharedBuffer<char>
@@ -49,6 +53,14 @@ public:
 	ByteArray(const ByteArray& other) : AbstractSharedBuffer(other) {}
 	ByteArray(const char* data, size_t size, size_t capacity) : AbstractSharedBuffer(data, size, capacity) {}
 	ByteArray(const char* data, size_t size) : AbstractSharedBuffer(data, size) {}
+
+#ifdef NXCOMMON_QT_SUPPORT_ENABLED
+	ByteArray(const QByteArray& barr) : ByteArray(barr.data(), barr.length()) {}
+	ByteArray(const QString& str) : ByteArray(str.toUtf8()) {}
+
+	operator QString() const { return QString::fromUtf8(get()); }
+	operator QByteArray() const { return QByteArray(get(), length()); }
+#endif
 
 	char* getMutable() { ensureUniqueness(); return d.get(); }
 	const char* get() const { return d.get(); }

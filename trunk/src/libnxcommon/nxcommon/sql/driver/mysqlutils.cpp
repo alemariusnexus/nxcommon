@@ -54,3 +54,47 @@ void ThrowMySQLPreparedStatementException(MYSQL_STMT* stmt, const char* msg, con
 	delete[] errmsg;
 	throw ex;
 }
+
+
+int ConvertFromMySQLType(enum_field_types type, unsigned int flags)
+{
+	switch (type) {
+	case MYSQL_TYPE_TINY:
+	case MYSQL_TYPE_SHORT:
+	case MYSQL_TYPE_INT24:
+	case MYSQL_TYPE_LONG:
+		if ((flags & UNSIGNED_FLAG) != 0) {
+			return SQL_DATA_TYPE_UINT32;
+		} else {
+			return SQL_DATA_TYPE_INT32;
+		}
+
+	case MYSQL_TYPE_LONGLONG:
+		if ((flags & UNSIGNED_FLAG) != 0) {
+			return SQL_DATA_TYPE_UINT64;
+		} else {
+			return SQL_DATA_TYPE_INT64;
+		}
+
+	case MYSQL_TYPE_FLOAT:
+		return SQL_DATA_TYPE_FLOAT;
+
+	case MYSQL_TYPE_DOUBLE:
+		return SQL_DATA_TYPE_DOUBLE;
+
+	case MYSQL_TYPE_NEWDECIMAL:
+	case MYSQL_TYPE_STRING:
+	case MYSQL_TYPE_VAR_STRING:
+	case MYSQL_TYPE_VARCHAR:
+		return SQL_DATA_TYPE_STRING;
+
+	case MYSQL_TYPE_TINY_BLOB:
+	case MYSQL_TYPE_BLOB:
+	case MYSQL_TYPE_MEDIUM_BLOB:
+	case MYSQL_TYPE_LONG_BLOB:
+		return SQL_DATA_TYPE_NULL;
+
+	default:
+		return SQL_DATA_TYPE_NULL;
+	}
+}

@@ -33,13 +33,23 @@
 class MySQLDatabaseImpl : public SQLDatabaseImpl
 {
 public:
+	MySQLDatabaseImpl(MYSQL* mysql, const CString& host, const CString& user, const CString& pass = CString(),
+			const CString& db = CString(), unsigned int port = 0);
 	MySQLDatabaseImpl(const CString& host, const CString& user, const CString& pass = CString(),
 			const CString& db = CString(), unsigned int port = 0);
 	virtual ~MySQLDatabaseImpl();
 	virtual SQLPreparedStatementImpl* createPreparedStatement();
+	virtual SQLResultImpl* sendQuery(const UString& query);
+	virtual SQLResultImpl* sendQueryUTF8(const ByteArray& query);
 	virtual uint64_t getLastInsertID() const;
+	virtual UString escapeString(const UString& str) const;
+	virtual ByteArray escapeStringUTF8(const ByteArray& str) const;
 
 	MYSQL* getMySQLHandle() { return mysql; }
+
+private:
+	void init(MYSQL* mysql, const CString& host, const CString& user, const CString& pass,
+			const CString& db, unsigned int port);
 
 private:
 	MYSQL* mysql;

@@ -316,6 +316,12 @@ TEST(StringTest, CheckStrutilAndCString)
 	EXPECT_TRUE(nstr2.isNull());
 	EXPECT_NE((const char*) NULL, nstr2.get());
 	EXPECT_EQ(nstr2, CString(""));
+
+
+	CString tstr("INSERT INTO ");
+	tstr.append("test ");
+	tstr.append("(id, text, tid) VALUES (3, 'Hallo, grausame Welt!', 7)");
+	EXPECT_EQ(CString("INSERT INTO test (id, text, tid) VALUES (3, 'Hallo, grausame Welt!', 7)"), tstr);
 }
 
 

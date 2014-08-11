@@ -37,6 +37,8 @@ public:
 	static MySQLDriver* getInstance();
 
 public:
+	SQLDatabase openDatabase(MYSQL* mysql, const CString& host, const CString& user,
+			const CString& pass = CString(), const CString& db = CString(), unsigned int port = 0);
 	SQLDatabase openDatabase(const CString& host, const CString& user, const CString& pass = CString(),
 			const CString& db = CString(), unsigned int port = 0);
 

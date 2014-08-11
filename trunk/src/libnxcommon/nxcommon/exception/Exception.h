@@ -27,7 +27,13 @@
 #include <exception>
 #include <cstdlib>
 
-#ifdef linux
+
+#if (defined(__GLIBC__)  &&  ((__GLIBC__ << 16) + __GLIBC_MINOR__ >= (2 << 16) + 1))
+#define _BACKTRACE_AVAILABLE
+#endif
+
+
+#ifdef _BACKTRACE_AVAILABLE
 #include <execinfo.h>
 #endif
 
@@ -54,7 +60,7 @@ private:
 	char* buildFullMessage() const throw();
 
 private:
-#ifdef linux
+#ifdef _BACKTRACE_AVAILABLE
 	char* backTrace;
 #endif
 

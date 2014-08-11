@@ -1,0 +1,70 @@
+#ifndef PSQLDATATYPEHANDLERREGISTRY_H_
+#define PSQLDATATYPEHANDLERREGISTRY_H_
+
+#include "../../UString.h"
+#include <postgresql/libpq-fe.h>
+#include <memory>
+
+using std::shared_ptr;
+
+
+
+class PSQLDataTypeHandlerRegistry
+{
+public:
+	typedef UString (*ConvertToUTF16Func)(const char* data, int dataLen);
+	typedef ByteArray (*ConvertToUTF8Func)(const char* data, int dataLen);
+	typedef int64_t (*ConvertToInt64Func)(const char* data, int dataLen);
+	typedef double (*ConvertToDoubleFunc)(const char* data, int dataLen);
+
+public:
+	struct DataTypeHandler
+	{
+		ConvertToUTF16Func convertToUTF16Func;
+		ConvertToUTF8Func convertToUTF8Func;
+		ConvertToInt64Func convertToInt64Func;
+		ConvertToDoubleFunc convertToDoubleFunc;
+	};
+
+private:
+	class Impl
+	{
+	public:
+		~Impl() { delete[] handlers; }
+
+	public:
+		DataTypeHandler* handlers;
+		size_t curMaxOid;
+	};
+
+public:
+	PSQLDataTypeHandlerRegistry();
+	PSQLDataTypeHandlerRegistry(const PSQLDataTypeHandlerRegistry& other);
+	void registerDataTypeHandler(Oid oid, const DataTypeHandler& handler);
+
+	void getDataTypeHandler(Oid oid, DataTypeHandler** handler) const
+	{
+		if (oid <= impl->curMaxOid) {
+			*handler = impl->handlers + oid;
+		} else {
+			*handler = NULL;
+		}
+	}
+
+private:
+	void ensureUniqueness();
+	void allocHandlers(Oid maxOid);
+
+private:
+	shared_ptr<Impl> impl;
+};
+
+
+
+UString DummyConvertToUTF16(const char* data, int dataLen);
+ByteArray DummyConvertToUTF8(const char* data, int dataLen);
+int64_t DummyConvertToInt64(const char* data, int dataLen);
+double DummyConvertToDouble(const char* data, int dataLen);
+
+
+#endif /* PSQLDATATYPEHANDLERREGISTRY_H_ */

@@ -24,6 +24,7 @@
 #include "_File.h"
 #include "FileException.h"
 #include "FileSystem.h"
+#include <cerrno>
 
 
 

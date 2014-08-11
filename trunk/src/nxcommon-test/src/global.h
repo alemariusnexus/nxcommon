@@ -23,17 +23,27 @@
 #ifndef GLOBAL_H_
 #define GLOBAL_H_
 
+#include <nxcommon-test/config.h>
 #include <gtest/gtest.h>
 #include <nxcommon/CString.h>
+#include <nxcommon/sql/SQLDatabase.h>
 #include "printhelpers.h"
 
 
 extern CString testRootPath;
+
+//extern SQLDatabase mysqlDb;
 
 extern CString mysqlHost;
 extern CString mysqlUser;
 extern CString mysqlPass;
 extern CString mysqlDb;
 extern unsigned int mysqlPort;
+
+extern CString psqlHost;
+extern CString psqlUser;
+extern CString psqlPass;
+extern CString psqlDb;
+extern unsigned int psqlPort;
 
 #endif /* GLOBAL_H_ */

@@ -22,6 +22,7 @@
 
 #include "SQLPreparedStatement.h"
 #include "SQLDatabase.h"
+#include "SQLResult.h"
 #include "SQLException.h"
 
 
@@ -43,8 +44,24 @@ SQLPreparedStatement::SQLPreparedStatement(const SQLPreparedStatement& other)
 
 SQLPreparedStatement::Data::~Data()
 {
-	if (prepared)
-		impl->finalize();
+	if (prepared) {
+		// We MAY NOT THROW an exception in here, because C++ prohibits throwing exceptions from destructors
+		// during stack unwinding, so better be safe than sorry here...
+
+		// TODO: Maybe find a better way to handle this
+		try {
+			if (executed) {
+				impl->reset();
+			}
+
+			if (prepared) {
+				impl->finalize();
+			}
+		} catch (Exception& ex) {
+			fprintf(stderr, "ERROR: Exception caught in SQLPreparedStatement::Data::~Data(): %s\n",
+					ex.what());
+		}
+	}
 }
 
 
@@ -85,92 +102,110 @@ void SQLPreparedStatement::ensurePrepared()
 }
 
 
-void SQLPreparedStatement::bindUInt32(size_t index, uint32_t value)
+SQLPreparedStatement& SQLPreparedStatement::bindUInt32(size_t index, uint32_t value)
 {
 	ensureBindable();
 	data->impl->bindUInt32(index, value);
+	return *this;
 }
 
 
-void SQLPreparedStatement::bindInt32(size_t index, int32_t value)
+SQLPreparedStatement& SQLPreparedStatement::bindInt32(size_t index, int32_t value)
 {
 	ensureBindable();
 	data->impl->bindInt32(index, value);
+	return *this;
 }
 
 
-void SQLPreparedStatement::bindUInt64(size_t index, uint64_t value)
+SQLPreparedStatement& SQLPreparedStatement::bindUInt64(size_t index, uint64_t value)
 {
 	ensureBindable();
 	data->impl->bindUInt64(index, value);
+	return *this;
 }
 
 
-void SQLPreparedStatement::bindInt64(size_t index, int64_t value)
+SQLPreparedStatement& SQLPreparedStatement::bindInt64(size_t index, int64_t value)
 {
 	ensureBindable();
 	data->impl->bindInt64(index, value);
+	return *this;
 }
 
 
-void SQLPreparedStatement::bindFloat(size_t index, float value)
+SQLPreparedStatement& SQLPreparedStatement::bindFloat(size_t index, float value)
 {
 	ensureBindable();
 	data->impl->bindFloat(index, value);
+	return *this;
 }
 
 
-void SQLPreparedStatement::bindDouble(size_t index, double value)
+SQLPreparedStatement& SQLPreparedStatement::bindDouble(size_t index, double value)
 {
 	ensureBindable();
 	data->impl->bindDouble(index, value);
+	return *this;
 }
 
 
-void SQLPreparedStatement::bindString(size_t index, const UString& value)
+SQLPreparedStatement& SQLPreparedStatement::bindString(size_t index, const UString& value)
 {
 	ensureBindable();
 	data->impl->bindString(index, value);
+	return *this;
 }
 
 
-void SQLPreparedStatement::bindStringUTF8(size_t index, const ByteArray& value)
+SQLPreparedStatement& SQLPreparedStatement::bindStringUTF8(size_t index, const ByteArray& value)
 {
 	ensureBindable();
 	data->impl->bindStringUTF8(index, value);
+	return *this;
 }
 
 
-void SQLPreparedStatement::bindBLOB(size_t index, const ByteArray& value)
+SQLPreparedStatement& SQLPreparedStatement::bindBLOB(size_t index, const ByteArray& value)
 {
 	ensureBindable();
 	this->data->impl->bindBLOB(index, value);
+	return *this;
 }
 
 
-void SQLPreparedStatement::bindNull(size_t index)
+SQLPreparedStatement& SQLPreparedStatement::bindNull(size_t index)
 {
 	ensureBindable();
 	data->impl->bindNull(index);
+	return *this;
 }
 
 
-void SQLPreparedStatement::execute()
+SQLPreparedStatement& SQLPreparedStatement::bindBool(size_t index, bool value)
 {
-	data->impl->execute();
+	ensureBindable();
+	data->impl->bindBool(index, value);
+	return *this;
+}
+
+
+SQLResult SQLPreparedStatement::execute()
+{
+	if (data->executed) {
+		reset();
+	}
+
+	SQLResultImpl* impl = data->impl->execute();
 	data->executed = true;
-}
 
-
-bool SQLPreparedStatement::nextRecord()
-{
-	return data->impl->nextRecord();
+	return SQLResult(data->db, *this, shared_ptr<SQLResultImpl>(impl));
 }
 
 
 void SQLPreparedStatement::reset()
 {
-	if (!data->prepared)
+	if (!data->prepared  ||  !data->executed)
 		return;
 
 	data->executed = false;
@@ -183,69 +218,13 @@ void SQLPreparedStatement::finish()
 	if (!data->prepared)
 		return;
 
+	if (data->executed) {
+		data->impl->reset();
+	}
+
 	data->prepared = false;
 	data->executed = false;
 	data->impl->finalize();
-}
-
-
-uint32_t SQLPreparedStatement::getUInt32(size_t index) const
-{
-	return data->impl->getUInt32(index);
-}
-
-
-int32_t SQLPreparedStatement::getInt32(size_t index) const
-{
-	return data->impl->getInt32(index);
-}
-
-
-uint64_t SQLPreparedStatement::getUInt64(size_t index) const
-{
-	return data->impl->getUInt64(index);
-}
-
-
-int64_t SQLPreparedStatement::getInt64(size_t index) const
-{
-	return data->impl->getInt64(index);
-}
-
-
-float SQLPreparedStatement::getFloat(size_t index) const
-{
-	return data->impl->getFloat(index);
-}
-
-
-double SQLPreparedStatement::getDouble(size_t index) const
-{
-	return data->impl->getDouble(index);
-}
-
-
-ByteArray SQLPreparedStatement::getBLOB(size_t index) const
-{
-	return data->impl->getBLOB(index);
-}
-
-
-UString SQLPreparedStatement::getString(size_t index) const
-{
-	return data->impl->getString(index);
-}
-
-
-ByteArray SQLPreparedStatement::getStringUTF8(size_t index) const
-{
-	return data->impl->getStringUTF8(index);
-}
-
-
-uint64_t SQLPreparedStatement::getAffectedRowCount() const
-{
-	return data->impl->getAffectedRowCount();
 }
 
 

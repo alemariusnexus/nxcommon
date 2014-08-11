@@ -27,6 +27,8 @@
 
 
 
+
+
 Exception::Exception(const char* message, const char* srcFile, int srcLine, const Exception* nestedException,
 		const char* exceptionName)
 		: exceptionName(exceptionName), message(NULL), srcFile(srcFile), srcLine(srcLine),
@@ -34,7 +36,7 @@ Exception::Exception(const char* message, const char* srcFile, int srcLine, cons
 {
 	setMessage(message);
 
-#ifdef linux
+#ifdef _BACKTRACE_AVAILABLE
 	void* buf[50];
 	int backTraceSize = backtrace(buf, 50);
 	char** btArr = backtrace_symbols(buf, backTraceSize);
@@ -52,6 +54,8 @@ Exception::Exception(const char* message, const char* srcFile, int srcLine, cons
 		strcat(backTrace, btArr[i]);
 		strcat(backTrace, "\n");
 	}
+
+	free(btArr);
 #endif
 }
 
@@ -62,7 +66,7 @@ Exception::Exception(const Exception& ex)
 {
 	setMessage(ex.message);
 
-#ifdef linux
+#ifdef _BACKTRACE_AVAILABLE
 	backTrace = new char[strlen(ex.backTrace)+1];
 	memcpy(backTrace, ex.backTrace, strlen(ex.backTrace)+1);
 #endif
@@ -77,7 +81,7 @@ Exception::~Exception() throw()
 	if (nestedException)
 		delete nestedException;
 
-#ifdef linux
+#ifdef _BACKTRACE_AVAILABLE
 	delete[] backTrace;
 #endif
 }
@@ -85,7 +89,7 @@ Exception::~Exception() throw()
 
 const char* Exception::getBacktrace() const throw()
 {
-#ifdef linux
+#ifdef _BACKTRACE_AVAILABLE
 	return backTrace;
 #else
 	return NULL;

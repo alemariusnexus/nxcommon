@@ -35,6 +35,14 @@ MySQLDriver* MySQLDriver::getInstance()
 }
 
 
+SQLDatabase MySQLDriver::openDatabase(MYSQL* mysql, const CString& host, const CString& user,
+			const CString& pass, const CString& db, unsigned int port)
+{
+	MySQLDatabaseImpl* impl = new MySQLDatabaseImpl(mysql, host, user, pass, db, port);
+	return SQLDatabase(impl);
+}
+
+
 SQLDatabase MySQLDriver::openDatabase(const CString& host, const CString& user, const CString& pass,
 			const CString& db, unsigned int port)
 {

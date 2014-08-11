@@ -57,39 +57,32 @@ public:
 	SQLPreparedStatement() : data(NULL) {}
 	SQLPreparedStatement(const SQLPreparedStatement& other);
 
+	SQLDatabase getDatabase() const { return data->db; }
+
 	bool isValid() const { return data.get() != NULL; }
 	bool isPrepared() const { return data->prepared; }
 
-	void bindUInt32(size_t index, uint32_t value);
-	void bindInt32(size_t index, int32_t value);
-	void bindUInt64(size_t index, uint64_t value);
-	void bindInt64(size_t index, int64_t value);
-	void bindFloat(size_t index, float value);
-	void bindDouble(size_t index, double value);
-	void bindString(size_t index, const UString& value);
-	void bindStringUTF8(size_t index, const ByteArray& value);
-	void bindBLOB(size_t index, const ByteArray& value);
-	void bindNull(size_t index);
+	SQLPreparedStatement& bindUInt32(size_t index, uint32_t value);
+	SQLPreparedStatement& bindInt32(size_t index, int32_t value);
+	SQLPreparedStatement& bindUInt64(size_t index, uint64_t value);
+	SQLPreparedStatement& bindInt64(size_t index, int64_t value);
+	SQLPreparedStatement& bindFloat(size_t index, float value);
+	SQLPreparedStatement& bindDouble(size_t index, double value);
+	SQLPreparedStatement& bindString(size_t index, const UString& value);
+	SQLPreparedStatement& bindStringUTF8(size_t index, const ByteArray& value);
+	SQLPreparedStatement& bindBLOB(size_t index, const ByteArray& value);
+	SQLPreparedStatement& bindNull(size_t index);
+	SQLPreparedStatement& bindBool(size_t index, bool value);
 
 	void prepare(const UString& query);
 	void prepareUTF8(const ByteArray& query);
-	void execute();
+	SQLResult execute();
 
-	bool nextRecord();
 	void reset();
 	void finish();
 
-	uint32_t getUInt32(size_t index) const;
-	int32_t getInt32(size_t index) const;
-	uint64_t getUInt64(size_t index) const;
-	int64_t getInt64(size_t index) const;
-	float getFloat(size_t index) const;
-	double getDouble(size_t index) const;
-	ByteArray getBLOB(size_t index) const;
-	UString getString(size_t index) const;
-	ByteArray getStringUTF8(size_t index) const;
-
-	uint64_t getAffectedRowCount() const;
+	SQLPreparedStatementImpl* getImplementation() { return data->impl.get(); }
+	const SQLPreparedStatementImpl* getImplementation() const { return data->impl.get(); }
 
 private:
 	SQLPreparedStatement(const SQLDatabase& db, const shared_ptr<SQLPreparedStatementImpl>& impl);

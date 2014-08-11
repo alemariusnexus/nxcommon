@@ -1,0 +1,241 @@
+#include "PSQLDataTypeHandlerRegistry.h"
+#include "psqlutils.h"
+#include <cstring>
+
+
+
+
+
+UString DummyConvertToUTF16(const char* data, int dataLen)
+{
+	return UString::fromUTF8(DummyConvertToUTF8(data, dataLen));
+}
+
+
+ByteArray DummyConvertToUTF8(const char* data, int dataLen)
+{
+	return ByteArray::readAlias(data, dataLen);
+}
+
+
+int64_t DummyConvertToInt64(const char* data, int dataLen)
+{
+	return 0;
+}
+
+
+double DummyConvertToDouble(const char* data, int dataLen)
+{
+	return 0.0;
+}
+
+
+
+
+ByteArray TextConvertToUTF8(const char* data, int dataLen)
+{
+	return ByteArray::readAlias(data, dataLen);
+}
+
+
+UString TextConvertToUTF16(const char* data, int dataLen)
+{
+	return UString::fromUTF8(TextConvertToUTF8(data, dataLen));
+}
+
+
+
+
+ByteArray Int2ConvertToUTF8(const char* data, int dataLen)
+{
+	char str[8];
+	sprintf(str, "%d", (int) FromBigEndian16(*((int16_t*) data)));
+	return ByteArray(str, strlen(str)+1);
+}
+
+
+UString Int2ConvertToUTF16(const char* data, int dataLen)
+{
+	return UString::fromUTF8(Int2ConvertToUTF8(data, dataLen));
+}
+
+
+ByteArray Int4ConvertToUTF8(const char* data, int dataLen)
+{
+	char str[16];
+	sprintf(str, "%d", (int) FromBigEndian32(*((int32_t*) data)));
+	return ByteArray(str, strlen(str)+1);
+}
+
+
+UString Int4ConvertToUTF16(const char* data, int dataLen)
+{
+	return UString::fromUTF8(Int4ConvertToUTF8(data, dataLen));
+}
+
+
+ByteArray Int8ConvertToUTF8(const char* data, int dataLen)
+{
+	char str[32];
+#if LONG_SIZE >= 8
+	sprintf(str, "%ld", (int) FromBigEndian64(*((int64_t*) data)));
+#else
+#error Int8ConvertToUTF8() not implemented for long types < 64 bits
+#endif
+	return ByteArray(str, strlen(str)+1);
+}
+
+
+UString Int8ConvertToUTF16(const char* data, int dataLen)
+{
+	return UString::fromUTF8(Int8ConvertToUTF8(data, dataLen));
+}
+
+
+template <typename IntType>
+int64_t IntXConvertToInt64(const char* data, int dataLen)
+{
+	return FromBigEndian<IntType>(*((IntType*) data));
+}
+
+
+template <typename IntType>
+double IntXConvertToDouble(const char* data, int dataLen)
+{
+	return (double) IntXConvertToInt64<IntType>(data, dataLen);
+}
+
+
+ByteArray BoolConvertToUTF8(const char* data, int dataLen)
+{
+	if (*((uint8_t*) data) == 0) {
+		return ByteArray("0", 1);
+	} else {
+		return ByteArray("1", 1);
+	}
+}
+
+
+UString BoolConvertToUTF16(const char* data, int dataLen)
+{
+	if (*((uint8_t*) data) == 0) {
+		return UString(u"0", 1);
+	} else {
+		return UString(u"1", 1);
+	}
+}
+
+
+int64_t BoolConvertToInt64(const char* data, int dataLen)
+{
+	if (*((uint8_t*) data) == 0) {
+		return 0;
+	} else {
+		return 1;
+	}
+}
+
+
+double BoolConvertToDouble(const char* data, int dataLen)
+{
+	if (*((uint8_t*) data) == 0) {
+		return 0.0;
+	} else {
+		return 1.0;
+	}
+}
+
+
+
+
+
+
+PSQLDataTypeHandlerRegistry::PSQLDataTypeHandlerRegistry()
+		: impl(shared_ptr<Impl>(new Impl))
+{
+	impl->handlers = new DataTypeHandler[1];
+	impl->curMaxOid = 0;
+	allocHandlers(4000);
+
+
+	DataTypeHandler int2Handler;
+	int2Handler.convertToDoubleFunc = &IntXConvertToDouble<int16_t>;
+	int2Handler.convertToInt64Func = &IntXConvertToInt64<int16_t>;
+	int2Handler.convertToUTF16Func = &Int2ConvertToUTF16;
+	int2Handler.convertToUTF8Func = &Int2ConvertToUTF8;
+	registerDataTypeHandler(NXPSQLOID_INT2, int2Handler);
+
+	DataTypeHandler int4Handler;
+	int4Handler.convertToDoubleFunc = &IntXConvertToDouble<int32_t>;
+	int4Handler.convertToInt64Func = &IntXConvertToInt64<int32_t>;
+	int4Handler.convertToUTF16Func = &Int4ConvertToUTF16;
+	int4Handler.convertToUTF8Func = &Int4ConvertToUTF8;
+	registerDataTypeHandler(NXPSQLOID_INT4, int4Handler);
+
+	DataTypeHandler int8Handler;
+	int8Handler.convertToDoubleFunc = &IntXConvertToDouble<int64_t>;
+	int8Handler.convertToInt64Func = &IntXConvertToInt64<int64_t>;
+	int8Handler.convertToUTF16Func = &Int8ConvertToUTF16;
+	int8Handler.convertToUTF8Func = &Int8ConvertToUTF8;
+	registerDataTypeHandler(NXPSQLOID_INT8, int8Handler);
+
+	DataTypeHandler boolHandler;
+	boolHandler.convertToDoubleFunc = &BoolConvertToDouble;
+	boolHandler.convertToInt64Func = &BoolConvertToInt64;
+	boolHandler.convertToUTF16Func = &BoolConvertToUTF16;
+	boolHandler.convertToUTF8Func = &BoolConvertToUTF8;
+	registerDataTypeHandler(NXPSQLOID_BOOL, boolHandler);
+}
+
+
+PSQLDataTypeHandlerRegistry::PSQLDataTypeHandlerRegistry(const PSQLDataTypeHandlerRegistry& other)
+		: impl(other.impl)
+{
+}
+
+
+void PSQLDataTypeHandlerRegistry::ensureUniqueness()
+{
+	if (!impl.unique()) {
+		Impl* newImpl = new Impl;
+		newImpl->curMaxOid = impl->curMaxOid;
+		newImpl->handlers = new DataTypeHandler[newImpl->curMaxOid+1];
+		memcpy(newImpl->handlers, impl->handlers, (newImpl->curMaxOid+1)*sizeof(DataTypeHandler));
+		impl = shared_ptr<Impl>(newImpl);
+	}
+}
+
+
+void PSQLDataTypeHandlerRegistry::registerDataTypeHandler(Oid oid, const DataTypeHandler& handler)
+{
+	allocHandlers(oid);
+
+	impl->handlers[oid] = handler;
+}
+
+
+void PSQLDataTypeHandlerRegistry::allocHandlers(Oid maxOid)
+{
+	if (impl->curMaxOid >= maxOid)
+		return;
+
+	ensureUniqueness();
+
+	DataTypeHandler* newHandlers = new DataTypeHandler[maxOid+1];
+
+	memcpy(newHandlers, impl->handlers, (impl->curMaxOid+1)*sizeof(DataTypeHandler));
+
+	delete[] impl->handlers;
+
+	for (Oid i = impl->curMaxOid+1 ; i <= maxOid ; i++) {
+		DataTypeHandler* handler = newHandlers+i;
+
+		handler->convertToUTF16Func = DummyConvertToUTF16;
+		handler->convertToUTF8Func = DummyConvertToUTF8;
+		handler->convertToInt64Func = DummyConvertToInt64;
+		handler->convertToDoubleFunc = DummyConvertToDouble;
+	}
+
+	impl->handlers = newHandlers;
+	impl->curMaxOid = maxOid;
+}

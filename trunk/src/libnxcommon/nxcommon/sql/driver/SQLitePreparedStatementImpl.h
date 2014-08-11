@@ -43,26 +43,15 @@ public:
 	virtual void bindStringUTF8(size_t index, const ByteArray& value);
 	virtual void bindBLOB(size_t index, const ByteArray& value);
 	virtual void bindNull(size_t index);
+	virtual void bindBool(size_t index, bool value);
 
 	virtual void prepare(const UString& query);
 	virtual void prepareUTF8(const ByteArray& query);
-	virtual void execute();
+	virtual void prepare(const UString& query, const UChar** codeLeft);
+	virtual void prepareUTF8(const ByteArray& query, const char** codeLeft);
+	virtual SQLResultImpl* execute();
 	virtual void finalize();
 	virtual void reset();
-
-	virtual bool nextRecord();
-
-	virtual uint32_t getUInt32(size_t index) const;
-	virtual int32_t getInt32(size_t index) const;
-	virtual uint64_t getUInt64(size_t index) const;
-	virtual int64_t getInt64(size_t index) const;
-	virtual float getFloat(size_t index) const;
-	virtual double getDouble(size_t index) const;
-	virtual ByteArray getBLOB(size_t index) const;
-	virtual UString getString(size_t index) const;
-	virtual ByteArray getStringUTF8(size_t index) const;
-
-	virtual uint64_t getAffectedRowCount() const;
 
 private:
 	SQLitePreparedStatementImpl(SQLiteDatabaseImpl* db);
@@ -70,7 +59,7 @@ private:
 private:
 	SQLiteDatabaseImpl* db;
 	sqlite3_stmt* stmt;
-	bool firstStep, firstStepHasData;
+
 
 	friend class SQLiteDatabaseImpl;
 };

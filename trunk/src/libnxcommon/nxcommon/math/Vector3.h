@@ -27,6 +27,10 @@
 #include <cstring>
 #include "Vector4.h"
 
+#ifdef NXCOMMON_BULLET_SUPPORT_ENABLED
+#include <LinearMath/btVector3.h>
+#endif
+
 
 class Vector3
 {
@@ -44,6 +48,13 @@ public:
 	Vector3(const Vector4& other) { memcpy(data, other.data.f, 3*4); }
 	Vector3(float* data) { memcpy(this->data, data, 3*4); }
 	Vector3(float x, float y, float z) { data[0] = x; data[1] = y; data[2] = z; }
+
+#ifdef NXCOMMON_BULLET_SUPPORT_ENABLED
+	Vector3(const btVector3& other) { data[0] = other.getX(); data[1] = other.getY(); data[2] = other.getZ(); }
+
+	operator btVector3() const { return btVector3(data[0], data[1], data[2]); }
+#endif
+
 	const float* toArray() const { return data; }
 	float* toArray() { return data; }
 	float getX() const { return data[0]; }

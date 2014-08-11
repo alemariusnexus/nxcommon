@@ -160,33 +160,40 @@ int CLIParser::parse(int& argc, char**& argv, char*& argument)
 }
 
 
-CLIParser& CLIParser::printOption(int option)
+CLIParser& CLIParser::printOption(int option, CString& str)
 {
 	const Option& opt = options[option-1];
 
-	printf("%s", indentation);
+	char buf[4096];
+
+	str.append(indentation);
+
 	if (opt.name != 0) {
-		printf("-%c", opt.name);
+
+		sprintf(buf, "-%c", opt.name);
+		str.append(buf);
 
 		if (opt.takesArgument) {
-			printf(" ARG");
+			str.append(" ARG");
 		}
 
 		if (opt.longName) {
-			printf(", --%s", opt.longName);
+			sprintf(buf, ", --%s", opt.longName);
+			str.append(buf);
 
 			if (opt.takesArgument) {
-				printf(" ARG");
+				str.append(" ARG");
 			}
 		}
 	} else {
-		printf("--%s", opt.longName);;
+		sprintf(buf, "--%s", opt.longName);
+		str.append(buf);
 
 		if (opt.takesArgument) {
-			printf(" ARG");
+			str.append(" ARG");
 		}
 	}
-	printf("\n");
+	str.append("\n");
 
 	if (opt.description) {
 		string description;
@@ -238,11 +245,27 @@ CLIParser& CLIParser::printOption(int option)
 		char* wrapped = wrapText(description.c_str(), textWrapLength-strlen(subIndentation));
 		char* indented = indent(wrapped, subIndentation);
 		delete[] wrapped;
-		printf("%s%s\n", subIndentation, indented);
+
+		char* tmp = new char[strlen(subIndentation) + strlen(indented) + 4];
+		sprintf(tmp, "%s%s\n", subIndentation, indented);
+		str.append(CString::from(tmp));
+
 		delete[] indented;
 
 		delete[] subIndentation;
 	}
+
+	return *this;
+}
+
+
+CLIParser& CLIParser::printOption(int option)
+{
+	CString str;
+
+	printOption(option, str);
+
+	printf("%s", str.get());
 
 	return *this;
 }
@@ -253,6 +276,93 @@ void CLIParser::printOptions()
 	for (unsigned int i = 0 ; i < options.size() ; i++) {
 		printOption(i+1);
 	}
+}
+
+
+CString CLIParser::splitArgumentString(const char*& src, size_t& srcLen)
+{
+	CString arg;
+
+	enum {
+		OUT,
+		OUTESC,
+		SQ,
+		DQ,
+		DQESC,
+		START,
+		TERM
+	};
+
+	int state = START;
+
+	const char* srcEnd = src+srcLen;
+
+	while (src != srcEnd) {
+		char c = *src;
+
+		switch (state) {
+		case START:
+			if (!isspace(c)) {
+				state = OUT;
+
+				// Repeat reading this character in OUT state
+				src--;
+				srcLen++;
+			}
+			break;
+
+		case OUT:
+			if (c == '"') {
+				state = DQ;
+			} else if (c == '\'') {
+				state = SQ;
+			} else if (c == '\\') {
+				state = OUTESC;
+			} else if (isspace(c)) {
+				state = TERM;
+			} else {
+				arg.append(c);
+			}
+			break;
+
+		case OUTESC:
+			arg.append(c);
+			state = OUT;
+			break;
+
+		case SQ:
+			if (c == '\'') {
+				state = OUT;
+			} else {
+				arg.append(c);
+			}
+			break;
+
+		case DQ:
+			if (c == '"') {
+				state = OUT;
+			} else if (c == '\\') {
+				state = DQESC;
+			} else {
+				arg.append(c);
+			}
+			break;
+
+		case DQESC:
+			arg.append(c);
+			state = DQ;
+			break;
+		}
+
+		if (state == TERM) {
+			break;
+		}
+
+		src++;
+		srcLen--;
+	}
+
+	return arg;
 }
 
 
