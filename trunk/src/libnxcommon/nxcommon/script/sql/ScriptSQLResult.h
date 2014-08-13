@@ -34,7 +34,7 @@ using std::shared_ptr;
 
 class ScriptSQLResult : public ScriptObject
 {
-	SCRIPTOBJECT_CREATE_HELPER_METHODS(ScriptSQLResult, "SQLResult")
+	SCRIPTOBJECT_DECLARE_HELPER_METHODS(ScriptSQLResult)
 
 public:
 	static void registerClass(lua_State* lua);

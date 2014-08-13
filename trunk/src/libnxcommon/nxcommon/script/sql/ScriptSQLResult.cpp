@@ -26,6 +26,9 @@
 
 
 
+SCRIPTOBJECT_DEFINE_HELPER_METHODS(ScriptSQLResult, "SQLResult")
+
+
 
 void ScriptSQLResult::registerClass(lua_State* lua)
 {

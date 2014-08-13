@@ -309,10 +309,11 @@ template <typename T> inline T FromBigEndian(T val) { return val; }
 
 
 
+// Zero-length arrays are illegal, and MSVC actually throws an error for them.
 #ifdef NXCOMMON_LITTLE_ENDIAN
-#define _DECLNUM(n,t) struct { t n; char _p_##n[sizeof(uint64_t)-sizeof(t)]; }
+#define _DECLNUM(n,t) struct { t n; char _p_##n[sizeof(uint64_t)-sizeof(t) + 1]; }
 #else
-#define _DECLNUM(n,t) struct { char _p_##n[sizeof(uint64_t)-sizeof(t)]; t n; }
+#define _DECLNUM(n,t) struct { char _p_##n[sizeof(uint64_t)-sizeof(t) + 1]; t n; }
 #endif
 
 

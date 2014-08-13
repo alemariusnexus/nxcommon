@@ -201,7 +201,7 @@ FileChildList::Iterator& FileChildList::Iterator::operator++()
 				// Way faster than File(const File&, const char*) because it skips the parent-is-directory
 				// check
 				FilePath path(impl->iteratedDir.getPath(), fdata.cFileName);
-				impl->currentFileFile = File(path);
+				impl->currentFile = File(path);
 				impl->curIdx++;
 
 				//FilePath* path = new FilePath(*iteratedDir->getPath(), fdata.cFileName);

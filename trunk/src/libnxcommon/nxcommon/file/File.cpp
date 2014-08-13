@@ -207,12 +207,12 @@ File File::createTemporaryDirectory()
 
 	char* uuidStr;
 
-	UuidToString(&uuid, &uuidStr);
+	UuidToString(&uuid, (unsigned char**) &uuidStr);
 
 	char tmpDirPath[1024];
 	sprintf(tmpDirPath, "%s/nxc-%s.TMP", tmpPath, uuidStr);
 
-	RpcStringFree(&uuidStr);
+	RpcStringFree((unsigned char**) &uuidStr);
 
 	File dir(tmpDirPath);
 	dir.mkdir();
@@ -252,7 +252,7 @@ bool File::physicallyExists() const
 	struct stat fileInfo;
 	return stat(path.toString().get(), &fileInfo) == 0;
 #elif defined(_WIN32)
-	DWORD attribs = GetFileAttributes(path->toString().get());
+	DWORD attribs = GetFileAttributes(path.toString().get());
 	return attribs != 0xFFFFFFFF;
 #endif
 }
@@ -361,7 +361,7 @@ File File::getCanonicalFile(const File& cdir) const
 #elif defined(_WIN32)
 			char absPath[MAX_PATH];
 
-			if (GetFullPathName(path.get(), sizeof(absPath), absPath, NULL) == 0) {
+			if (GetFullPathName(path.toString().get(), sizeof(absPath), absPath, NULL) == 0) {
 				throw FileException("Error getting canonical path via GetFullPathName()!", __FILE__, __LINE__);
 			}
 
@@ -647,7 +647,7 @@ uint64_t File::getModifyTime() const
 
 	if (GetFileTime(handle, NULL, NULL, &mtime) == 0) {
 		char* errmsg = new char[128 + path.toString().length()];
-		sprintf(errmsg, "Error getting modification time of file '%s'. Error code: %d",
+		sprintf(errmsg, "Error getting modification time of file '%s'. Error code: %u",
 				path.toString().get(), GetLastError());
 		FileException ex(errmsg, __FILE__, __LINE__);
 		delete[] errmsg;
@@ -811,53 +811,60 @@ uint32_t File::crc32() const
 
 File File::correctCase(const File& cdir) const
 {
+	// This used to be implemented by checking if the absolute file exists, and if not, doing so repeatedly on
+	// the parent file, until the file existed, and afterwards finding the correct case child by child.
+	// This does obviously not work when we deal with a case-insensitive file system (like NTFS on Win32),
+	// because then the file does exist even if it has the WRONG case.
+
 	File absFile = getAbsoluteFile(cdir);
 
-	File existingBase(absFile);
-	list<CString> nonExistingComps;
+	list<CString> components;
 
-	while (!existingBase.getPath().isRoot()  &&  !existingBase.exists()) {
-		nonExistingComps.push_front(existingBase.getPath().getFileName());
-		existingBase = File(existingBase.getPath().getDirectoryPath());
+	// Get a list of the path's components (excluding the root element)
+	FilePath partialPath = absFile.getPath();
+	while (!partialPath.isRoot()) {
+		components.push_front(partialPath.getFileName().lower());
+		partialPath = partialPath.getDirectoryPath();
+	};
+
+	File baseDir;
+
+	if (partialPath.getSyntax() == FilePath::Windows) {
+		// TODO: Find a way to correct case for the drive letter
+
+		// The drive letter is still left in pertialPath
+		baseDir = File(partialPath);
+	} else {
+		baseDir = File("/");
 	}
 
-	if (!existingBase.exists()) {
-		throw FileException("Cannot correct case: Root directory does not exist!", __FILE__, __LINE__);
-	}
+	// Recursively, iterate over all children until we find one that matches the current component case-insensitively, then
+	// append to baseDir its case-SENSITIVE form.
+	for (CString comp : components) {
+		// comp is lower-case (see while-loop above)
 
-	File correctedFile(existingBase);
+		FileChildList children = baseDir.getChildren();
 
-	for (CString fname : nonExistingComps) {
-		if (fname == CString(".")  ||  fname == CString("..")) {
-			correctedFile = File(correctedFile, fname);
-		} else {
-			fname = fname.lower();
-
-			bool found = false;
-
-			for (File child : correctedFile.getChildren()) {
-				CString cfname = child.getPath().getFileName();
-				CString lcfname = cfname;
-
-				if (lcfname.lower() == fname) {
-					correctedFile = File(correctedFile, cfname);
-					found = true;
-					break;
-				}
+		bool found = false;
+		for (File child : children) {
+			if (child.getFileName().lower() == comp) {
+				baseDir = File(baseDir, child.getFileName());
+				found = true;
+				break;
 			}
+		}
 
-			if (!found) {
-				char* errmsg = new char[256 + correctedFile.getPath().toString().length() + fname.length()];
-				sprintf(errmsg, "Couldn't correct case. Directory '%s' does not have a child with case-insensitive name '%s'!",
-						correctedFile.getPath().toString().get(), fname.get());
-				FileException ex(errmsg, __FILE__, __LINE__);
-				delete[] errmsg;
-				throw ex;
-			}
+		if (!found) {
+			char* errmsg = new char[256 + baseDir.getPath().toString().length() + comp.length()];
+			sprintf(errmsg, "Couldn't correct case. Directory '%s' does not have a child with case-insensitive name '%s'!",
+					baseDir.getPath().toString().get(), comp.get());
+			FileException ex(errmsg, __FILE__, __LINE__);
+			delete[] errmsg;
+			throw ex;
 		}
 	}
 
-	return correctedFile;
+	return baseDir;
 }
 
 

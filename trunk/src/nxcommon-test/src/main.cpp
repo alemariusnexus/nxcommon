@@ -22,10 +22,13 @@
 
 #include "global.h"
 #include <nxcommon/CLIParser.h>
-#include <nxcommon/sql/MySQLDriver.h>
 #include <nxcommon/sql/sql.h>
-#include <nxcommon/sql/driver/psqlutils.h>
 #include <cstdlib>
+#include <nxcommon/file/File.h>
+
+#ifdef NXCOMMON_MYSQL_ENABLED
+#include <nxcommon/sql/MySQLDriver.h>
+#endif
 
 
 int main(int argc, char** argv)

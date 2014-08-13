@@ -27,6 +27,8 @@
 
 
 
+SCRIPTOBJECT_DEFINE_HELPER_METHODS(ScriptSQLPreparedStatement, "SQLPreparedStatement")
+
 
 
 void ScriptSQLPreparedStatement::registerClass(lua_State* lua)

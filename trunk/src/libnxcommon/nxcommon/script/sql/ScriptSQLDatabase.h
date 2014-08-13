@@ -33,7 +33,7 @@ using std::shared_ptr;
 
 class ScriptSQLDatabase : public ScriptObject
 {
-	SCRIPTOBJECT_CREATE_HELPER_METHODS(ScriptSQLDatabase, "SQLDatabase")
+	SCRIPTOBJECT_DECLARE_HELPER_METHODS(ScriptSQLDatabase)
 
 public:
 	static void registerClass(lua_State* lua);

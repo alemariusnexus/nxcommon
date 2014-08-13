@@ -30,7 +30,7 @@
 
 class ScriptMatrix4 : public ScriptObject
 {
-	SCRIPTOBJECT_CREATE_HELPER_METHODS(ScriptMatrix4, "Matrix4")
+	SCRIPTOBJECT_DECLARE_HELPER_METHODS(ScriptMatrix4)
 
 public:
 	static void registerClass(lua_State* lua);
