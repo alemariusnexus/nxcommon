@@ -41,6 +41,12 @@
 #endif
 
 
+
+const char* FilePath::windowsPathSeparators = "/\\";
+const char* FilePath::unixPathSeparators = "/";
+
+
+
 FilePath::FilePath(const CString& path, uint8_t syntax)
 		: path(normalize(path, syntax)), syntax(syntax)
 {

@@ -52,7 +52,8 @@ uint64_t GetTickcountMicroseconds()
 	gettimeofday(&tv, NULL);
 	return tv.tv_sec*1000000 + tv.tv_usec;
 #else
-#error GetTickcountMicroseconds() is only implemented on POSIX systems!
+	// TODO: Implement this correctly...
+	return GetTickcount() * 1000;
 #endif
 }
 

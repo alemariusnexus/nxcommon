@@ -27,6 +27,11 @@
 
 
 
+SCRIPTOBJECT_DEFINE_HELPER_METHODS(ScriptMatrix4, "Matrix4")
+
+
+
+
 void ScriptMatrix4::registerClass(lua_State* lua)
 {
 	createClass(lua);

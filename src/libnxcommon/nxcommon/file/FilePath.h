@@ -67,8 +67,8 @@ public:
 	};
 
 private:
-	static constexpr const char* windowsPathSeparators = "/\\";
-	static constexpr const char* unixPathSeparators = "/";
+	static const char* windowsPathSeparators;
+	static const char* unixPathSeparators;
 
 public:
 	/** \brief Constructs a new FilePath object from a path string.

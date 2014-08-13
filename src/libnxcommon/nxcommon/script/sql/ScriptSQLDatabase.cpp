@@ -28,6 +28,10 @@
 
 
 
+SCRIPTOBJECT_DEFINE_HELPER_METHODS(ScriptSQLDatabase, "SQLDatabase")
+
+
+
 
 void ScriptSQLDatabase::registerClass(lua_State* lua)
 {

@@ -25,6 +25,10 @@
 
 
 
+SCRIPTOBJECT_DEFINE_HELPER_METHODS(ScriptVector4, "Vector4")
+
+
+
 void ScriptVector4::registerClass(lua_State* lua)
 {
 	createClass(lua);

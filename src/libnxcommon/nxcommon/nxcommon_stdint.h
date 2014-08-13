@@ -24,7 +24,8 @@
 #define NXCOMMON_STDINT_H_
 
 #ifdef _MSC_VER
-#include "msvcstdint.h"
+//#include "msvcstdint.h"
+#include <stdint.h>
 #else
 #include <stdint.h>
 #endif

@@ -48,9 +48,9 @@ int _ScriptObject__gc(lua_State* lua)
 
 
 
-#define SCRIPTOBJECT_CREATE_HELPER_METHODS(cls,scriptclsname) \
+#define SCRIPTOBJECT_DECLARE_HELPER_METHODS(cls) \
 	public: \
-		static constexpr const char* CLASS_NAME = scriptclsname; \
+		static const char* CLASS_NAME; \
 		static shared_ptr<cls> getInstance(lua_State* lua, int instIdx) { return ScriptObject::getInstance<cls>(lua, instIdx); } \
 		static shared_ptr<cls> getSelf(lua_State* lua) { return ScriptObject::getSelf<cls>(lua); } \
 		static shared_ptr<cls> checkInstanceof(lua_State* lua, int instIdx) \
@@ -58,6 +58,8 @@ int _ScriptObject__gc(lua_State* lua)
 		static void initClass(lua_State* lua) { ScriptObject::initClass<cls>(lua, CLASS_NAME); } \
 		static void createClass(lua_State* lua) { ScriptObject::createClass<cls>(lua, CLASS_NAME); }
 
+#define SCRIPTOBJECT_DEFINE_HELPER_METHODS(cls,scriptclsname) \
+	const char* cls::CLASS_NAME = scriptclsname;
 
 
 class ScriptObject

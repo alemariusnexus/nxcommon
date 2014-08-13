@@ -31,7 +31,7 @@
 
 class ScriptVector3 : public ScriptObject
 {
-	SCRIPTOBJECT_CREATE_HELPER_METHODS(ScriptVector3, "Vector3")
+	SCRIPTOBJECT_DECLARE_HELPER_METHODS(ScriptVector3)
 
 public:
 	static void registerClass(lua_State* lua);
