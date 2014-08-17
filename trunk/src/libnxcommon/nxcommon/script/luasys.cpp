@@ -201,7 +201,7 @@ lua_Integer luaS_checkintrange(lua_State* lua, int arg, lua_Integer min, lua_Int
 
 	if (val < min  ||  val > max) {
 		char buf[128];
-		sprintf(buf, "Argument out of range! Should be [%d, %d].", min, max);
+		sprintf(buf, "Argument out of range! Should be [%ld, %ld].", (long) min, (long) max);
 		return luaL_argerror(lua, arg, buf);
 	}
 

@@ -22,7 +22,7 @@
 
 #include "FilePath.h"
 #include "File.h"
-#include "strutil.h"
+#include "../strutil.h"
 #include "FileException.h"
 #include <cstring>
 #include <cstdio>

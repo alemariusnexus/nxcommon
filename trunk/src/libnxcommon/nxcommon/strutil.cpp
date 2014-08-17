@@ -451,7 +451,7 @@ uint8_t StringToUInt8(const char* str, size_t len, int base, bool* success)
 
 int8_t StringToInt8(const char* str, size_t len, int base, bool* success)
 {
-	return _StringToIntTExtended<int8_t, true, UINT8_MAX>(str, len, base, success);
+	return _StringToIntTExtended<int8_t, true, INT8_MAX>(str, len, base, success);
 }
 
 
@@ -463,7 +463,7 @@ uint16_t StringToUInt16(const char* str, size_t len, int base, bool* success)
 
 int16_t StringToInt16(const char* str, size_t len, int base, bool* success)
 {
-	return _StringToIntTExtended<int16_t, true, UINT16_MAX>(str, len, base, success);
+	return _StringToIntTExtended<int16_t, true, INT16_MAX>(str, len, base, success);
 }
 
 
@@ -475,7 +475,7 @@ uint32_t StringToUInt32(const char* str, size_t len, int base, bool* success)
 
 int32_t StringToInt32(const char* str, size_t len, int base, bool* success)
 {
-	return _StringToIntTExtended<int32_t, true, UINT32_MAX>(str, len, base, success);
+	return _StringToIntTExtended<int32_t, true, INT32_MAX>(str, len, base, success);
 }
 
 
@@ -487,7 +487,7 @@ uint64_t StringToUInt64(const char* str, size_t len, int base, bool* success)
 
 int64_t StringToInt64(const char* str, size_t len, int base, bool* success)
 {
-	return _StringToIntTExtended<int64_t, true, UINT64_MAX>(str, len, base, success);
+	return _StringToIntTExtended<int64_t, true, INT64_MAX>(str, len, base, success);
 }
 
 

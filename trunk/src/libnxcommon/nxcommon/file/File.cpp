@@ -23,13 +23,13 @@
 #include "_File.h"
 #include <cstdio>
 #include <cstring>
-#include "util.h"
+#include "../util.h"
 #include "FileException.h"
 #include "FileFinder.h"
 #include "FileChildList.h"
 #include "FileSystem.h"
-#include "stream/RangedStream.h"
-#include "CRC32.h"
+#include "../stream/RangedStream.h"
+#include "../CRC32.h"
 #include <map>
 #include <utility>
 #include <list>

@@ -24,7 +24,7 @@
 #define FILEPATH_H_
 
 #include <nxcommon/config.h>
-#include "CString.h"
+#include "../CString.h"
 
 
 /**	\brief Content types which can be guessed by FilePath::guessContentType().

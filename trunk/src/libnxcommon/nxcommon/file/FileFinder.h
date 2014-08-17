@@ -29,6 +29,7 @@
 
 class FileFinder {
 public:
+	virtual ~FileFinder() {}
 	virtual bool matches(const File& file) = 0;
 	virtual bool isInterrupted() { return interrupted; }
 	virtual void interrupt() { interrupted = true; }
