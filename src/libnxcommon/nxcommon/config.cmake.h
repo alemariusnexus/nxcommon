@@ -31,7 +31,7 @@
 #include <unistd.h>
 #endif
 
-#include "nxcommon_stdint.h"
+#include <nxcommon/nxcommon_stdint.h>
 
 
 #define PI 3.141593f

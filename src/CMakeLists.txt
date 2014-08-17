@@ -18,7 +18,7 @@
 # Additional permissions are granted, which are listed in the file
 # GPLADDITIONS.
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
 
 PROJECT(nxcommon-parent C CXX)
 
@@ -26,11 +26,15 @@ SET(NXCOMMON_VERSION_MAJOR "0") # Major version, must be numeric
 SET(NXCOMMON_VERSION_MINOR "1") # Minor version, must be numeric
 SET(NXCOMMON_VERSION_SUFFIX "-dev") # A suffix for the version string, could e.g. be 'b' for beta versions, or empty
 
-INCLUDE(TestBigEndian)
-INCLUDE(Utilities.cmake)
-INCLUDE(ResourceCompiler.cmake)
+SET(NXCOMMON_CMAKE_MODULE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cmakemodules")
+SET(NXCOMMON_CMAKE_MODULE_DIR "${NXCOMMON_CMAKE_MODULE_DIR}" PARENT_SCOPE)
 
-ADD_DEFINITIONS(-D__STDC_LIMIT_MACROS)
+SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${NXCOMMON_CMAKE_MODULE_DIR}")
+SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} PARENT_SCOPE)
+
+INCLUDE(TestBigEndian)
+INCLUDE(NxUtilities)
+INCLUDE(NxResourceCompiler)
 
 
 FIND_PACKAGE(Subversion)

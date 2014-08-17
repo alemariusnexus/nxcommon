@@ -21,7 +21,7 @@
  */
 
 #include "DefaultFileFinder.h"
-#include "strutil.h"
+#include "../strutil.h"
 #include <cstring>
 
 
