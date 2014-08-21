@@ -29,7 +29,7 @@
 
 class FileException : public Exception {
 public:
-	FileException(const char* message, const char* srcFile = NULL, int srcLine = -1, Exception* nestedException = NULL) throw()
+	FileException(const CString& message, const CString& srcFile = CString(), int srcLine = -1, Exception* nestedException = NULL) throw()
 			: Exception(message, srcFile, srcLine, nestedException, "FileException") {}
 	FileException(const FileException& ex) : Exception(ex) {}
 };

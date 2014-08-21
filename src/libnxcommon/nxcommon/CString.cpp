@@ -103,4 +103,20 @@ CString& CString::append(double val)
 }
 
 
+CString& CString::appendHex(unsigned int val)
+{
+	char buf[32];
+	sprintf(buf, "%X", val);
+	return append(buf);
+}
+
+
+CString& CString::appendHex(unsigned long val)
+{
+	char buf[64];
+	sprintf(buf, "%lX", val);
+	return append(buf);
+}
+
+
 

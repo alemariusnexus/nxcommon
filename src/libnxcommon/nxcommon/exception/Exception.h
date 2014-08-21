@@ -24,6 +24,7 @@
 #define EXCEPTION_H_
 
 #include <nxcommon/config.h>
+#include "../CString.h"
 #include <exception>
 #include <cstdlib>
 
@@ -43,33 +44,33 @@ using std::exception;
 
 class Exception : public exception {
 public:
-	Exception(const char* message, const char* srcFile = NULL, int srcLine = -1,
-			const Exception* nestedException = NULL, const char* exceptionName = "Exception");
+	Exception(const CString& message, const CString& srcFile = CString(), int srcLine = -1,
+			const Exception* nestedException = NULL, const CString& exceptionName = "Exception");
 	Exception(const Exception& ex);
 	virtual ~Exception() throw();
-	virtual const char* what() const throw() { return fullMessage; };
-	virtual Exception* copy() const throw() { return new Exception(*this); }
-	const char* getMessage() const throw() { return message; }
-	const char* getBacktrace() const throw();
-	const char* getName() const throw() { return exceptionName; }
+	virtual const char* what() const throw() { return fullMessage.get(); }
+	virtual Exception* clone() const throw() { return new Exception(*this); }
+	CString getMessage() const throw() { return message; }
+	CString getBacktrace() const throw();
+	CString getName() const throw() { return exceptionName; }
 
 protected:
-	void setMessage(const char* message);
+	void setMessage(const CString& message);
 
 private:
-	char* buildFullMessage() const throw();
+	CString buildFullMessage() const throw();
 
 private:
-#ifdef _BACKTRACE_AVAILABLE
-	char* backTrace;
-#endif
-
-	const char* exceptionName;
-	char* message;
-	char* fullMessage;
-	const char* srcFile;
+	CString exceptionName;
+	CString message;
+	CString fullMessage;
+	CString srcFile;
 	int srcLine;
 	Exception* nestedException;
+
+#ifdef _BACKTRACE_AVAILABLE
+	CString backTrace;
+#endif
 };
 
 #endif /* EXCEPTION_H_ */

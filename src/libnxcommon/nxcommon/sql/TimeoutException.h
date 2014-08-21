@@ -29,7 +29,7 @@
 class TimeoutException : public Exception
 {
 public:
-	TimeoutException(const char* message, const char* srcFile = NULL, int srcLine = -1,
+	TimeoutException(const CString& message, const CString& srcFile = CString(), int srcLine = -1,
 			Exception* nestedException = NULL)
 			: Exception(message, srcFile, srcLine, nestedException, "TimeoutException") {}
 };

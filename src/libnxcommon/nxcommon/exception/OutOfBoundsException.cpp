@@ -25,9 +25,9 @@
 
 
 
-OutOfBoundsException::OutOfBoundsException(int index, const char* srcFile, int srcLine,
+OutOfBoundsException::OutOfBoundsException(int index, const CString& srcFile, int srcLine,
 			Exception* nestedException)
-		: Exception(NULL, srcFile, srcLine, nestedException, "OutOfBoundsException")
+		: Exception(CString(), srcFile, srcLine, nestedException, "OutOfBoundsException")
 {
 	char* message = new char[64];
 	sprintf(message, "Index %d out of bounds", index);

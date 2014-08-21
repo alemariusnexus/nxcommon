@@ -65,6 +65,7 @@ protected:
 	AbstractSharedBuffer(const AbstractSharedBuffer<UnitT, termLen, term>& other);
 	AbstractSharedBuffer(const UnitT* data, size_t size);
 	AbstractSharedBuffer(const UnitT* data, size_t size, size_t capacity);
+	AbstractSharedBuffer(size_t capacity);
 
 	template <typename Deleter>
 	AbstractSharedBuffer(UnitT* data, size_t size, size_t capacity, Deleter del = default_delete<UnitT[]>());
@@ -154,6 +155,13 @@ AbstractSharedBuffer<UnitT, termLen, term>::AbstractSharedBuffer(const UnitT* da
 {
 	if (data)
 		memcpy(d.get(), data, size*sizeof(UnitT));
+}
+
+
+template <typename UnitT, size_t termLen, UnitT term>
+AbstractSharedBuffer<UnitT, termLen, term>::AbstractSharedBuffer(size_t capacity)
+		: d(shared_ptr<UnitT>(new UnitT[capacity], default_delete<UnitT[]>())), size(0), capacity(capacity)
+{
 }
 
 

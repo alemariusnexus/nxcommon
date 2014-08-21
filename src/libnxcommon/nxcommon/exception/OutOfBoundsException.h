@@ -30,7 +30,7 @@
 
 class OutOfBoundsException : public Exception {
 public:
-	OutOfBoundsException(int index, const char* srcFile = NULL, int srcLine = -1,
+	OutOfBoundsException(int index, const CString& srcFile = CString(), int srcLine = -1,
 			Exception* nestedException = NULL);
 };
 

@@ -32,6 +32,7 @@
 #endif
 
 #include <nxcommon/nxcommon_stdint.h>
+#include <nxcommon/types.h>
 
 
 #define PI 3.141593f

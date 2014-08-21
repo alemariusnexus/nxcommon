@@ -130,20 +130,23 @@ RangedStreambuf<charT, traits>::seekoff(off_type off, ios_base::seekdir dir, ios
 	} else if (dir == ios_base::cur) {
 		if ((mode & ios_base::out) != 0) {
 			pos_type absPos = off+curWritePos;
-			if (absPos < 0  ||  absPos >= maxWrite) {
+			if (absPos < 0  ||  absPos > maxWrite) {
 				throw IOException("Attempt to seek out of bounds!", __FILE__, __LINE__);
 			}
 		}
 		if ((mode & ios_base::in) != 0) {
 			pos_type absPos = off+curReadPos;
-			if (absPos < 0  ||  absPos >= maxWrite) {
+			if (absPos < 0  ||  absPos > maxWrite) {
 				throw IOException("Attempt to seek out of bounds!", __FILE__, __LINE__);
 			}
 		}
 	} else {
-		if (off > 0  ||  -off >= maxWrite) {
-			throw IOException("Attempt to seek out of bounds!", __FILE__, __LINE__);
-		}
+		// We have to read relative to the end of the RANGED STREAM here, not the end of the BACKEND.
+		// As we don't know the end of the backend, we turn this into a beginning-relative seek instead.
+		// TODO: This might not be entirely correct. Could it be possible that the backend stream ends
+		//		before the end of this stream's range? If so, these calculations are wrong!
+
+		return seekpos(maxWrite + off, mode);
 	}
 
 	if ((mode & ios_base::out) != 0) {
@@ -166,7 +169,7 @@ template <class charT, class traits>
 typename RangedStreambuf<charT, traits>::pos_type
 RangedStreambuf<charT, traits>::seekpos(pos_type pos, ios_base::openmode mode)
 {
-	if (pos >= maxWrite) {
+	if (pos > maxWrite) {
 		throw IOException("Attempt to seek out of bounds!", __FILE__, __LINE__);
 	}
 

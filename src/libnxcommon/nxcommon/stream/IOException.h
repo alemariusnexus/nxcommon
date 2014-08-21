@@ -32,7 +32,9 @@
  */
 class IOException : public Exception {
 public:
-	IOException(const char* message, const char* srcFile = NULL, int srcLine = -1, Exception* nestedException = NULL);
+	IOException(const CString& message, const CString& srcFile = CString(), int srcLine = -1,
+			Exception* nestedException = NULL)
+			: Exception(message, srcFile, srcLine, nestedException, "IOException") {}
 };
 
 #endif /* IOEXCEPTION_H_ */

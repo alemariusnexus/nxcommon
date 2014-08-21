@@ -214,7 +214,7 @@ TEST(StringTest, CheckStrutilAndCString)
 	strcpy(tstr2, "Hallo grausame Welt!");
 	EXPECT_EQ(CString("Hallo grausame Welt!"), cstr2);
 
-	EXPECT_EQ(CString(NULL), CString());
+	EXPECT_EQ(CString((const char*) NULL), CString());
 	EXPECT_TRUE(CString().isNull());
 
 	cstr1 = CString("  ##Hallo Welt!#### ");

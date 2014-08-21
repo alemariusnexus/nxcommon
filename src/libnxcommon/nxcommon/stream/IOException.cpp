@@ -21,8 +21,3 @@
  */
 
 #include "IOException.h"
-
-IOException::IOException(const char* message, const char* srcFile, int srcLine, Exception* nestedException)
-		: Exception(message, srcFile, srcLine, nestedException, "IOException")
-{
-}

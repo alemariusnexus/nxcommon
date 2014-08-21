@@ -29,10 +29,10 @@
 
 
 
-Exception::Exception(const char* message, const char* srcFile, int srcLine, const Exception* nestedException,
-		const char* exceptionName)
-		: exceptionName(exceptionName), message(NULL), srcFile(srcFile), srcLine(srcLine),
-		  nestedException(nestedException ? nestedException->copy() : NULL)
+Exception::Exception(const CString& message, const CString& srcFile, int srcLine, const Exception* nestedException,
+		const CString& exceptionName)
+		: exceptionName(exceptionName), srcFile(srcFile), srcLine(srcLine),
+		  nestedException(nestedException ? nestedException->clone() : NULL)
 {
 	setMessage(message);
 
@@ -41,18 +41,8 @@ Exception::Exception(const char* message, const char* srcFile, int srcLine, cons
 	int backTraceSize = backtrace(buf, 50);
 	char** btArr = backtrace_symbols(buf, backTraceSize);
 
-	int len = 1;
-
 	for (int i = 0 ; i < backTraceSize ; i++) {
-		len += strlen(btArr[i])+1;
-	}
-
-	backTrace = new char[len];
-	backTrace[0] = '\0';
-
-	for (int i = 0 ; i < backTraceSize ; i++) {
-		strcat(backTrace, btArr[i]);
-		strcat(backTrace, "\n");
+		backTrace.append(btArr[i]).append("\n");
 	}
 
 	free(btArr);
@@ -61,33 +51,25 @@ Exception::Exception(const char* message, const char* srcFile, int srcLine, cons
 
 
 Exception::Exception(const Exception& ex)
-		: exceptionName(ex.exceptionName), message(NULL), srcFile(ex.srcFile), srcLine(ex.srcLine),
-		  nestedException(ex.nestedException ? ex.nestedException->copy() : NULL)
-{
-	setMessage(ex.message);
+		: exceptionName(ex.exceptionName), srcFile(ex.srcFile), srcLine(ex.srcLine),
+		  nestedException(ex.nestedException ? ex.nestedException->clone() : NULL)
 
 #ifdef _BACKTRACE_AVAILABLE
-	backTrace = new char[strlen(ex.backTrace)+1];
-	memcpy(backTrace, ex.backTrace, strlen(ex.backTrace)+1);
+		, backTrace(ex.backTrace)
 #endif
+{
+	setMessage(ex.message);
 }
 
 
 Exception::~Exception() throw()
 {
-	delete[] message;
-	delete[] fullMessage;
-
 	if (nestedException)
 		delete nestedException;
-
-#ifdef _BACKTRACE_AVAILABLE
-	delete[] backTrace;
-#endif
 }
 
 
-const char* Exception::getBacktrace() const throw()
+CString Exception::getBacktrace() const throw()
 {
 #ifdef _BACKTRACE_AVAILABLE
 	return backTrace;
@@ -97,73 +79,46 @@ const char* Exception::getBacktrace() const throw()
 }
 
 
-void Exception::setMessage(const char* message)
+void Exception::setMessage(const CString& message)
 {
-	if (this->message) {
-		delete[] this->message;
-		delete[] this->fullMessage;
-	}
+	this->message = message;
 
-	if (message) {
-		this->message = new char[strlen(message)+1];
-		strcpy(this->message, message);
+	if (!message.isNull()) {
 		fullMessage = buildFullMessage();
-	} else {
-		message = NULL;
 	}
 }
 
 
-char* Exception::buildFullMessage() const throw()
+CString Exception::buildFullMessage() const throw()
 {
-	int messageLen = (message ? strlen(message) : 10);
-	int len = messageLen + strlen(exceptionName) + 2;
+	CString msg;
+
+	msg.append(exceptionName).append(": ");
 
 #ifdef NXCOMMON_EXCEPTION_POSITION_INFO
-	if (srcFile != NULL) {
-		len += strlen(srcFile)+3;
-	}
-	if (srcLine != -1) {
-		len += 11 + 1;
-	}
-#endif
-
-	char* formMsg = new char[len+1];
-
-	strcpy(formMsg, exceptionName);
-	strcat(formMsg, ": ");
-
-#ifdef NXCOMMON_EXCEPTION_POSITION_INFO
-	if (srcFile != NULL) {
-		strcat(formMsg, srcFile);
+	if (!srcFile.isNull()) {
+		msg.append(srcFile);
 
 		if (srcLine != -1) {
-			char appendix[13];
-			sprintf(appendix, ":%d", srcLine);
-			strcat(formMsg, appendix);
+			msg.append(":").append(srcLine);
 		}
 
-		strcat(formMsg, " - ");
+		msg.append(" - ");
 	}
 #endif
 
-	if (message) {
-		strcat(formMsg, message);
+	if (!message.isNull()) {
+		msg.append(message);
 	} else {
-		strcat(formMsg, "No message");
+		msg.append("No message");
 	}
 
 	if (nestedException) {
-		const char* nestedMsg = nestedException->what();
+		CString nestedMsg = nestedException->what();
 
-		char* fullMsg = new char[strlen(formMsg) + strlen(nestedMsg) + 32];
-		sprintf(fullMsg, "%s\n\tCaused by: %s", formMsg, nestedMsg);
-
-		delete[] formMsg;
-
-		return fullMsg;
+		msg.append("\n\tCaused by: ").append(nestedMsg);
 	}
 
-	return formMsg;
+	return msg;
 }
 

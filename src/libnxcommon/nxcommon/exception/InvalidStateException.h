@@ -28,7 +28,7 @@
 
 class InvalidStateException : public Exception {
 public:
-	InvalidStateException(const char* message, const char* srcFile = NULL, int srcLine = -1,
+	InvalidStateException(const CString& message, const CString& srcFile = CString(), int srcLine = -1,
 			Exception* nestedException = NULL)
 			: Exception(message, srcFile, srcLine, nestedException, "InvalidStateException") {}
 };

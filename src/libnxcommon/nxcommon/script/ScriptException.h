@@ -30,8 +30,8 @@
 class ScriptException : public Exception
 {
 public:
-	ScriptException(const char* msg, const char* srcFile = NULL, int srcLine = -1,
-			const Exception* nestedException = NULL) : Exception(msg, srcFile, srcLine, nestedException, "ScriptException") {}
+	ScriptException(const CString& message, const CString& srcFile = CString(), int srcLine = -1,
+			const Exception* nestedException = NULL) : Exception(message, srcFile, srcLine, nestedException, "ScriptException") {}
 };
 
 #endif /* SCRIPTEXCEPTION_H_ */

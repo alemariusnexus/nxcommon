@@ -78,6 +78,7 @@ public:
 	}
 	CString(const CString& other) : AbstractSharedBuffer(other) {}
 	CString() : AbstractSharedBuffer() {}
+	CString(size_t capacity) : AbstractSharedBuffer(capacity) {}
 
 #ifdef NXCOMMON_QT_SUPPORT_ENABLED
 	CString(const QString& str) : CString(str.toUtf8().constData()) {}
@@ -99,6 +100,7 @@ public:
 	CString& trim(const char* chars) { rtrim(chars); ltrim(chars); return *this; }
 	CString& trim() { return trim(" \t\r\n"); }
 	const char* get() const { return d.get(); }
+	char* mget() { ensureUniqueness(); return d.get(); }
 	CString& append(const CString& other) { AbstractSharedBuffer::append(other); return *this; }
 	CString& append(char c) { AbstractSharedBuffer::append(c); return *this;  }
 	CString& append(long val);
@@ -107,6 +109,8 @@ public:
 	CString& append(unsigned int val);
 	CString& append(float val);
 	CString& append(double val);
+	CString& appendHex(unsigned int val);
+	CString& appendHex(unsigned long val);
 
 	CString& operator<<(const CString& other) { return append(other); }
 	CString& operator<<(char c) { return append(c); }
