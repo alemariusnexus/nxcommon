@@ -318,10 +318,38 @@ TEST(StringTest, CheckStrutilAndCString)
 	EXPECT_EQ(nstr2, CString(""));
 
 
-	CString tstr("INSERT INTO ");
-	tstr.append("test ");
-	tstr.append("(id, text, tid) VALUES (3, 'Hallo, grausame Welt!', 7)");
-	EXPECT_EQ(CString("INSERT INTO test (id, text, tid) VALUES (3, 'Hallo, grausame Welt!', 7)"), tstr);
+	{
+		CString tstr("INSERT INTO ");
+		tstr.append("test ");
+		tstr.append("(id, text, tid) VALUES (3, 'Hallo, grausame Welt!', 7)");
+		EXPECT_EQ(CString("INSERT INTO test (id, text, tid) VALUES (3, 'Hallo, grausame Welt!', 7)"), tstr);
+	}
+
+	EXPECT_EQ(CString("perfect smiles"), CString("Their perfect smiles and heartless lusts").substr(6, 14));
+
+	{
+		CString tstr(32);
+		EXPECT_GE(32, tstr.capacity());
+
+		char* d = tstr.mget();
+
+		strcpy(d, "Hello World!");
+
+		EXPECT_EQ(0, tstr.size());
+		tstr.resize();
+		EXPECT_EQ(12, tstr.size());
+
+		CString tstr2 = tstr;
+
+		EXPECT_EQ(tstr, tstr2);
+		tstr.prepend(CString("Blah blah yabba yabba harlequin originality harr harr: "));
+		EXPECT_NE(tstr, tstr2);
+
+		tstr2 = tstr;
+		EXPECT_EQ(tstr, tstr2);
+		tstr2.mget()[3] = 'x';
+		EXPECT_NE(tstr, tstr2);
+	}
 }
 
 

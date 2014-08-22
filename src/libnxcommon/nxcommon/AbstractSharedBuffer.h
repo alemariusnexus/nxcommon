@@ -46,23 +46,70 @@ public:
 
 
 
-template <typename UnitT, size_t termLen = 0, UnitT term = 0>
+/**	\brief Provides a general-purpose shared memory interface for strings and other stuff.
+ *
+ * 	This class manages an array of base units represented by the UnitT template type. It uses data sharing and
+ * 	reference counting to provide fast copying and automatic memory management, is able to resize its content
+ * 	on the fly if necessary.
+ *
+ * 	The buffer is shared between instances of this class, and copying this class will just copy the pointer to
+ * 	this shared buffer. Copy-on-write (COW) is used to be able to modify the buffer. The buffer memory is
+ * 	automatically freed when the last AbstractSharedBuffer referencing it is destroyed.
+ *
+ * 	This class can optionally make sure that the buffer is terminated
+ */
+template <typename DerivedT, typename UnitT, bool terminated = false, UnitT term = 0>
 class AbstractSharedBuffer
 {
 private:
-	static const shared_ptr<UnitT> _EmptyPtr;
+	//static const shared_ptr<UnitT> _EmptyPtr;
+
+	struct _EmptyPtrTerm { static const shared_ptr<UnitT> value; };
+	struct _EmptyPtrNonterm { static const shared_ptr<UnitT> value; };
+
+	struct _TermLen0 { static const size_t value = 0; };
+	struct _TermLen1 { static const size_t value = 1; };
+
+	typedef typename std::conditional<terminated, _TermLen1, _TermLen0>::type TermLen;
+	typedef typename std::conditional<terminated, _EmptyPtrTerm, _EmptyPtrNonterm>::type EmptyPtr;
 
 public:
 	bool isNull() const { return isnull; }
-	size_t getSize() const { return size; }
-	size_t getLength() const { return size-termLen; }
-	size_t getCapacity() const { return capacity; }
+	bool isEmpty() const { return msize == 0; }
 
-	void squeeze() { resizeExactly(size); }
+	size_t getSize() const { return msize; }
+	size_t getLength() const { return msize; }
+	size_t size() const { return msize; }
+	size_t length() const { return msize; }
+
+	size_t getCapacity() const { return mcapacity; }
+	size_t capacity() const { return mcapacity; }
+
+	void reserve(size_t minCapacity);
+	void grow(size_t minCapacity);
+	void squeeze() { realloc(msize); }
+
+	void resize(size_t newSize);
+
+	const UnitT* get() const { return d.get(); }
+	UnitT* mget() { ensureUniqueness(); return d.get(); }
+
+	DerivedT substr(size_t begin, size_t len) const;
+
+	DerivedT& lower();
+
+	DerivedT& append(const DerivedT& other);
+	DerivedT& append(UnitT u);
+
+	DerivedT& prepend(const DerivedT& other);
+	DerivedT& prepend(UnitT u);
+
+	DerivedT& insert(size_t index, const DerivedT& other);
+	DerivedT& insert(size_t index, UnitT u);
 
 protected:
 	AbstractSharedBuffer();
-	AbstractSharedBuffer(const AbstractSharedBuffer<UnitT, termLen, term>& other);
+	AbstractSharedBuffer(const AbstractSharedBuffer<DerivedT, UnitT, terminated, term>& other);
 	AbstractSharedBuffer(const UnitT* data, size_t size);
 	AbstractSharedBuffer(const UnitT* data, size_t size, size_t capacity);
 	AbstractSharedBuffer(size_t capacity);
@@ -76,41 +123,33 @@ protected:
 	// Read-aliasing
 	AbstractSharedBuffer(const UnitT* data, size_t size, bool, bool);
 
-	void resizeExactly(size_t newCapacity);
-	void resizeExactlyWithOffset(size_t newCapacity, size_t srcOffset, size_t destOffset, size_t copyLen);
-	void resizeExactlyWithSplit(size_t newCapacity, size_t srcOffset1, size_t destOffset1, size_t copyLen1,
-			size_t srcOffset2, size_t destOffset2, size_t copyLen2);
+	void realloc(size_t newCapacity);
+	void reallocWithOffset(size_t newCapacity, size_t srcOffset, size_t destOffset);
+	void reallocWithSplit(size_t newCapacity, size_t srcOffset1, size_t destOffset1, size_t copyLen1,
+			size_t srcOffset2, size_t destOffset2);
 
 	void growExactly(size_t newCapacity);
-	void growExactlyWithOffset(size_t newCapacity, size_t srcOffset, size_t destOffset, size_t copyLen);
+	void growExactlyWithOffset(size_t newCapacity, size_t srcOffset, size_t destOffset);
 	void growExactlyWithSplit(size_t newCapacity, size_t srcOffset1, size_t destOffset1, size_t copyLen1,
-			size_t srcOffset2, size_t destOffset2, size_t copyLen2);
+			size_t srcOffset2, size_t destOffset2);
 
-	void grow(size_t minCapacity);
-	void growWithOffset(size_t minCapacity, size_t srcOffset, size_t destOffset, size_t copyLen);
+	void growWithOffset(size_t minCapacity, size_t srcOffset, size_t destOffset);
 	void growWithSplit(size_t minCapacity, size_t srcOffset1, size_t destOffset1, size_t copyLen1,
-			size_t srcOffset2, size_t destOffset2, size_t copyLen2);
+			size_t srcOffset2, size_t destOffset2);
 
 	void ensureUniqueness();
 
-	void append(const AbstractSharedBuffer<UnitT, termLen, term>& other);
-	void append(UnitT u);
-
-	void prepend(const AbstractSharedBuffer<UnitT, termLen, term>& other);
-	void prepend(UnitT u);
-
-	void insert(size_t index, const AbstractSharedBuffer<UnitT, termLen, term>& other);
-	void insert(size_t index, UnitT u);
-
 	void assign(const AbstractSharedBuffer& other);
+
+	size_t resize();
 
 private:
 	static size_t getGrownCapacity(size_t newCapacity);
 
 protected:
 	shared_ptr<UnitT> d;
-	size_t size;
-	size_t capacity;
+	size_t msize;
+	size_t mcapacity;
 	bool isnull;
 
 private:
@@ -118,253 +157,322 @@ private:
 };
 
 
-template <typename UnitT, size_t termLen, UnitT term>
-const shared_ptr<UnitT> AbstractSharedBuffer<UnitT, termLen, term>::_EmptyPtr
-		= shared_ptr<UnitT>(new UnitT[1] {term}, default_delete<UnitT[]>());
+
+
+template <typename DerivedT, typename UnitT, bool terminated, UnitT term>
+const shared_ptr<UnitT> AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::_EmptyPtrTerm::value = shared_ptr<UnitT>(new UnitT[1] {term}, default_delete<UnitT[]>());
+
+template <typename DerivedT, typename UnitT, bool terminated, UnitT term>
+const shared_ptr<UnitT> AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::_EmptyPtrNonterm::value = shared_ptr<UnitT>(new UnitT[0] {}, default_delete<UnitT[]>());
 
 
 
 
-template <typename UnitT, size_t termLen, UnitT term>
-AbstractSharedBuffer<UnitT, termLen, term>::AbstractSharedBuffer()
-		: d(_EmptyPtr), size(termLen), capacity(termLen), isnull(true)
+template <typename DerivedT, typename UnitT, bool terminated, UnitT term>
+AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::AbstractSharedBuffer()
+		: d(EmptyPtr::value), msize(0), mcapacity(0), isnull(true)
 {
 }
 
 
-template <typename UnitT, size_t termLen, UnitT term>
-AbstractSharedBuffer<UnitT, termLen, term>::AbstractSharedBuffer(const AbstractSharedBuffer<UnitT, termLen, term>& other)
-		: d(other.d), size(other.size), capacity(other.capacity), isnull(other.isnull), readAliasDummy(other.readAliasDummy)
+template <typename DerivedT, typename UnitT, bool terminated, UnitT term>
+AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::AbstractSharedBuffer(const AbstractSharedBuffer<DerivedT, UnitT, terminated, term>& other)
+		: d(other.d), msize(other.msize), mcapacity(other.mcapacity), isnull(other.isnull), readAliasDummy(other.readAliasDummy)
 {
 }
 
 
-template <typename UnitT, size_t termLen, UnitT term>
-AbstractSharedBuffer<UnitT, termLen, term>::AbstractSharedBuffer(const UnitT* data, size_t size)
-		: d(data ? shared_ptr<UnitT>(new UnitT[size], default_delete<UnitT[]>()) : _EmptyPtr), size(size), capacity(size),
-		  isnull(data == NULL)
+template <typename DerivedT, typename UnitT, bool terminated, UnitT term>
+AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::AbstractSharedBuffer(const UnitT* data, size_t size)
+		: d(data ? shared_ptr<UnitT>(new UnitT[size + TermLen::value], default_delete<UnitT[]>()) : EmptyPtr::value),
+		  msize(size), mcapacity(size), isnull(data == NULL)
 {
-	if (data)
+	if (data) {
 		memcpy(d.get(), data, size*sizeof(UnitT));
+
+		if (terminated) {
+			d.get()[size] = term;
+		}
+	}
 }
 
 
-template <typename UnitT, size_t termLen, UnitT term>
-AbstractSharedBuffer<UnitT, termLen, term>::AbstractSharedBuffer(const UnitT* data, size_t size, size_t capacity)
-		: d(data ? shared_ptr<UnitT>(new UnitT[capacity], default_delete<UnitT[]>()) : _EmptyPtr), size(size), capacity(capacity), isnull(data == NULL)
+template <typename DerivedT, typename UnitT, bool terminated, UnitT term>
+AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::AbstractSharedBuffer(const UnitT* data, size_t size, size_t capacity)
+		: d(data ? shared_ptr<UnitT>(new UnitT[capacity + TermLen::value], default_delete<UnitT[]>()) : EmptyPtr::value),
+		  msize(size), mcapacity(capacity), isnull(data == NULL)
 {
-	if (data)
+	if (data) {
 		memcpy(d.get(), data, size*sizeof(UnitT));
+
+		if (terminated) {
+			d.get()[size] = term;
+		}
+	}
 }
 
 
-template <typename UnitT, size_t termLen, UnitT term>
-AbstractSharedBuffer<UnitT, termLen, term>::AbstractSharedBuffer(size_t capacity)
-		: d(shared_ptr<UnitT>(new UnitT[capacity], default_delete<UnitT[]>())), size(0), capacity(capacity)
+template <typename DerivedT, typename UnitT, bool terminated, UnitT term>
+AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::AbstractSharedBuffer(size_t capacity)
+		: d(shared_ptr<UnitT>(new UnitT[capacity + TermLen::value], default_delete<UnitT[]>())), msize(0), mcapacity(capacity),
+		  isnull(false)
 {
+	if (terminated) {
+		d.get()[0] = term;
+	}
 }
 
 
-template <typename UnitT, size_t termLen, UnitT term>
+template <typename DerivedT, typename UnitT, bool terminated, UnitT term>
 template <typename Deleter>
-AbstractSharedBuffer<UnitT, termLen, term>::AbstractSharedBuffer(UnitT* data, size_t size, size_t capacity, Deleter del)
-		: d(data ? shared_ptr<UnitT>(data, del) : _EmptyPtr), size(size), capacity(capacity), isnull(data == NULL)
+AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::AbstractSharedBuffer(UnitT* data, size_t size, size_t capacity, Deleter del)
+		: d(data ? shared_ptr<UnitT>(data, del) : EmptyPtr::value), msize(size), mcapacity(capacity), isnull(data == NULL)
 {
 }
 
 
-template <typename UnitT, size_t termLen, UnitT term>
-AbstractSharedBuffer<UnitT, termLen, term>::AbstractSharedBuffer(UnitT* data, size_t size, size_t capacity, bool)
-		: d(data ? shared_ptr<UnitT>(data, _NopDeleter<UnitT>()) : _EmptyPtr), size(size), capacity(capacity), isnull(data == NULL)
+template <typename DerivedT, typename UnitT, bool terminated, UnitT term>
+AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::AbstractSharedBuffer(UnitT* data, size_t size, size_t capacity, bool)
+		: d(data ? shared_ptr<UnitT>(data, _NopDeleter<UnitT>()) : EmptyPtr::value), msize(size), mcapacity(capacity), isnull(data == NULL)
 {
 }
 
 
-template <typename UnitT, size_t termLen, UnitT term>
-AbstractSharedBuffer<UnitT, termLen, term>::AbstractSharedBuffer(const UnitT* data, size_t size, bool, bool)
-		: d(data ? shared_ptr<UnitT>(const_cast<UnitT*>(data), _NopDeleter<UnitT>()) : _EmptyPtr), size(size), capacity(size),
+template <typename DerivedT, typename UnitT, bool terminated, UnitT term>
+AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::AbstractSharedBuffer(const UnitT* data, size_t size, bool, bool)
+		: d(data ? shared_ptr<UnitT>(const_cast<UnitT*>(data), _NopDeleter<UnitT>()) : EmptyPtr::value), msize(size), mcapacity(size),
 		  isnull(data == NULL), readAliasDummy(d)
 {
 }
 
 
-template <typename UnitT, size_t termLen, UnitT term>
-size_t AbstractSharedBuffer<UnitT, termLen, term>::getGrownCapacity(size_t newCapacity)
+template <typename DerivedT, typename UnitT, bool terminated, UnitT term>
+size_t AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::getGrownCapacity(size_t newCapacity)
 {
 	return GetNextPowerOfTwo(newCapacity);
 }
 
 
-template <typename UnitT, size_t termLen, UnitT term>
-void AbstractSharedBuffer<UnitT, termLen, term>::resizeExactly(size_t newCapacity)
+// Assumption: newCapacity >= size
+template <typename DerivedT, typename UnitT, bool terminated, UnitT term>
+void AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::realloc(size_t newCapacity)
 {
-	UnitT* newD = new UnitT[newCapacity];
-	size_t cpySize = min(newCapacity, size);
-	memcpy(newD, d.get(), cpySize*sizeof(UnitT));
+	UnitT* newD = new UnitT[newCapacity + TermLen::value];
+	// TODO: This doesn't copy the null terminator, at least when size is the minimum. When size is NOT the minimum, then
+	// 		newCapacity would have to include the null terminator, which is not what a 'capacity' means in this class
+	memcpy(newD, d.get(), (msize + TermLen::value)*sizeof(UnitT));
 	d = shared_ptr<UnitT>(newD, default_delete<UnitT[]>());
-	size = cpySize;
-	capacity = newCapacity;
+	mcapacity = newCapacity;
 	isnull = false;
 }
 
 
-template <typename UnitT, size_t termLen, UnitT term>
-void AbstractSharedBuffer<UnitT, termLen, term>::resizeExactlyWithOffset(size_t newCapacity, size_t srcOffset, size_t destOffset, size_t copyLen)
+template <typename DerivedT, typename UnitT, bool terminated, UnitT term>
+void AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::reallocWithOffset(size_t newCapacity, size_t srcOffset, size_t destOffset)
 {
-	UnitT* newD = new UnitT[newCapacity];
-	size_t cpySize = min(copyLen, newCapacity-destOffset);
+	UnitT* newD = new UnitT[newCapacity + TermLen::value];
+	size_t cpySize = msize-srcOffset + TermLen::value;
 	memcpy(newD+destOffset, d.get()+srcOffset, cpySize*sizeof(UnitT));
 	d = shared_ptr<UnitT>(newD, default_delete<UnitT[]>());
-	size = cpySize+destOffset;
-	capacity = newCapacity;
+	msize += destOffset-srcOffset;
+	mcapacity = newCapacity;
 	isnull = false;
 }
 
 
-template <typename UnitT, size_t termLen, UnitT term>
-void AbstractSharedBuffer<UnitT, termLen, term>::resizeExactlyWithSplit(size_t newCapacity, size_t srcOffset1, size_t destOffset1, size_t copyLen1,
-			size_t srcOffset2, size_t destOffset2, size_t copyLen2)
+template <typename DerivedT, typename UnitT, bool terminated, UnitT term>
+void AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::reallocWithSplit(size_t newCapacity,
+		size_t srcOffset1, size_t destOffset1, size_t copyLen1,
+		size_t srcOffset2, size_t destOffset2)
 {
 	UnitT* newD = new UnitT[newCapacity];
-	size_t cpySize1 = min(copyLen1, newCapacity-destOffset1);
-	size_t cpySize2 = min(copyLen2, newCapacity-destOffset2);
-	memcpy(newD+destOffset1, d.get()+srcOffset1, cpySize1*sizeof(UnitT));
-	memcpy(newD+destOffset2, d.get()+srcOffset2, cpySize2*sizeof(UnitT));
+	size_t copyLen2 = msize-srcOffset2 + TermLen::value;
+	memcpy(newD+destOffset1, d.get()+srcOffset1, copyLen1*sizeof(UnitT));
+	memcpy(newD+destOffset2, d.get()+srcOffset2, copyLen2*sizeof(UnitT));
 	d = shared_ptr<UnitT>(newD, default_delete<UnitT[]>());
-	size = max(cpySize1+destOffset1, cpySize2+destOffset2);
-	capacity = newCapacity;
+	msize = destOffset2+copyLen2 - TermLen::value;
+	mcapacity = newCapacity;
 	isnull = false;
 }
 
 
-template <typename UnitT, size_t termLen, UnitT term>
-void AbstractSharedBuffer<UnitT, termLen, term>::growExactly(size_t newCapacity)
+template <typename DerivedT, typename UnitT, bool terminated, UnitT term>
+void AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::growExactly(size_t newCapacity)
 {
-	if (newCapacity > capacity)
-		resizeExactly(newCapacity);
-	else
-		isnull = false;
-}
-
-
-template <typename UnitT, size_t termLen, UnitT term>
-void AbstractSharedBuffer<UnitT, termLen, term>::growExactlyWithOffset(size_t newCapacity, size_t srcOffset, size_t destOffset, size_t copyLen)
-{
-	newCapacity = max(newCapacity, capacity);
-	resizeExactlyWithOffset(newCapacity, srcOffset, destOffset, copyLen);
-}
-
-
-template <typename UnitT, size_t termLen, UnitT term>
-void AbstractSharedBuffer<UnitT, termLen, term>::growExactlyWithSplit(size_t newCapacity, size_t srcOffset1, size_t destOffset1, size_t copyLen1,
-		size_t srcOffset2, size_t destOffset2, size_t copyLen2)
-{
-	newCapacity = max(newCapacity, capacity);
-	resizeExactlyWithSplit(newCapacity, srcOffset1, destOffset1, copyLen1, srcOffset2, destOffset2, copyLen2);
-}
-
-
-template <typename UnitT, size_t termLen, UnitT term>
-void AbstractSharedBuffer<UnitT, termLen, term>::grow(size_t minCapacity)
-{
-	if (minCapacity > capacity)
-		growExactly(getGrownCapacity(minCapacity));
-	else
-		isnull = false;
-}
-
-
-template <typename UnitT, size_t termLen, UnitT term>
-void AbstractSharedBuffer<UnitT, termLen, term>::growWithOffset(size_t minCapacity, size_t srcOffset, size_t destOffset, size_t copyLen)
-{
-	growExactlyWithOffset(getGrownCapacity(minCapacity), srcOffset, destOffset, copyLen);
-}
-
-
-template <typename UnitT, size_t termLen, UnitT term>
-void AbstractSharedBuffer<UnitT, termLen, term>::growWithSplit(size_t minCapacity, size_t srcOffset1, size_t destOffset1, size_t copyLen1,
-		size_t srcOffset2, size_t destOffset2, size_t copyLen2)
-{
-	growExactlyWithSplit(getGrownCapacity(minCapacity), srcOffset1, destOffset1, copyLen1, srcOffset2, destOffset2, copyLen2);
-}
-
-
-template <typename UnitT, size_t termLen, UnitT term>
-void AbstractSharedBuffer<UnitT, termLen, term>::ensureUniqueness()
-{
-	if (!d.unique())
-		resizeExactly(capacity);
-	else
-		isnull = false;
-}
-
-
-template <typename UnitT, size_t termLen, UnitT term>
-void AbstractSharedBuffer<UnitT, termLen, term>::append(const AbstractSharedBuffer<UnitT, termLen, term>& other)
-{
-	grow(size + other.size - termLen);
-	memcpy(d.get() + size - termLen, other.d.get(), other.size*sizeof(UnitT));
-	size += other.size - termLen;
-}
-
-
-template <typename UnitT, size_t termLen, UnitT term>
-void AbstractSharedBuffer<UnitT, termLen, term>::append(UnitT u)
-{
-	grow(size + 1);
-
-	if (termLen == 0) {
-		d.get()[size] = u;
-		size++;
+	if (newCapacity > mcapacity) {
+		realloc(newCapacity);
 	} else {
-		d.get()[size-termLen] = u;
-		d.get()[size] = term;
-		size++;
+		isnull = false;
 	}
 }
 
 
-template <typename UnitT, size_t termLen, UnitT term>
-void AbstractSharedBuffer<UnitT, termLen, term>::prepend(const AbstractSharedBuffer<UnitT, termLen, term>& other)
+template <typename DerivedT, typename UnitT, bool terminated, UnitT term>
+void AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::growExactlyWithOffset(size_t newCapacity, size_t srcOffset, size_t destOffset)
 {
-	growWithOffset(size + other.size - termLen, 0, other.size-termLen, size);
-	memcpy(d.get(), other.d.get(), (other.size-termLen)*sizeof(UnitT));
+	newCapacity = max(newCapacity, mcapacity);
+	reallocWithOffset(newCapacity, srcOffset, destOffset);
 }
 
 
-template <typename UnitT, size_t termLen, UnitT term>
-void AbstractSharedBuffer<UnitT, termLen, term>::prepend(UnitT u)
+template <typename DerivedT, typename UnitT, bool terminated, UnitT term>
+void AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::growExactlyWithSplit(size_t newCapacity, size_t srcOffset1, size_t destOffset1, size_t copyLen1,
+		size_t srcOffset2, size_t destOffset2)
 {
-	growWithOffset(size + 1, 0, 1, size);
+	newCapacity = max(newCapacity, mcapacity);
+	reallocWithSplit(newCapacity, srcOffset1, destOffset1, copyLen1, srcOffset2, destOffset2);
+}
+
+
+template <typename DerivedT, typename UnitT, bool terminated, UnitT term>
+void AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::reserve(size_t minCapacity)
+{
+	minCapacity = getGrownCapacity(minCapacity);
+
+	if (minCapacity >= msize) {
+		growExactly(minCapacity);
+	}
+}
+
+
+template <typename DerivedT, typename UnitT, bool terminated, UnitT term>
+void AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::grow(size_t minCapacity)
+{
+	if (minCapacity > mcapacity) {
+		growExactly(getGrownCapacity(minCapacity));
+	} else {
+		isnull = false;
+	}
+}
+
+
+template <typename DerivedT, typename UnitT, bool terminated, UnitT term>
+void AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::resize(size_t newSize)
+{
+	grow(newSize);
+	msize = newSize;
+
+	if (terminated) {
+		d.get()[newSize] = term;
+	}
+}
+
+
+template <typename DerivedT, typename UnitT, bool terminated, UnitT term>
+void AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::growWithOffset(size_t minCapacity, size_t srcOffset, size_t destOffset)
+{
+	growExactlyWithOffset(getGrownCapacity(minCapacity), srcOffset, destOffset);
+}
+
+
+template <typename DerivedT, typename UnitT, bool terminated, UnitT term>
+void AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::growWithSplit(size_t minCapacity, size_t srcOffset1, size_t destOffset1, size_t copyLen1,
+		size_t srcOffset2, size_t destOffset2)
+{
+	growExactlyWithSplit(getGrownCapacity(minCapacity), srcOffset1, destOffset1, copyLen1, srcOffset2, destOffset2);
+}
+
+
+template <typename DerivedT, typename UnitT, bool terminated, UnitT term>
+void AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::ensureUniqueness()
+{
+	if (!d.unique()) {
+		realloc(mcapacity);
+	} else {
+		isnull = false;
+	}
+}
+
+
+template <typename DerivedT, typename UnitT, bool terminated, UnitT term>
+DerivedT& AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::append(const DerivedT& other)
+{
+	grow(msize + other.msize);
+	memcpy(d.get() + msize, other.d.get(), (other.msize + TermLen::value)*sizeof(UnitT));
+	msize += other.msize;
+	return *static_cast<DerivedT*>(this);
+}
+
+
+template <typename DerivedT, typename UnitT, bool terminated, UnitT term>
+DerivedT& AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::append(UnitT u)
+{
+	grow(msize + 1);
+	d.get()[msize] = u;
+	msize++;
+
+	if (terminated) {
+		d.get()[msize] = term;
+	}
+
+	return *static_cast<DerivedT*>(this);
+}
+
+
+template <typename DerivedT, typename UnitT, bool terminated, UnitT term>
+DerivedT& AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::prepend(const DerivedT& other)
+{
+	growWithOffset(msize + other.msize, 0, other.msize);
+	memcpy(d.get(), other.d.get(), other.msize*sizeof(UnitT));
+	return *static_cast<DerivedT*>(this);
+}
+
+
+template <typename DerivedT, typename UnitT, bool terminated, UnitT term>
+DerivedT& AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::prepend(UnitT u)
+{
+	growWithOffset(msize + 1, 0, 1);
 	d.get()[0] = u;
+	return *static_cast<DerivedT*>(this);
 }
 
 
-template <typename UnitT, size_t termLen, UnitT term>
-void AbstractSharedBuffer<UnitT, termLen, term>::insert(size_t index, const AbstractSharedBuffer<UnitT, termLen, term>& other)
+template <typename DerivedT, typename UnitT, bool terminated, UnitT term>
+DerivedT& AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::insert(size_t index, const DerivedT& other)
 {
-	growWithSplit(size + other.size - termLen, 0, 0, index, index, index+other.size-termLen, size-index);
-	memcpy(d.get()+index, other.d.get(), (other.size-termLen)*sizeof(UnitT));
+	growWithSplit(msize + other.msize, 0, 0, index, index, index+other.msize);
+	memcpy(d.get()+index, other.d.get(), other.msize*sizeof(UnitT));
+	return *static_cast<DerivedT*>(this);
 }
 
 
-template <typename UnitT, size_t termLen, UnitT term>
-void AbstractSharedBuffer<UnitT, termLen, term>::insert(size_t index, UnitT u)
+template <typename DerivedT, typename UnitT, bool terminated, UnitT term>
+DerivedT& AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::insert(size_t index, UnitT u)
 {
-	growWithSplit(size + 1, 0, 0, index, index, index+1, size-index);
+	growWithSplit(msize + 1, 0, 0, index, index, index+1);
 	d.get()[index] = u;
+	return *static_cast<DerivedT*>(this);
 }
 
 
-template <typename UnitT, size_t termLen, UnitT term>
-void AbstractSharedBuffer<UnitT, termLen, term>::assign(const AbstractSharedBuffer<UnitT, termLen, term>& other)
+template <typename DerivedT, typename UnitT, bool terminated, UnitT term>
+void AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::assign(const AbstractSharedBuffer<DerivedT, UnitT, terminated, term>& other)
 {
 	if (this != &other) {
 		d = other.d;
-		size = other.size;
-		capacity = other.capacity;
+		msize = other.msize;
+		mcapacity = other.mcapacity;
 		isnull = other.isnull;
 	}
+}
+
+
+template <typename DerivedT, typename UnitT, bool terminated, UnitT term>
+DerivedT AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::substr(size_t begin, size_t len) const
+{
+	UnitT* sub = new UnitT[len + TermLen::value];
+	memcpy(sub, d.get() + begin, len * sizeof(UnitT));
+	if (terminated) sub[len] = term;
+	return DerivedT::from(sub, len);
+}
+
+
+template <typename DerivedT, typename UnitT, bool terminated, UnitT term>
+size_t AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::resize()
+{
+	UnitT* data = d.get();
+	for (msize = 0 ; msize < mcapacity  &&  data[msize] != term ; msize++);
+	return msize;
 }
 
 #endif /* ABSTRACTSHAREDBUFFER_H_ */

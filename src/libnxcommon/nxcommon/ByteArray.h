@@ -32,16 +32,16 @@
 
 
 
-class ByteArray : public AbstractSharedBuffer<char>
+class ByteArray : public AbstractSharedBuffer<ByteArray, char>
 {
 public:
-	static ByteArray from(char* s, size_t size, size_t bufCapacity)
-			{ return ByteArray(s, size, bufCapacity, false); }
+	static ByteArray from(char* s, size_t size, size_t bufSize)
+			{ return ByteArray(s, size, bufSize, false); }
 	static ByteArray from(char* s, size_t size)
 			{ return from(s, size, size); }
 
-	static ByteArray writeAlias(char* s, size_t size, size_t bufCapacity)
-			{ return ByteArray(s, size, bufCapacity, false, false); }
+	static ByteArray writeAlias(char* s, size_t size, size_t bufSize)
+			{ return ByteArray(s, size, bufSize, false, false); }
 	static ByteArray writeAlias(char* s, size_t size)
 			{ return writeAlias(s, size, size); }
 
@@ -62,35 +62,29 @@ public:
 	operator QByteArray() const { return QByteArray(get(), length()); }
 #endif
 
-	char* getMutable() { ensureUniqueness(); return d.get(); }
-	const char* get() const { return d.get(); }
-	size_t length() const { return size; }
-
-	void setSize(size_t size) { this->size = size; }
-
 	ByteArray& append(const ByteArray& other) { AbstractSharedBuffer::append(other); return *this; }
 	ByteArray& append(char c) { AbstractSharedBuffer::append(c); return *this; }
 
 	ByteArray& prepend(const ByteArray& other) { AbstractSharedBuffer::prepend(other); return *this; }
 	ByteArray& prepend(char c) { AbstractSharedBuffer::prepend(c); return *this; }
 
-	bool operator<(const ByteArray& other) const { return memcmp(d.get(), other.d.get(), size) < 0; }
-	bool operator>(const ByteArray& other) const { return memcmp(d.get(), other.d.get(), size) > 0; }
+	bool operator<(const ByteArray& other) const { return memcmp(d.get(), other.d.get(), msize) < 0; }
+	bool operator>(const ByteArray& other) const { return memcmp(d.get(), other.d.get(), msize) > 0; }
 	bool operator<=(const ByteArray& other) const { return !(*this > other); }
 	bool operator>=(const ByteArray& other) const { return !(*this < other); }
-	bool operator==(const ByteArray& other) const { return memcmp(d.get(), other.d.get(), size) == 0; }
+	bool operator==(const ByteArray& other) const { return memcmp(d.get(), other.d.get(), msize) == 0; }
 	bool operator!=(const ByteArray& other) const { return !(*this == other); }
 
 	ByteArray& operator=(const ByteArray& other) { assign(other); return *this; }
 
 private:
-	ByteArray(char* data, size_t size, size_t capacity, bool)
-			: AbstractSharedBuffer(data, size, capacity, default_delete<char[]>())
+	ByteArray(char* data, size_t size, size_t bufSize, bool)
+			: AbstractSharedBuffer(data, size, bufSize, default_delete<char[]>())
 	{
 	}
 
-	ByteArray(char* data, size_t size, size_t capacity, bool, bool)
-			: AbstractSharedBuffer(data, size, capacity, false)
+	ByteArray(char* data, size_t size, size_t bufSize, bool, bool)
+			: AbstractSharedBuffer(data, size, bufSize, false)
 	{
 	}
 

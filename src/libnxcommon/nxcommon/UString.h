@@ -35,25 +35,25 @@
 #endif
 
 
-class UString : public AbstractSharedBuffer<UChar, 1>
+class UString : public AbstractSharedBuffer<UString, UChar, true>
 {
 public:
-	static UString from(UChar* s, size_t len, size_t bufCapacity)
-			{ return UString(s, len+1, bufCapacity, false); }
+	static UString from(UChar* s, size_t len, size_t bufSize)
+			{ return UString(s, len, bufSize-1, false); }
 	static UString from(UChar* s, size_t len)
 			{ return from(s, len, len+1); }
 	static UString from(UChar* s)
 			{ return from(s, u_strlen(s)); }
 
-	static UString writeAlias(UChar* s, size_t len, size_t bufCapacity)
-			{ return UString(s, len+1, bufCapacity, false, false); }
+	static UString writeAlias(UChar* s, size_t len, size_t bufSize)
+			{ return UString(s, len, bufSize-1, false, false); }
 	static UString writeAlias(UChar* s, size_t len)
 			{ return writeAlias(s, len, len+1); }
 	static UString writeAlias(UChar* s)
 			{ return writeAlias(s, u_strlen(s)); }
 
 	static UString readAlias(const UChar* s, size_t len)
-			{ return UString(s, len+1, false, false, false); }
+			{ return UString(s, len, false, false, false); }
 	static UString readAlias(const UChar* s)
 			{ return readAlias(s, u_strlen(s)); }
 
@@ -63,18 +63,14 @@ public:
 public:
 	UString() : AbstractSharedBuffer() {}
 	UString(const UString& other) : AbstractSharedBuffer(other) {}
-	UString(const UChar* str, size_t len) : AbstractSharedBuffer(str, len+1) {}
-	UString(const UChar* str) : AbstractSharedBuffer(str, u_strlen(str)+1) {}
+	UString(const UChar* str, size_t len) : AbstractSharedBuffer(str, len) {}
+	UString(const UChar* str) : AbstractSharedBuffer(str, u_strlen(str)) {}
 
 #ifdef NXCOMMON_QT_SUPPORT_ENABLED
 	UString(const QString& str) : UString((const UChar*) str.utf16()) {}
 
 	operator QString() const { return QString((const QChar*) get(), length()); }
 #endif
-
-	size_t length() const { return size-1; }
-	bool isEmpty() const { return size == 1; }
-	const UChar* get() const { return d.get(); }
 
 	UString& append(const UString& other) { AbstractSharedBuffer::append(other); return *this; }
 	UString& append(UChar c) { AbstractSharedBuffer::append(c); return *this; }
@@ -107,24 +103,24 @@ public:
 	UString& rtrim();
 	UString& trim();
 
-	bool operator<(const UString& other) const { return memcmp(d.get(), other.d.get(), size*2) < 0; }
-	bool operator>(const UString& other) const { return memcmp(d.get(), other.d.get(), size*2) > 0; }
+	bool operator<(const UString& other) const { return memcmp(d.get(), other.d.get(), msize*2) < 0; }
+	bool operator>(const UString& other) const { return memcmp(d.get(), other.d.get(), msize*2) > 0; }
 	bool operator<=(const UString& other) const { return !(*this > other); }
 	bool operator>=(const UString& other) const { return !(*this < other); }
-	bool operator==(const UString& other) const { return memcmp(d.get(), other.d.get(), size*2) == 0; }
+	bool operator==(const UString& other) const { return memcmp(d.get(), other.d.get(), msize*2) == 0; }
 	bool operator!=(const UString& other) const { return !(*this == other); }
 
 	size_t toUTF8(char* dest, size_t destSize) const;
 	ByteArray toUTF8() const;
 
 private:
-	UString(UChar* data, size_t size, size_t capacity, bool)
-			: AbstractSharedBuffer(data, size, capacity, default_delete<UChar[]>())
+	UString(UChar* data, size_t size, size_t bufSize, bool)
+			: AbstractSharedBuffer(data, size, bufSize, default_delete<UChar[]>())
 	{
 	}
 
-	UString(UChar* data, size_t size, size_t capacity, bool, bool)
-			: AbstractSharedBuffer(data, size, capacity, false)
+	UString(UChar* data, size_t size, size_t bufSize, bool, bool)
+			: AbstractSharedBuffer(data, size, bufSize, false)
 	{
 	}
 

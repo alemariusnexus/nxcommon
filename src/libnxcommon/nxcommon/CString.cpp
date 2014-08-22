@@ -35,7 +35,7 @@ CString& CString::ltrim(const char* chars)
 	size_t len = length();
 	while (s-os != len  &&  strchr(chars, *s)  !=  NULL) s++;
 
-	growWithOffset(capacity, s-os, 0, size-(s-os));
+	growWithOffset(mcapacity, s-os, 0);
 
 	return *this;
 
@@ -48,13 +48,13 @@ CString& CString::ltrim(const char* chars)
 }
 
 
-CString CString::substr(size_t begin, size_t len) const
+/*CString CString::substr(size_t begin, size_t len) const
 {
 	char* sub = new char[len+1];
 	memcpy(sub, d.get() + begin, len);
 	sub[len] = '\0';
-	return CString::from(sub);
-}
+	return CString::from(sub, len);
+}*/
 
 
 CString& CString::append(long val)

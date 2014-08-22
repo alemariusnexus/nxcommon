@@ -71,9 +71,11 @@ UString UString::fromUTF8(const ByteArray& utf8)
 
 	int32_t len;
 	UErrorCode errcode = U_ZERO_ERROR;
-	UChar* utf16 = new UChar[utf8.length()+1];
-	u_strFromUTF8(utf16, utf8.length()+1, &len, utf8.get(), utf8.length(), &errcode);
-	return UString::from(utf16, len, utf8.length()+1);
+	size_t utf8Len = utf8.length();
+	if (utf8.get()[utf8Len-1] == '\0') utf8Len--; // TODO: This is ugly, but it works for both termianted and non-terminated strings.
+	UChar* utf16 = new UChar[utf8Len+1];
+	u_strFromUTF8(utf16, utf8Len+1, &len, utf8.get(), utf8Len, &errcode);
+	return UString::from(utf16, len, utf8Len+1);
 }
 
 
@@ -100,13 +102,15 @@ UString& UString::lower(const CString& locale)
 	ensureUniqueness();
 	UErrorCode errcode = U_ZERO_ERROR;
 
-	int32_t len = u_strToLower(d.get(), capacity, d.get(), size-1, locale.get(), &errcode);
+	int32_t len = u_strToLower(d.get(), mcapacity, d.get(), msize, locale.get(), &errcode);
 
-	if (len >= size) {
-		grow(len+1);
+	if (len > mcapacity) {
+		grow(len);
 		errcode = U_ZERO_ERROR;
-		u_strToLower(d.get(), capacity, cpy.d.get(), cpy.size-1, locale.get(), &errcode);
+		u_strToLower(d.get(), mcapacity, cpy.d.get(), cpy.msize, locale.get(), &errcode);
 	}
+
+	msize = len;
 
 	return *this;
 }
@@ -119,15 +123,15 @@ UString& UString::upper(const CString& locale)
 	ensureUniqueness();
 	UErrorCode errcode = U_ZERO_ERROR;
 
-	int32_t len = u_strToUpper(d.get(), capacity, d.get(), size-1, locale.get(), &errcode);
+	int32_t len = u_strToUpper(d.get(), mcapacity, d.get(), msize, locale.get(), &errcode);
 
-	if (len >= size) {
-		grow(len+1);
+	if (len > mcapacity) {
+		grow(len);
 		errcode = U_ZERO_ERROR;
-		u_strToUpper(d.get(), capacity, cpy.d.get(), cpy.size-1, locale.get(), &errcode);
+		u_strToUpper(d.get(), mcapacity, cpy.d.get(), cpy.msize, locale.get(), &errcode);
 	}
 
-	size = len+1;
+	msize = len;
 
 	return *this;
 }
@@ -140,7 +144,7 @@ UString& UString::ltrim()
 
 	ensureUniqueness();
 
-	int32_t len = size-1;
+	int32_t len = msize;
 	int32_t i = 0;
 	UChar32 c;
 	UChar* str = d.get();
@@ -157,9 +161,9 @@ UString& UString::ltrim()
 
 	if (begin >= len) {
 		str[0] = 0;
-		size = 0;
+		msize = 0;
 	} else {
-		growWithOffset(capacity, begin, 0, size-begin);
+		growWithOffset(mcapacity, begin, 0);
 	}
 
 	return *this;
@@ -173,7 +177,7 @@ UString& UString::rtrim()
 
 	ensureUniqueness();
 
-	int32_t i = size-1;
+	int32_t i = msize;
 	UChar32 c;
 	UChar* str = d.get();
 	int32_t len = 0;
@@ -188,7 +192,7 @@ UString& UString::rtrim()
 	}
 
 	str[len] = 0;
-	size = len+1;
+	msize = len;
 
 	return *this;
 }
@@ -205,23 +209,23 @@ size_t UString::toUTF8(char* dest, size_t destSize) const
 {
 	UErrorCode errcode = U_ZERO_ERROR;
 	int32_t destLen;
-	u_strToUTF8(dest, destSize, &destLen, d.get(), size-1, &errcode);
+	u_strToUTF8(dest, destSize, &destLen, d.get(), msize, &errcode);
 	return destLen;
 }
 
 
 ByteArray UString::toUTF8() const
 {
-	char* outbuf = new char[size*4];
-	size_t len = toUTF8(outbuf, size*4);
-	return ByteArray::from(outbuf, len, size*4);
+	char* outbuf = new char[(msize+1)*4];
+	size_t len = toUTF8(outbuf, (msize+1)*4);
+	return ByteArray::from(outbuf, len, (msize+1)*4);
 }
 
 
 bool UString::isWhitespaceOnly() const
 {
 	const UChar* str = d.get();
-	int32_t len = size-1;
+	int32_t len = msize;
 	int32_t i = 0;
 	UChar32 c;
 
@@ -240,7 +244,7 @@ UString& UString::append(long val)
 {
 	UChar buf[64];
 	UChar* beg = _FormatIntUTF16<long>(buf, val);
-	append(UString(beg, buf-beg-1));
+	append(UString(beg, buf+63-beg));
 	return *this;
 }
 
@@ -249,7 +253,7 @@ UString& UString::append(unsigned long val)
 {
 	UChar buf[64];
 	UChar* beg = _FormatUIntUTF16<unsigned long>(buf, val);
-	append(UString(beg, buf-beg-1));
+	append(UString(beg, buf+63-beg));
 	return *this;
 }
 
@@ -258,7 +262,7 @@ UString& UString::append(int val)
 {
 	UChar buf[64];
 	UChar* beg = _FormatIntUTF16<int>(buf, val);
-	append(UString(beg, buf-beg-1));
+	append(UString(beg, buf+63-beg));
 	return *this;
 }
 
@@ -267,7 +271,7 @@ UString& UString::append(unsigned int val)
 {
 	UChar buf[64];
 	UChar* beg = _FormatUIntUTF16<unsigned int>(buf, val);
-	append(UString(beg, buf+sizeof(buf)/sizeof(UChar)-beg-1));
+	append(UString(beg, buf+63-beg));
 	return *this;
 }
 
