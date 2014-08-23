@@ -145,7 +145,7 @@ UString PSQLResultImpl::getString(int index, bool* success) const
 }
 
 
-ByteArray PSQLResultImpl::getStringUTF8(int index, bool* success) const
+CString PSQLResultImpl::getStringUTF8(int index, bool* success) const
 {
 	if (success) {
 		*success = true;
@@ -153,7 +153,7 @@ ByteArray PSQLResultImpl::getStringUTF8(int index, bool* success) const
 
 	const char* data = PQgetvalue(res, curTuple, index);
 	int len = PQgetlength(res, curTuple, index);
-	return ByteArray::readAlias(data, len);
+	return CString::readAlias(data, len);
 }
 
 

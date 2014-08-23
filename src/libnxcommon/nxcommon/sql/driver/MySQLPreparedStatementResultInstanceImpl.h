@@ -40,7 +40,7 @@ public:
 	virtual double getDouble(int index, bool* success = NULL) const;
 	virtual ByteArray getBLOB(int index, bool* success = NULL) const;
 	virtual UString getString(int index, bool* success = NULL) const;
-	virtual ByteArray getStringUTF8(int index, bool* success = NULL) const;
+	virtual CString getStringUTF8(int index, bool* success = NULL) const;
 	virtual bool isNull(int index) const;
 	virtual bool getBool(int index, bool* success = NULL) const;
 	virtual int getType(int index) const;

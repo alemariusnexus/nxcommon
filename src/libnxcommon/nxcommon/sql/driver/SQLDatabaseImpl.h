@@ -43,10 +43,10 @@ public:
 	virtual ~SQLDatabaseImpl() {}
 	virtual SQLPreparedStatementImpl* createPreparedStatement() = 0;
 	virtual SQLResultImpl* sendQuery(const UString& query) = 0;
-	virtual SQLResultImpl* sendQueryUTF8(const ByteArray& query) = 0;
+	virtual SQLResultImpl* sendQueryUTF8(const CString& query) = 0;
 	virtual uint64_t getLastInsertID() const = 0;
 	virtual UString escapeString(const UString& str) const = 0;
-	virtual ByteArray escapeStringUTF8(const ByteArray& str) const = 0;
+	virtual CString escapeStringUTF8(const CString& str) const = 0;
 	virtual void setTimeout(uint64_t timeoutMillis) {}
 
 	virtual uint64_t getCapabilities() const;

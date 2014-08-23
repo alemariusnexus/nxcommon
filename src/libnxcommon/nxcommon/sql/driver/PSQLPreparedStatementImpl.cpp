@@ -182,7 +182,7 @@ void PSQLPreparedStatementImpl::bindString(size_t index, const UString& value)
 }
 
 
-void PSQLPreparedStatementImpl::bindStringUTF8(size_t index, const ByteArray& value)
+void PSQLPreparedStatementImpl::bindStringUTF8(size_t index, const CString& value)
 {
 	allocInValues(index+1);
 
@@ -233,9 +233,9 @@ void PSQLPreparedStatementImpl::prepare(const UString& query)
 }
 
 
-void PSQLPreparedStatementImpl::prepareUTF8(const ByteArray& query)
+void PSQLPreparedStatementImpl::prepareUTF8(const CString& query)
 {
-	ByteArray editedQuery = ConvertPlaceholdersToPSQLUTF8(query);
+	CString editedQuery = ConvertPlaceholdersToPSQLUTF8(query);
 
 	PGconn* pq = db->getPGconn();
 

@@ -23,7 +23,7 @@
 #ifndef USTRING_H_
 #define USTRING_H_
 
-#include "AbstractSharedBuffer.h"
+#include "AbstractSharedString.h"
 #include "CString.h"
 #include "ByteArray.h"
 #include <unicode/uchar.h>
@@ -35,64 +35,37 @@
 #endif
 
 
-class UString : public AbstractSharedBuffer<UString, UChar, true>
+
+/**	\brief A simple and lightweight UTF-16 string class using data sharing.
+ *
+ * 	This class stores and handles characters encoded in UTF-16. It is a lightweight class, so don't expect sophisticated
+ * 	locale-aware data handling, but the methods of this class generally understand Unicode, unless otherwise noted.
+ *
+ * 	See the documentation for the AbstractSharedString class for more information.
+ *
+ *	@see AbstractSharedString
+ *	@see AbstractSharedBuffer
+ *	@see CString
+ *	@see ByteArray
+ */
+class UString : public AbstractSharedString<UString, UChar>
 {
+	friend class AbstractSharedString<UString, UChar>;
+
 public:
-	static UString from(UChar* s, size_t len, size_t bufSize)
-			{ return UString(s, len, bufSize-1, false); }
-	static UString from(UChar* s, size_t len)
-			{ return from(s, len, len+1); }
-	static UString from(UChar* s)
-			{ return from(s, u_strlen(s)); }
-
-	static UString writeAlias(UChar* s, size_t len, size_t bufSize)
-			{ return UString(s, len, bufSize-1, false, false); }
-	static UString writeAlias(UChar* s, size_t len)
-			{ return writeAlias(s, len, len+1); }
-	static UString writeAlias(UChar* s)
-			{ return writeAlias(s, u_strlen(s)); }
-
-	static UString readAlias(const UChar* s, size_t len)
-			{ return UString(s, len, false, false, false); }
-	static UString readAlias(const UChar* s)
-			{ return readAlias(s, u_strlen(s)); }
-
-	static UString fromUTF8(const ByteArray& utf8);
+	static UString fromUTF8(const CString& utf8);
 	static UString fromASCII(const CString& ascii);
 
 public:
-	UString() : AbstractSharedBuffer() {}
-	UString(const UString& other) : AbstractSharedBuffer(other) {}
-	UString(const UChar* str, size_t len) : AbstractSharedBuffer(str, len) {}
-	UString(const UChar* str) : AbstractSharedBuffer(str, u_strlen(str)) {}
+	using AbstractSharedString::AbstractSharedString;
+
+	UString() : AbstractSharedString() {}
 
 #ifdef NXCOMMON_QT_SUPPORT_ENABLED
 	UString(const QString& str) : UString((const UChar*) str.utf16()) {}
 
 	operator QString() const { return QString((const QChar*) get(), length()); }
 #endif
-
-	UString& append(const UString& other) { AbstractSharedBuffer::append(other); return *this; }
-	UString& append(UChar c) { AbstractSharedBuffer::append(c); return *this; }
-
-	UString& append(long val);
-	UString& append(unsigned long val);
-	UString& append(int val);
-	UString& append(unsigned int val);
-	UString& append(float val);
-	UString& append(double val);
-
-	UString& operator<<(const UString& other) { return append(other); }
-	UString& operator<<(UChar c) { return append(c); }
-	UString& operator<<(long val) { return append(val); }
-	UString& operator<<(unsigned long val) { return append(val); }
-	UString& operator<<(int val) { return append(val); }
-	UString& operator<<(unsigned int val) { return append(val); }
-	UString& operator<<(float val) { return append(val); }
-	UString& operator<<(double val) { return append(val); }
-
-	UString& prepend(const UString& other) { AbstractSharedBuffer::prepend(other); return *this; }
-	UString& prepend(UChar c) { AbstractSharedBuffer::prepend(c); return *this; }
 
 	UString& lower(const CString& locale = CString());
 	UString& upper(const CString& locale = CString());
@@ -103,31 +76,13 @@ public:
 	UString& rtrim();
 	UString& trim();
 
-	bool operator<(const UString& other) const { return memcmp(d.get(), other.d.get(), msize*2) < 0; }
-	bool operator>(const UString& other) const { return memcmp(d.get(), other.d.get(), msize*2) > 0; }
-	bool operator<=(const UString& other) const { return !(*this > other); }
-	bool operator>=(const UString& other) const { return !(*this < other); }
-	bool operator==(const UString& other) const { return memcmp(d.get(), other.d.get(), msize*2) == 0; }
-	bool operator!=(const UString& other) const { return !(*this == other); }
-
 	size_t toUTF8(char* dest, size_t destSize) const;
-	ByteArray toUTF8() const;
+	CString toUTF8() const;
 
-private:
-	UString(UChar* data, size_t size, size_t bufSize, bool)
-			: AbstractSharedBuffer(data, size, bufSize, default_delete<UChar[]>())
-	{
-	}
-
-	UString(UChar* data, size_t size, size_t bufSize, bool, bool)
-			: AbstractSharedBuffer(data, size, bufSize, false)
-	{
-	}
-
-	UString(const UChar* data, size_t size, bool, bool, bool)
-			: AbstractSharedBuffer(data, size, false, false)
-	{
-	}
+protected:
+	static UString convertFromLong(long val, unsigned int base);
+	static UString convertFromULong(unsigned long val, unsigned int base);
+	static UString convertFromDouble(double val);
 };
 
 #endif /* USTRING_H_ */

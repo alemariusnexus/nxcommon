@@ -70,8 +70,8 @@ MySQLPreparedStatementResultImpl::MySQLPreparedStatementResultImpl(
 		// TODO: Maybe make BLOB the default for unknown data types
 		switch (field->type) {
 		case MYSQL_TYPE_TINY_BLOB:
-			vfield.barr = ByteArray::from(new char[256], 256);
-			bind.buffer = vfield.barr.getMutable();
+			vfield.barr = ByteArray::from(new char[260], 256, 260); // Allocate some extra storage for quick ByteArray->*String conversion
+			bind.buffer = vfield.barr.mget();
 			bind.buffer_length = 256;
 			bind.length = &vfield.barrLen;
 			blobIndices[numBlobIndices++] = i;
@@ -85,8 +85,9 @@ MySQLPreparedStatementResultImpl::MySQLPreparedStatementResultImpl(
 		case MYSQL_TYPE_BIT:
 			if (field->length <= MAX_BLOB_FETCH_IN_ADVANCE_SIZE) {
 				vfield.barrLen = field->length;
-				vfield.barr = ByteArray::from(new char[field->length], field->length);
-				bind.buffer = vfield.barr.getMutable();
+				// Allocate some extra storage for quick ByteArray->*String conversion
+				vfield.barr = ByteArray::from(new char[field->length+4], field->length, field->length+4);
+				bind.buffer = vfield.barr.mget();
 				bind.buffer_length = field->length;
 				bind.length = &vfield.barrLen;
 			} else {
@@ -200,13 +201,14 @@ bool MySQLPreparedStatementResultImpl::nextRecord()
 			if (bind->buffer != dummyBuffer) {
 				// A buffer with a guessed size.
 
-				field.barr.setSize(*bind->length);
+				field.barr.resize(*bind->length);
 			} else {
 				// A variable-length buffer with a length range too big to just allocate on spec.
 
-				bind->buffer = new char[*bind->length];
+				// Allocate some extra storage for quick ByteArray->*String conversion
+				bind->buffer = new char[*bind->length+4];
 				bind->buffer_length = *bind->length;
-				field.barr = ByteArray::from((char*) bind->buffer, *bind->length);
+				field.barr = ByteArray::from((char*) bind->buffer, *bind->length, *bind->length+4);
 
 				if (mysql_stmt_fetch_column(stmt, bind, idx, 0) != 0) {
 					ThrowMySQLException(db->getMySQLHandle(), "Error fetching result of MySQL prepared statement", __FILE__, __LINE__);
@@ -339,7 +341,7 @@ UString MySQLPreparedStatementResultImpl::getString(int index, bool* success) co
 }
 
 
-ByteArray MySQLPreparedStatementResultImpl::getStringUTF8(int index, bool* success) const
+CString MySQLPreparedStatementResultImpl::getStringUTF8(int index, bool* success) const
 {
 	const OutField& of = outFields[index];
 
@@ -356,7 +358,7 @@ ByteArray MySQLPreparedStatementResultImpl::getStringUTF8(int index, bool* succe
 			sprintf(tmp, "%ld", of.num.ui64);
 		}
 
-		return ByteArray(tmp, strlen(tmp));
+		return CString(tmp, strlen(tmp));
 	} else if (of.isFloat) {
 		char tmp[64];
 
@@ -366,7 +368,7 @@ ByteArray MySQLPreparedStatementResultImpl::getStringUTF8(int index, bool* succe
 			sprintf(tmp, "%f", (double) of.num.d);
 		}
 
-		return ByteArray(tmp, strlen(tmp));
+		return CString(tmp, strlen(tmp));
 	} else {
 		return outFields[index].barr;
 	}

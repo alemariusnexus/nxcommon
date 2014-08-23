@@ -50,6 +50,6 @@ PGresult* FetchAsyncPSQLResult(PGconn* pq, timeval* timeout = NULL);
 
 
 UString ConvertPlaceholdersToPSQL(const UString& query);
-ByteArray ConvertPlaceholdersToPSQLUTF8(const ByteArray& query);
+CString ConvertPlaceholdersToPSQLUTF8(const CString& query);
 
 #endif /* PSQLUTILS_H_ */

@@ -105,7 +105,7 @@ UString MySQLResultImpl::getString(int index, bool* success) const
 }
 
 
-ByteArray MySQLResultImpl::getStringUTF8(int index, bool* success) const
+CString MySQLResultImpl::getStringUTF8(int index, bool* success) const
 {
 	return getBLOB(index, success);
 }

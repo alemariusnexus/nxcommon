@@ -54,7 +54,7 @@ void SQLitePreparedStatementImpl::prepare(const UString& query, const UChar** co
 }
 
 
-void SQLitePreparedStatementImpl::prepareUTF8(const ByteArray& query, const char** codeLeft)
+void SQLitePreparedStatementImpl::prepareUTF8(const CString& query, const char** codeLeft)
 {
 	if (sqlite3_prepare_v2(db->getSQLiteHandle(), query.get(), query.length(), &stmt, codeLeft) != SQLITE_OK) {
 		ThrowSQLiteException(db->getSQLiteHandle(), "Error preparing SQLite statement", __FILE__, __LINE__);
@@ -80,13 +80,13 @@ void SQLitePreparedStatementImpl::prepare(const UString& query)
 }
 
 
-void SQLitePreparedStatementImpl::prepareUTF8(const ByteArray& query)
+void SQLitePreparedStatementImpl::prepareUTF8(const CString& query)
 {
 	const char* codeLeft = NULL;
 
 	prepareUTF8(query, &codeLeft);
 
-	if (!IsWhitespaceOnlyUTF8(ByteArray::readAlias(codeLeft, strlen(codeLeft)))) {
+	if (!IsWhitespaceOnlyUTF8(CString::readAlias(codeLeft, strlen(codeLeft)))) {
 		sqlite3_finalize(stmt);
 		stmt = NULL;
 
@@ -150,7 +150,7 @@ void SQLitePreparedStatementImpl::bindString(size_t index, const UString& value)
 }
 
 
-void SQLitePreparedStatementImpl::bindStringUTF8(size_t index, const ByteArray& value)
+void SQLitePreparedStatementImpl::bindStringUTF8(size_t index, const CString& value)
 {
 	if (sqlite3_bind_text(stmt, index+1, value.get(), value.length(), SQLITE_STATIC) != SQLITE_OK) {
 		ThrowSQLiteException(db->getSQLiteHandle(), NULL, __FILE__, __LINE__);

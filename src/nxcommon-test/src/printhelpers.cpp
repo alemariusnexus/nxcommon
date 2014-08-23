@@ -32,7 +32,7 @@ ostream& operator<<(ostream& stream, const CString& cstr)
 
 ostream& operator<<(ostream& stream, const UString& cstr)
 {
-	ByteArray utf8 = cstr.toUTF8();
+	CString utf8 = cstr.toUTF8();
 	return stream << utf8.get();
 }
 

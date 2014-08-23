@@ -110,7 +110,7 @@ void MySQLPreparedStatementImpl::bindString(size_t index, const UString& value)
 }
 
 
-void MySQLPreparedStatementImpl::bindStringUTF8(size_t index, const ByteArray& value)
+void MySQLPreparedStatementImpl::bindStringUTF8(size_t index, const CString& value)
 {
 	inFields[index].barr = value;
 	inFields[index].barrLen = value.length();
@@ -157,7 +157,7 @@ void MySQLPreparedStatementImpl::prepare(const UString& query)
 }
 
 
-void MySQLPreparedStatementImpl::prepareUTF8(const ByteArray& query)
+void MySQLPreparedStatementImpl::prepareUTF8(const CString& query)
 {
 	delete curRes;
 	curRes = NULL;

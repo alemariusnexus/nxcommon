@@ -44,7 +44,7 @@ public:
 	virtual double getDouble(int index, bool* success = NULL) const = 0;
 	virtual ByteArray getBLOB(int index, bool* success = NULL) const = 0;
 	virtual UString getString(int index, bool* success = NULL) const = 0;
-	virtual ByteArray getStringUTF8(int index, bool* success = NULL) const = 0;
+	virtual CString getStringUTF8(int index, bool* success = NULL) const = 0;
 	virtual bool isNull(int index) const = 0;
 	virtual bool getBool(int index, bool* success = NULL) const = 0;
 	virtual int getType(int index) const = 0;

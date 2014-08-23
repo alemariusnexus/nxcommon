@@ -32,6 +32,17 @@
 
 
 
+
+/**	\brief A simple and lightweight class for handling byte arrays with content sharing.
+ *
+ *	The data it stores may contain embedded null characters. The buffer is __not__ null terminated.
+ *
+ * 	See the documentation for the AbstractSharedBuffer class for more information.
+ *
+ *	@see AbstractSharedBuffer
+ *	@see CString
+ *	@see UString
+ */
 class ByteArray : public AbstractSharedBuffer<ByteArray, char>
 {
 public:
@@ -50,9 +61,14 @@ public:
 
 public:
 	ByteArray() : AbstractSharedBuffer() {}
-	ByteArray(const ByteArray& other) : AbstractSharedBuffer(other) {}
 	ByteArray(const char* data, size_t size, size_t capacity) : AbstractSharedBuffer(data, size, capacity) {}
 	ByteArray(const char* data, size_t size) : AbstractSharedBuffer(data, size) {}
+
+	template <typename ODerivedT, typename OUnitT, bool oterminated, OUnitT oterm>
+	ByteArray(const AbstractSharedBuffer<ODerivedT, OUnitT, oterminated, oterm>& other)
+			: AbstractSharedBuffer(other.d, other.msize*sizeof(OUnitT), other.mcapacity*sizeof(OUnitT), other.readAliasDummy) {}
+
+	ByteArray(const ByteArray& other) : AbstractSharedBuffer(other) {}
 
 #ifdef NXCOMMON_QT_SUPPORT_ENABLED
 	ByteArray(const QByteArray& barr) : ByteArray(barr.data(), barr.length()) {}
@@ -74,8 +90,6 @@ public:
 	bool operator>=(const ByteArray& other) const { return !(*this < other); }
 	bool operator==(const ByteArray& other) const { return memcmp(d.get(), other.d.get(), msize) == 0; }
 	bool operator!=(const ByteArray& other) const { return !(*this == other); }
-
-	ByteArray& operator=(const ByteArray& other) { assign(other); return *this; }
 
 private:
 	ByteArray(char* data, size_t size, size_t bufSize, bool)

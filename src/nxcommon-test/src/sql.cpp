@@ -147,8 +147,12 @@ void TestSQLTypes(SQLDatabase db)
 	EXPECT_EQ(UString(u"2"), res.getString(0, &success)); EXPECT_TRUE(success);
 	EXPECT_EQ(0xCAFEBADDEADBEEFL, res.getUInt64(1, &success)); EXPECT_TRUE(success);
 	EXPECT_DOUBLE_EQ(30071993.0, res.getDouble(2, &success)); EXPECT_TRUE(success);
-	EXPECT_EQ(UString(u"1235813").toUTF8(), res.getStringUTF8(3, &success)); EXPECT_TRUE(success);
 	EXPECT_TRUE(res.getBool(4, &success)); EXPECT_TRUE(success);
+
+	CString fstr = res.getStringUTF8(3, &success);
+	EXPECT_TRUE(success);
+	EXPECT_TRUE(CString(fstr).rtrim('0').rtrim('.') == CString(u8"1235813")) << "SQL getStringUTF8() from float value"
+			<< " test failed. Got the following string: " << fstr;
 }
 
 

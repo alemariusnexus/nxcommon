@@ -146,8 +146,8 @@ void ScriptSQLResult::registerClass(lua_State* lua)
 		}
 
 		try {
-			ByteArray barr = sres->res.getStringUTF8(idx);
-			lua_pushlstring(lua, barr.get(), barr.getSize()-1);
+			CString cstr = sres->res.getStringUTF8(idx);
+			lua_pushlstring(lua, cstr.get(), cstr.getSize());
 		} catch (SQLException& ex) {
 			db->setErrorMessage(ex.getMessage());
 			lua_pushnil(lua);

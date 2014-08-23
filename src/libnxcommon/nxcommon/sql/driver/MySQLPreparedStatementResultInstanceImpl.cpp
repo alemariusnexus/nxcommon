@@ -85,7 +85,7 @@ UString MySQLPreparedStatementResultInstanceImpl::getString(int index, bool* suc
 }
 
 
-ByteArray MySQLPreparedStatementResultInstanceImpl::getStringUTF8(int index, bool* success) const
+CString MySQLPreparedStatementResultInstanceImpl::getStringUTF8(int index, bool* success) const
 {
 	return impl->getStringUTF8(index, success);
 }

@@ -66,7 +66,7 @@ public:
 	double getDouble(size_t index, bool* success = NULL) const;
 	ByteArray getBLOB(size_t index, bool* success = NULL) const;
 	UString getString(size_t index, bool* success = NULL) const;
-	ByteArray getStringUTF8(size_t index, bool* success = NULL) const;
+	CString getStringUTF8(size_t index, bool* success = NULL) const;
 	bool isNull(size_t index) const;
 	bool getBool(size_t index, bool* success = NULL) const;
 	int getType(size_t index) const;

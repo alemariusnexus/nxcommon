@@ -137,13 +137,13 @@ UString SQLiteResultImpl::getString(int index, bool* success) const
 }
 
 
-ByteArray SQLiteResultImpl::getStringUTF8(int index, bool* success) const
+CString SQLiteResultImpl::getStringUTF8(int index, bool* success) const
 {
 	if (success) {
 		// TODO: There seems to be no easy way to see if the conversion was successful.
 		*success = true;
 	}
-	return ByteArray::readAlias((const char*) sqlite3_column_text(stmt, index), sqlite3_column_bytes(stmt, index));
+	return CString::readAlias((const char*) sqlite3_column_text(stmt, index), sqlite3_column_bytes(stmt, index));
 }
 
 

@@ -119,7 +119,7 @@ void ScriptSQLPreparedStatement::registerClass(lua_State* lua)
 
 		size_t len;
 		const char* buf = luaL_checklstring(lua, 3, &len);
-		ByteArray barr(buf, len+1);
+		CString cstr(buf, len);
 
 		auto db = sstmt->getDatabase();
 
@@ -131,7 +131,7 @@ void ScriptSQLPreparedStatement::registerClass(lua_State* lua)
 		}
 
 		try {
-			sstmt->stmt.bindStringUTF8(idx, barr);
+			sstmt->stmt.bindStringUTF8(idx, cstr);
 		} catch (SQLException& ex) {
 			db->setErrorMessage(ex.getMessage());
 			lua_pushnil(lua);
@@ -240,7 +240,7 @@ void ScriptSQLPreparedStatement::registerClass(lua_State* lua)
 				size_t strLen;
 				const char* str = lua_tolstring(lua, -1, &strLen);
 
-				stmt.bindStringUTF8(idx, ByteArray(str, strLen));
+				stmt.bindStringUTF8(idx, CString(str, strLen));
 			} else {
 				CString errmsg("Invalid bind value type at index ");
 				errmsg << idx;
@@ -262,7 +262,7 @@ void ScriptSQLPreparedStatement::registerClass(lua_State* lua)
 
 		size_t len;
 		const char* buf = luaL_checklstring(lua, 2, &len);
-		ByteArray barr(buf, len+1);
+		CString cstr(buf, len);
 
 		auto db = sstmt->getDatabase();
 
@@ -274,7 +274,7 @@ void ScriptSQLPreparedStatement::registerClass(lua_State* lua)
 		}
 
 		try {
-			sstmt->stmt.prepareUTF8(barr);
+			sstmt->stmt.prepareUTF8(cstr);
 		} catch (SQLException& ex) {
 			db->setErrorMessage(ex.getMessage());
 			lua_pushnil(lua);

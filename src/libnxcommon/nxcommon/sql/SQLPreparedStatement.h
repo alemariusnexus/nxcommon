@@ -69,13 +69,13 @@ public:
 	SQLPreparedStatement& bindFloat(size_t index, float value);
 	SQLPreparedStatement& bindDouble(size_t index, double value);
 	SQLPreparedStatement& bindString(size_t index, const UString& value);
-	SQLPreparedStatement& bindStringUTF8(size_t index, const ByteArray& value);
+	SQLPreparedStatement& bindStringUTF8(size_t index, const CString& value);
 	SQLPreparedStatement& bindBLOB(size_t index, const ByteArray& value);
 	SQLPreparedStatement& bindNull(size_t index);
 	SQLPreparedStatement& bindBool(size_t index, bool value);
 
 	void prepare(const UString& query);
-	void prepareUTF8(const ByteArray& query);
+	void prepareUTF8(const CString& query);
 	SQLResult execute();
 
 	void reset();

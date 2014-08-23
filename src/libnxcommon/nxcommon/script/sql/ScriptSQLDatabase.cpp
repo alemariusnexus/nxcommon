@@ -54,8 +54,8 @@ void ScriptSQLDatabase::registerClass(lua_State* lua)
 			if (lua_gettop(lua) > 1) {
 				size_t len;
 				const char* buf = luaL_checklstring(lua, 2, &len);
-				ByteArray barr(buf, len+1);
-				stmt = sdb->db.createPreparedStatementUTF8(barr);
+				CString cstr(buf, len);
+				stmt = sdb->db.createPreparedStatementUTF8(cstr);
 			} else {
 				stmt = sdb->db.createPreparedStatement();
 			}
@@ -75,7 +75,7 @@ void ScriptSQLDatabase::registerClass(lua_State* lua)
 
 		size_t len;
 		const char* buf = luaL_checklstring(lua, 2, &len);
-		ByteArray barr(buf, len+1);
+		CString cstr(buf, len);
 
 		CString errmsg = sdb->getErrorMessage();
 
@@ -85,7 +85,7 @@ void ScriptSQLDatabase::registerClass(lua_State* lua)
 		}
 
 		try {
-			SQLResult res = sdb->db.sendQueryUTF8(barr);
+			SQLResult res = sdb->db.sendQueryUTF8(cstr);
 			ScriptSQLResult::create(lua, res);
 		} catch (SQLException& ex) {
 			sdb->setErrorMessage(ex.getMessage());

@@ -147,6 +147,7 @@ PGresult* FetchAsyncPSQLResult(PGconn* pq, timeval* timeout)
 }
 
 
+// Just a few template parameter, nothing serious...
 template <typename CharT,
 		CharT nlChar, CharT slashChar, CharT astChar, CharT dashChar, CharT squoteChar, CharT dquoteChar,
 		CharT qmChar, CharT dollarChar, CharT zeroChar>
@@ -254,10 +255,10 @@ UString ConvertPlaceholdersToPSQL(const UString& query)
 }
 
 
-ByteArray ConvertPlaceholdersToPSQLUTF8(const ByteArray& query)
+CString ConvertPlaceholdersToPSQLUTF8(const CString& query)
 {
 	size_t len;
 	char* str = _ConvertPlaceholdersToPSQL<char, '\n', '/', '*', '-', '\'', '"', '?', '$', '0'> (
 			query.get(), query.length(), len);
-	return ByteArray::from(str, len);
+	return CString::from(str, len);
 }

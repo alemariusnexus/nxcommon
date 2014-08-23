@@ -27,41 +27,7 @@
 
 
 
-template <class IntT>
-UChar* _FormatUIntUTF16(UChar buf[64], IntT val)
-{
-	UChar* beg = buf + 64 - 1;
-	*beg = 0x0000;
-	do {
-		*--beg = (val % 10) + u'0';
-	} while ((val /= 10)  !=  0);
-	return beg;
-}
-
-
-template <class IntT>
-UChar* _FormatIntUTF16(UChar buf[64], IntT val)
-{
-	bool neg = (val < 0);
-	if (neg) {
-		val = -val;
-	}
-	UChar* beg = buf + 64 - 1;
-	*beg = 0x0000;
-	do {
-		*--beg = (val % 10) + u'0';
-	} while ((val /= 10)  !=  0);
-	if (neg) {
-		*--beg = u'-';
-	}
-	return beg;
-}
-
-
-
-
-
-UString UString::fromUTF8(const ByteArray& utf8)
+UString UString::fromUTF8(const CString& utf8)
 {
 	// I believe the upper limit for the needed space in UTF-8 -> UTF-16 conversion is twice the length of
 	// the UTF-8 string. This is the worst case, when all code points in utf8 are encoded with a single byte
@@ -72,7 +38,6 @@ UString UString::fromUTF8(const ByteArray& utf8)
 	int32_t len;
 	UErrorCode errcode = U_ZERO_ERROR;
 	size_t utf8Len = utf8.length();
-	if (utf8.get()[utf8Len-1] == '\0') utf8Len--; // TODO: This is ugly, but it works for both termianted and non-terminated strings.
 	UChar* utf16 = new UChar[utf8Len+1];
 	u_strFromUTF8(utf16, utf8Len+1, &len, utf8.get(), utf8Len, &errcode);
 	return UString::from(utf16, len, utf8Len+1);
@@ -214,11 +179,11 @@ size_t UString::toUTF8(char* dest, size_t destSize) const
 }
 
 
-ByteArray UString::toUTF8() const
+CString UString::toUTF8() const
 {
 	char* outbuf = new char[(msize+1)*4];
 	size_t len = toUTF8(outbuf, (msize+1)*4);
-	return ByteArray::from(outbuf, len, (msize+1)*4);
+	return CString::from(outbuf, len, (msize+1)*4);
 }
 
 
@@ -240,64 +205,45 @@ bool UString::isWhitespaceOnly() const
 }
 
 
-UString& UString::append(long val)
+UString UString::convertFromLong(long val, unsigned int base)
 {
-	UChar buf[64];
-	UChar* beg = _FormatIntUTF16<long>(buf, val);
-	append(UString(beg, buf+63-beg));
-	return *this;
+	UString str = convertFromULong(labs(val), base);
+
+	if (val < 0) {
+		str.prepend(u'-');
+	}
+
+	return str;
 }
 
 
-UString& UString::append(unsigned long val)
+UString UString::convertFromULong(unsigned long val, unsigned int base)
 {
-	UChar buf[64];
-	UChar* beg = _FormatUIntUTF16<unsigned long>(buf, val);
-	append(UString(beg, buf+63-beg));
-	return *this;
+	UString str(64);
+	str.resize(UInt64ToString(str.mget(), val, base));
+	return str;
 }
 
 
-UString& UString::append(int val)
-{
-	UChar buf[64];
-	UChar* beg = _FormatIntUTF16<int>(buf, val);
-	append(UString(beg, buf+63-beg));
-	return *this;
-}
-
-
-UString& UString::append(unsigned int val)
-{
-	UChar buf[64];
-	UChar* beg = _FormatUIntUTF16<unsigned int>(buf, val);
-	append(UString(beg, buf+63-beg));
-	return *this;
-}
-
-
-UString& UString::append(float val)
-{
-	return append((double) val);
-}
-
-
-UString& UString::append(double val)
+UString UString::convertFromDouble(double val)
 {
 	// TODO: Maybe there's a nicer option?
 
 	char buf[64];
 	int len = sprintf(buf, "%f", val);
 
-	UChar u16Buf[64];
+	UString str(64);
+	UChar* cstr = str.mget();
 
 	// sprintf only prints ASCII characters, which are at the beginning of the Unicode BMP, and the BMP is encoded
 	// as the code point value in UTF-16, so we basically just have to 'widen' the output of sprintf here.
 	for (int i = 0 ; i < len ; i++) {
-		u16Buf[i] = (UChar) buf[i];
+		cstr[i] = (UChar) buf[i];
 	}
 
-	return append(UString(u16Buf, len));
+	str.resize(len);
+
+	return str;
 }
 
 

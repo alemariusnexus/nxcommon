@@ -209,9 +209,10 @@ TEST(StringTest, CheckStrutilAndCString)
 
 	char* tstr2 = new char[64];
 	strcpy(tstr2, "Hallo schoene Welt!");
-	CString cstr2 = CString::from(tstr2);
+	CString cstr2 = CString::from(tstr2, strlen(tstr2), 64);
 	EXPECT_EQ(CString("Hallo schoene Welt!"), cstr2);
 	strcpy(tstr2, "Hallo grausame Welt!");
+	cstr2.resize();
 	EXPECT_EQ(CString("Hallo grausame Welt!"), cstr2);
 
 	EXPECT_EQ(CString((const char*) NULL), CString());
@@ -246,8 +247,8 @@ TEST(StringTest, CheckStrutilAndCString)
 	cstr2.trim('#');
 	EXPECT_EQ(cstr1, CString("HALLO WELT!#### "));
 	EXPECT_EQ(cstr2, CString("hallo welt!"));
-	cstr2[0] = 'H';
-	cstr2[6] = 'W';
+	cstr2.mget()[0] = 'H';
+	cstr2.mget()[6] = 'W';
 	EXPECT_EQ(cstr1, CString("HALLO WELT!#### "));
 	EXPECT_EQ(cstr2, CString("Hallo Welt!"));
 	cstr1.append(cstr2);
@@ -259,8 +260,8 @@ TEST(StringTest, CheckStrutilAndCString)
 	cstr1 = CString("Hallo Welt!");
 	cstr2 = cstr1;
 	EXPECT_EQ(cstr1, cstr2);
-	cstr1[6] = 'G';
-	cstr1[9] = 'd';
+	cstr1.mget()[6] = 'G';
+	cstr1.mget()[9] = 'd';
 	EXPECT_EQ(cstr1, CString("Hallo Geld!"));
 	EXPECT_EQ(cstr2, CString("Hallo Welt!"));
 	EXPECT_NE(cstr1, cstr2);
@@ -297,7 +298,7 @@ TEST(StringTest, CheckStrutilAndCString)
 	EXPECT_EQ(writeAliasedBuf, wastr.get());
 	EXPECT_EQ(CString("The quick brown fox. It is running over the fields."), wastr);
 	EXPECT_EQ(wastr, CString(writeAliasedBuf));
-	wastr.append(CString(" Its tail is gleaming in the morning sun."));
+	wastr << CString(" Its tail is gleaming in the morning sun."); // So cheesy...
 	EXPECT_NE(writeAliasedBuf, wastr.get());
 	EXPECT_EQ(CString("The quick brown fox. It is running over the fields. Its tail is gleaming in the morning sun."), wastr);
 	EXPECT_NE(wastr, CString(writeAliasedBuf));
@@ -320,8 +321,8 @@ TEST(StringTest, CheckStrutilAndCString)
 
 	{
 		CString tstr("INSERT INTO ");
-		tstr.append("test ");
-		tstr.append("(id, text, tid) VALUES (3, 'Hallo, grausame Welt!', 7)");
+		tstr += "test ";
+		tstr << "(id, text, tid) VALUES (3, 'Hallo, grausame Welt!', 7)";
 		EXPECT_EQ(CString("INSERT INTO test (id, text, tid) VALUES (3, 'Hallo, grausame Welt!', 7)"), tstr);
 	}
 
@@ -349,6 +350,60 @@ TEST(StringTest, CheckStrutilAndCString)
 		EXPECT_EQ(tstr, tstr2);
 		tstr2.mget()[3] = 'x';
 		EXPECT_NE(tstr, tstr2);
+	}
+
+	{
+		EXPECT_EQ(CString("1337"), CString().append((unsigned long) 1337));
+		EXPECT_EQ(CString("1337"), CString() << (long) 1337);
+		EXPECT_EQ(CString("-1234567"), CString().append((int) -1234567));
+		EXPECT_EQ(CString("12D687"), CString().append(1234567, 16));
+		EXPECT_EQ(CString("100101101011010000111"), CString().append(1234567, 2));
+		EXPECT_EQ(CString("-42243331"), CString().append(-1234567, 6));
+		EXPECT_EQ(CString("QGLJ"), CString().append(1234567, 36));
+		EXPECT_EQ(CString("-NG0040B80HPI6"), CString().append(-8332950177670314940L, 29));
+		EXPECT_EQ(CString("0xFFFFFFFFFFFFFFFF"), CString("0x").append(UINT64_MAX, 16));
+		EXPECT_EQ(CString("-777"), CString().append(-511, 8));
+	}
+
+	{
+		EXPECT_EQ(CString("Hello cruel world!"), CString("Hello world!").insert(5, " cruel"));
+		EXPECT_EQ(CString("Hello world!"), CString("Hello world!").insert(5, ""));
+		EXPECT_EQ(CString("Donaudampfschifffahrt"), CString("dampfschifffahrt").insert(0, "Donau"));
+		EXPECT_EQ(CString("Dampfschifffahrtsgesellschaft"), CString("Dampfschifffahrt").insert(16, "sgesellschaft"));
+	}
+
+	{
+		EXPECT_LT(CString("Core"), CString("Corn"));
+		EXPECT_GT(CString("Hello"), CString("Hell"));
+		EXPECT_LT(CString("Hello World"), CString("Yellow"));
+	}
+
+	{
+		CString tstr("Test Blah Blah");
+
+		ByteArray barr(tstr);
+		EXPECT_EQ(tstr.length(), barr.length());
+		EXPECT_EQ(tstr.get(), barr.get());
+		barr += 'X';
+		EXPECT_NE(tstr.get(), barr.get());
+
+		tstr.reserve(64);
+		ByteArray barr2(tstr);
+		EXPECT_EQ(tstr.get(), barr2.get());
+		barr2.append('X');
+		EXPECT_NE(tstr.get(), barr2.get());
+	}
+
+	{
+		CString tstr("Blablubb 32");
+		tstr.resize(256);
+
+		CString tstr2(tstr);
+		EXPECT_EQ(tstr.get(), tstr2.get());
+
+		// Even if the requested capacity is lower than the current capacity, grow() MUST at the very least trigger a COW copy.
+		tstr2.grow(1);
+		EXPECT_NE(tstr.get(), tstr2.get());
 	}
 }
 
@@ -438,13 +493,13 @@ TEST(StringTest, UStringTest)
 			0x5F, 0x30, 0x44, 0x30, 0xE8, 0x96, 0x00, 0x00
 	};
 
-	ByteArray realUtf8Str((const char*) utf8, sizeof(utf8)-1);
+	CString realUtf8Str((const char*) utf8, sizeof(utf8)-1);
 	UString utf16Str = UString::fromUTF8(realUtf8Str);
 	UString realUtf16Str((const UChar*) utf16);
 
 	EXPECT_EQ(realUtf16Str, utf16Str);
 
-	ByteArray utf8Str = realUtf16Str.toUTF8();
+	CString utf8Str = realUtf16Str.toUTF8();
 
 	EXPECT_EQ(realUtf8Str, utf8Str);
 }

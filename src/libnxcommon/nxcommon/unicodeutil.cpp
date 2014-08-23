@@ -27,7 +27,7 @@
 
 
 
-bool IsWhitespaceOnlyUTF8(const ByteArray& str)
+bool IsWhitespaceOnlyUTF8(const CString& str)
 {
 	const char* cstr = str.get();
 	int32_t size = str.getSize();

@@ -60,13 +60,13 @@ public:
 
 	SQLPreparedStatement createPreparedStatement();
 	SQLPreparedStatement createPreparedStatement(const UString& query);
-	SQLPreparedStatement createPreparedStatementUTF8(const ByteArray& query);
+	SQLPreparedStatement createPreparedStatementUTF8(const CString& query);
 
 	SQLResult sendQuery(const UString& query);
-	SQLResult sendQueryUTF8(const ByteArray& query);
+	SQLResult sendQueryUTF8(const CString& query);
 
 	UString escapeString(const UString& str) const;
-	ByteArray escapeStringUTF8(const ByteArray& str) const;
+	CString escapeStringUTF8(const CString& str) const;
 
 	uint64_t getCapabilities() const { return data->impl->getCapabilities(); }
 	bool hasCapability(uint64_t cap) const { return data->impl->hasCapability(cap); }

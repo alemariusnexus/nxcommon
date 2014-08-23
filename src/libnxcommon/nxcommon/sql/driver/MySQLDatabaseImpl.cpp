@@ -79,7 +79,7 @@ SQLResultImpl* MySQLDatabaseImpl::sendQuery(const UString& query)
 }
 
 
-SQLResultImpl* MySQLDatabaseImpl::sendQueryUTF8(const ByteArray& query)
+SQLResultImpl* MySQLDatabaseImpl::sendQueryUTF8(const CString& query)
 {
 	if (mysql_real_query(mysql, query.get(), query.length()) != 0) {
 		ThrowMySQLException(mysql, "Error executing query", __FILE__, __LINE__);
@@ -118,12 +118,12 @@ UString MySQLDatabaseImpl::escapeString(const UString& str) const
 }
 
 
-ByteArray MySQLDatabaseImpl::escapeStringUTF8(const ByteArray& str) const
+CString MySQLDatabaseImpl::escapeStringUTF8(const CString& str) const
 {
 	size_t size = str.length()*2 + 1;
 	char* outBuf = new char[size];
 
 	unsigned int outLen = mysql_real_escape_string(mysql, outBuf, str.get(), str.length());
 
-	return ByteArray::from(outBuf, outLen, size);
+	return CString::from(outBuf, outLen, size);
 }

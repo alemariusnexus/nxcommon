@@ -74,7 +74,7 @@ SQLResultImpl* SQLiteDatabaseImpl::sendQuery(const UString& query)
 }
 
 
-SQLResultImpl* SQLiteDatabaseImpl::sendQueryUTF8(const ByteArray& query)
+SQLResultImpl* SQLiteDatabaseImpl::sendQueryUTF8(const CString& query)
 {
 	SQLitePreparedStatementImpl* stmt = (SQLitePreparedStatementImpl*) createPreparedStatement();
 
@@ -106,12 +106,12 @@ UString SQLiteDatabaseImpl::escapeString(const UString& str) const
 }
 
 
-ByteArray SQLiteDatabaseImpl::escapeStringUTF8(const ByteArray& str) const
+CString SQLiteDatabaseImpl::escapeStringUTF8(const CString& str) const
 {
 	size_t size = str.length()*2 + 1;
 	char* outBuf = new char[size];
 
 	sqlite3_snprintf(size, outBuf, "%q", str.get());
 
-	return ByteArray::from(outBuf, strlen(outBuf), size);
+	return CString::from(outBuf, strlen(outBuf), size);
 }

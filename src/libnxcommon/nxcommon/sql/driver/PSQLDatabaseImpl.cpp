@@ -53,7 +53,7 @@ SQLResultImpl* PSQLDatabaseImpl::sendQuery(const UString& query)
 }
 
 
-SQLResultImpl* PSQLDatabaseImpl::sendQueryUTF8(const ByteArray& query)
+SQLResultImpl* PSQLDatabaseImpl::sendQueryUTF8(const CString& query)
 {
 	PGresult* res = sendQueryRaw(query.get());
 
@@ -95,14 +95,14 @@ UString PSQLDatabaseImpl::escapeString(const UString& str) const
 }
 
 
-ByteArray PSQLDatabaseImpl::escapeStringUTF8(const ByteArray& str) const
+CString PSQLDatabaseImpl::escapeStringUTF8(const CString& str) const
 {
 	size_t size = str.length()*2 + 1;
 	char* outBuf = new char[size];
 
 	size_t outLen = PQescapeStringConn(pq, outBuf, str.get(), str.length(), NULL);
 
-	return ByteArray::from(outBuf, outLen, size);
+	return CString::from(outBuf, outLen, size);
 }
 
 

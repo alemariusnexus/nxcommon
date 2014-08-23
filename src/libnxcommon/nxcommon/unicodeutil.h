@@ -23,10 +23,10 @@
 #ifndef UNICODEUTIL_H_
 #define UNICODEUTIL_H_
 
-#include "ByteArray.h"
+#include "CString.h"
 
 
 
-bool IsWhitespaceOnlyUTF8(const ByteArray& str);
+bool IsWhitespaceOnlyUTF8(const CString& str);
 
 #endif /* UNICODEUTIL_H_ */

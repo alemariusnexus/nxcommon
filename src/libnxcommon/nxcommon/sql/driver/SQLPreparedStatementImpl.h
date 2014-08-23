@@ -44,13 +44,13 @@ public:
 	virtual void bindFloat(size_t index, float value) = 0;
 	virtual void bindDouble(size_t index, double value) = 0;
 	virtual void bindString(size_t index, const UString& value) = 0;
-	virtual void bindStringUTF8(size_t index, const ByteArray& value) = 0;
+	virtual void bindStringUTF8(size_t index, const CString& value) = 0;
 	virtual void bindBLOB(size_t index, const ByteArray& value) = 0;
 	virtual void bindNull(size_t index) = 0;
 	virtual void bindBool(size_t index, bool value) = 0;
 
 	virtual void prepare(const UString& query) = 0;
-	virtual void prepareUTF8(const ByteArray& query) = 0;
+	virtual void prepareUTF8(const CString& query) = 0;
 	virtual SQLResultImpl* execute() = 0;
 	virtual void reset() = 0;
 	virtual void finalize() = 0;

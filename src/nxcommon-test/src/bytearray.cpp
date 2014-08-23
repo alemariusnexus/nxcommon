@@ -22,6 +22,8 @@
 
 #include "global.h"
 #include <nxcommon/ByteArray.h>
+#include <nxcommon/CString.h>
+#include <nxcommon/UString.h>
 
 
 
@@ -35,17 +37,59 @@ TEST(ByteArrayTest, MainByteArrayTest)
 
 	ASSERT_EQ(42, sizeof(data));
 
-	ByteArray barr((char*) data, 42);
-	EXPECT_EQ(42, barr.getSize());
-	EXPECT_EQ(42, barr.getCapacity());
-	EXPECT_FALSE(barr.isNull());
-	EXPECT_EQ(0, memcmp(data, barr.get(), 42));
+	{
+		ByteArray barr((char*) data, 42);
+		EXPECT_EQ(42, barr.getSize());
+		EXPECT_EQ(42, barr.getCapacity());
+		EXPECT_FALSE(barr.isNull());
+		EXPECT_EQ(0, memcmp(data, barr.get(), 42));
 
-	ByteArray barr2((char*) data, 42, 100);
-	EXPECT_EQ(42, barr2.getSize());
-	EXPECT_EQ(100, barr2.getCapacity());
-	barr2.squeeze();
-	EXPECT_EQ(42, barr2.getSize());
-	EXPECT_EQ(42, barr2.getCapacity());
-	EXPECT_EQ(barr, barr2);
+		ByteArray barr2((char*) data, 42, 100);
+		EXPECT_EQ(42, barr2.getSize());
+		EXPECT_EQ(100, barr2.getCapacity());
+		barr2.squeeze();
+		EXPECT_EQ(42, barr2.getSize());
+		EXPECT_EQ(42, barr2.getCapacity());
+		EXPECT_EQ(barr, barr2);
+	}
+
+	{
+		ByteArray barr((char*) data, 42);
+		barr.squeeze();
+		EXPECT_EQ(42, barr.size());
+		EXPECT_EQ(42, barr.capacity());
+
+		CString cstr1(barr);
+		EXPECT_NE(barr.get(), cstr1.get());
+		EXPECT_TRUE(memcmp(barr.get(), cstr1.get(), 42) == 0);
+		EXPECT_EQ('\0', cstr1[42]);
+
+		barr = ByteArray((char*) data, 42, 43);
+		CString cstr2(barr);
+		EXPECT_EQ(barr.get(), cstr2.get());
+		EXPECT_TRUE(memcmp(barr.get(), cstr2.get(), 42) == 0);
+		EXPECT_EQ('\0', cstr2[42]);
+		EXPECT_EQ(cstr1, cstr2);
+
+		barr.squeeze();
+		UString ustr1(barr);
+		EXPECT_EQ(21, ustr1.size());
+		EXPECT_NE(barr.get(), (const char*) ustr1.get());
+		EXPECT_TRUE(memcmp(barr.get(), ustr1.get(), 42) == 0);
+		EXPECT_EQ(u'\0', ustr1[21]);
+
+		barr = ByteArray((char*) data, 42, 43);
+		UString ustr2(barr);
+		EXPECT_EQ(21, ustr2.size());
+		EXPECT_NE(barr.get(), (const char*) ustr2.get());
+		EXPECT_TRUE(memcmp(barr.get(), ustr2.get(), 42) == 0);
+		EXPECT_EQ(u'\0', ustr2[21]);
+
+		barr = ByteArray((char*) data, 42, 44);
+		UString ustr3(barr);
+		EXPECT_EQ(21, ustr3.size());
+		EXPECT_EQ(barr.get(), (const char*) ustr3.get());
+		EXPECT_TRUE(memcmp(barr.get(), ustr3.get(), 42) == 0);
+		EXPECT_EQ(u'\0', ustr3[21]);
+	}
 }

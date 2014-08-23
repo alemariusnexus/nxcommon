@@ -75,7 +75,7 @@ void SQLPreparedStatement::prepare(const UString& query)
 }
 
 
-void SQLPreparedStatement::prepareUTF8(const ByteArray& query)
+void SQLPreparedStatement::prepareUTF8(const CString& query)
 {
 	if (data->prepared)
 		finish();
@@ -158,7 +158,7 @@ SQLPreparedStatement& SQLPreparedStatement::bindString(size_t index, const UStri
 }
 
 
-SQLPreparedStatement& SQLPreparedStatement::bindStringUTF8(size_t index, const ByteArray& value)
+SQLPreparedStatement& SQLPreparedStatement::bindStringUTF8(size_t index, const CString& value)
 {
 	ensureBindable();
 	data->impl->bindStringUTF8(index, value);

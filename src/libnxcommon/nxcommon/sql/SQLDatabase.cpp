@@ -62,7 +62,7 @@ SQLPreparedStatement SQLDatabase::createPreparedStatement(const UString& query)
 }
 
 
-SQLPreparedStatement SQLDatabase::createPreparedStatementUTF8(const ByteArray& query)
+SQLPreparedStatement SQLDatabase::createPreparedStatementUTF8(const CString& query)
 {
 	SQLPreparedStatement stmt = createPreparedStatement();
 	stmt.prepareUTF8(query);
@@ -77,7 +77,7 @@ SQLResult SQLDatabase::sendQuery(const UString& query)
 }
 
 
-SQLResult SQLDatabase::sendQueryUTF8(const ByteArray& query)
+SQLResult SQLDatabase::sendQueryUTF8(const CString& query)
 {
 	SQLResultImpl* impl = data->impl->sendQueryUTF8(query);
 	return SQLResult(*this, SQLPreparedStatement(), shared_ptr<SQLResultImpl>(impl));
@@ -90,7 +90,7 @@ UString SQLDatabase::escapeString(const UString& str) const
 }
 
 
-ByteArray SQLDatabase::escapeStringUTF8(const ByteArray& str) const
+CString SQLDatabase::escapeStringUTF8(const CString& str) const
 {
 	return data->impl->escapeStringUTF8(str);
 }

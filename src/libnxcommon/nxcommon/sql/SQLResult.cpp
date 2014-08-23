@@ -97,7 +97,7 @@ UString SQLResult::getString(size_t index, bool* success) const
 }
 
 
-ByteArray SQLResult::getStringUTF8(size_t index, bool* success) const
+CString SQLResult::getStringUTF8(size_t index, bool* success) const
 {
 	return data->impl->getStringUTF8(index, success);
 }

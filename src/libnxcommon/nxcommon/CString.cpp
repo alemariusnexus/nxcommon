@@ -48,74 +48,46 @@ CString& CString::ltrim(const char* chars)
 }
 
 
-/*CString CString::substr(size_t begin, size_t len) const
+CString CString::convertFromLong(long val, unsigned int base)
 {
-	char* sub = new char[len+1];
-	memcpy(sub, d.get() + begin, len);
-	sub[len] = '\0';
-	return CString::from(sub, len);
-}*/
+	if (base == 10) {
+		CString str(64);
+		sprintf(str.mget(), "%ld", val);
+		str.resize();
+		return str;
+	} else {
+		CString str = convertFromULong(labs(val), base);
 
+		if (val < 0) {
+			str.prepend('-');
+		}
 
-CString& CString::append(long val)
-{
-	char buf[64];
-	sprintf(buf, "%ld", val);
-	return append(buf);
+		return str;
+	}
 }
 
 
-CString& CString::append(unsigned long val)
+CString CString::convertFromULong(unsigned long val, unsigned int base)
 {
-	char buf[64];
-	sprintf(buf, "%lu", val);
-	return append(buf);
+	if (base == 10) {
+		CString str(64);
+		sprintf(str.mget(), "%lu", val);
+		str.resize();
+		return str;
+	} else {
+		CString str(64);
+		str.resize(UInt64ToString(str.mget(), val, base));
+		return str;
+	}
 }
 
 
-CString& CString::append(int val)
+CString CString::convertFromDouble(double val)
 {
-	char buf[32];
-	sprintf(buf, "%d", val);
-	return append(buf);
-}
-
-
-CString& CString::append(unsigned int val)
-{
-	char buf[32];
-	sprintf(buf, "%u", val);
-	return append(buf);
-}
-
-
-CString& CString::append(float val)
-{
-	return append((double) val);
-}
-
-
-CString& CString::append(double val)
-{
-	char buf[64];
-	sprintf(buf, "%f", val);
-	return append(buf);
-}
-
-
-CString& CString::appendHex(unsigned int val)
-{
-	char buf[32];
-	sprintf(buf, "%X", val);
-	return append(buf);
-}
-
-
-CString& CString::appendHex(unsigned long val)
-{
-	char buf[64];
-	sprintf(buf, "%lX", val);
-	return append(buf);
+	CString str(64);
+	sprintf(str.mget(), "%f", val);
+	str.resize();
+	return str;
 }
 
 

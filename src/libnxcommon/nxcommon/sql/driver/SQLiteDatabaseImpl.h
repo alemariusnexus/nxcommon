@@ -36,11 +36,11 @@ public:
 	virtual ~SQLiteDatabaseImpl();
 	virtual SQLPreparedStatementImpl* createPreparedStatement();
 	virtual SQLResultImpl* sendQuery(const UString& query);
-	virtual SQLResultImpl* sendQueryUTF8(const ByteArray& query);
+	virtual SQLResultImpl* sendQueryUTF8(const CString& query);
 	sqlite3* getSQLiteHandle() { return sqlite; }
 	virtual uint64_t getLastInsertID() const;
 	virtual UString escapeString(const UString& str) const;
-	virtual ByteArray escapeStringUTF8(const ByteArray& str) const;
+	virtual CString escapeStringUTF8(const CString& str) const;
 
 private:
 	sqlite3* sqlite;

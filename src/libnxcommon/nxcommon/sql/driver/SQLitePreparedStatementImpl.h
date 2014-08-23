@@ -40,15 +40,15 @@ public:
 	virtual void bindFloat(size_t index, float value);
 	virtual void bindDouble(size_t index, double value);
 	virtual void bindString(size_t index, const UString& value);
-	virtual void bindStringUTF8(size_t index, const ByteArray& value);
+	virtual void bindStringUTF8(size_t index, const CString& value);
 	virtual void bindBLOB(size_t index, const ByteArray& value);
 	virtual void bindNull(size_t index);
 	virtual void bindBool(size_t index, bool value);
 
 	virtual void prepare(const UString& query);
-	virtual void prepareUTF8(const ByteArray& query);
+	virtual void prepareUTF8(const CString& query);
 	virtual void prepare(const UString& query, const UChar** codeLeft);
-	virtual void prepareUTF8(const ByteArray& query, const char** codeLeft);
+	virtual void prepareUTF8(const CString& query, const char** codeLeft);
 	virtual SQLResultImpl* execute();
 	virtual void finalize();
 	virtual void reset();
