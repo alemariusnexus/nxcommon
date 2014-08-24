@@ -50,7 +50,7 @@ CString& CString::ltrim(const char* chars)
 
 CString CString::convertFromLongLong(long long val, unsigned int base)
 {
-	CString str = convertFromULongLong(labs(val), base);
+	CString str = convertFromULongLong(llabs(val), base);
 
 	if (val < 0) {
 		str.prepend('-');

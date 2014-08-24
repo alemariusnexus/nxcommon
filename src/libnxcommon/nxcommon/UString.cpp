@@ -207,7 +207,7 @@ bool UString::isWhitespaceOnly() const
 
 UString UString::convertFromLongLong(long long val, unsigned int base)
 {
-	UString str = convertFromULongLong(labs(val), base);
+	UString str = convertFromULongLong(llabs(val), base);
 
 	if (val < 0) {
 		str.prepend(u'-');

@@ -74,7 +74,7 @@ CString Exception::getBacktrace() const throw()
 #ifdef _BACKTRACE_AVAILABLE
 	return backTrace;
 #else
-	return NULL;
+	return CString();
 #endif
 }
 
