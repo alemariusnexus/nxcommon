@@ -23,6 +23,7 @@
 #ifndef SCRIPTEXCEPTION_H_
 #define SCRIPTEXCEPTION_H_
 
+#include <nxcommon/config.h>
 #include "../exception/Exception.h"
 
 

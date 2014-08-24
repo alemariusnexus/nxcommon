@@ -23,6 +23,7 @@
 #ifndef MYSQLDRIVER_H_
 #define MYSQLDRIVER_H_
 
+#include <nxcommon/config.h>
 #include "SQLDatabase.h"
 #include "driver/MySQLDatabaseImpl.h"
 

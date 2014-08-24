@@ -23,6 +23,7 @@
 #ifndef PRINTHELPERS_H_
 #define PRINTHELPERS_H_
 
+#include "global.h"
 #include <ostream>
 #include <nxcommon/CString.h>
 #include <nxcommon/UString.h>

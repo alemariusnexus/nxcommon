@@ -23,6 +23,7 @@
 #ifndef QUATERNION_H_
 #define QUATERNION_H_
 
+#include <nxcommon/config.h>
 #include "Vector3.h"
 #include "Matrix3.h"
 #include <cstdlib>

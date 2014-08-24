@@ -23,6 +23,7 @@
 #ifndef PSQLDRIVER_H_
 #define PSQLDRIVER_H_
 
+#include <nxcommon/config.h>
 #include "SQLDatabase.h"
 #include "driver/PSQLDatabaseImpl.h"
 #include <map>

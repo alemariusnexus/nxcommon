@@ -20,9 +20,10 @@
 	GPLADDITIONS.
  */
 
-#ifndef USTRING_H_
-#define USTRING_H_
+#ifndef NXCOMMON_USTRING_H_
+#define NXCOMMON_USTRING_H_
 
+#include <nxcommon/config.h>
 #include "AbstractSharedString.h"
 #include "CString.h"
 #include "ByteArray.h"
@@ -85,4 +86,4 @@ protected:
 	static UString convertFromDouble(double val);
 };
 
-#endif /* USTRING_H_ */
+#endif /* NXCOMMON_USTRING_H_ */

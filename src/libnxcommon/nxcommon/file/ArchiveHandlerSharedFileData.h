@@ -23,6 +23,9 @@
 #ifndef ARCHIVEHANDLERSHAREDFILEDATA_H_
 #define ARCHIVEHANDLERSHAREDFILEDATA_H_
 
+#include <nxcommon/config.h>
+
+
 class ArchiveHandlerSharedFileData
 {
 public:

@@ -23,6 +23,7 @@
 #ifndef SQLITEDRIVER_H_
 #define SQLITEDRIVER_H_
 
+#include <nxcommon/config.h>
 #include "SQLDatabase.h"
 #include "../file/File.h"
 #include "driver/sqlite3.h"

@@ -23,6 +23,10 @@
 #ifndef PROGRESSOBSERVER_H_
 #define PROGRESSOBSERVER_H_
 
+#include <nxcommon/config.h>
+
+
+
 class ProgressObserver
 {
 public:

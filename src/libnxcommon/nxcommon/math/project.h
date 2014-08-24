@@ -23,6 +23,7 @@
 #ifndef PROJECT_H_
 #define PROJECT_H_
 
+#include <nxcommon/config.h>
 #include "Matrix4.h"
 
 

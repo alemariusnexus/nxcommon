@@ -23,6 +23,7 @@
 #ifndef SQLITEPREPAREDSTATEMENTIMPL_H_
 #define SQLITEPREPAREDSTATEMENTIMPL_H_
 
+#include <nxcommon/config.h>
 #include "SQLPreparedStatementImpl.h"
 #include "SQLiteDatabaseImpl.h"
 

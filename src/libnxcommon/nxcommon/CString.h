@@ -20,9 +20,10 @@
 	GPLADDITIONS.
  */
 
-#ifndef CSTRING_H_
-#define CSTRING_H_
+#ifndef NXCOMMON_CSTRING_H_
+#define NXCOMMON_CSTRING_H_
 
+#include <nxcommon/config.h>
 #include "AbstractSharedString.h"
 #include "strutil.h"
 #include "ByteArray.h"
@@ -85,4 +86,4 @@ protected:
 	static CString convertFromDouble(double val);
 };
 
-#endif /* CSTRING_H_ */
+#endif /* NXCOMMON_CSTRING_H_ */

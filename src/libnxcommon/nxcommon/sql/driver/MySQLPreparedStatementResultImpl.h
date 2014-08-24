@@ -23,6 +23,7 @@
 #ifndef MYSQLPREPAREDSTATEMENTRESULTIMPL_H_
 #define MYSQLPREPAREDSTATEMENTRESULTIMPL_H_
 
+#include <nxcommon/config.h>
 #include "SQLResultImpl.h"
 #include "MySQLPreparedStatementImpl.h"
 #include <memory>

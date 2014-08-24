@@ -23,6 +23,7 @@
 #ifndef UNICODEUTIL_H_
 #define UNICODEUTIL_H_
 
+#include <nxcommon/config.h>
 #include "CString.h"
 
 

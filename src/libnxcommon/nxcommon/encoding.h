@@ -20,8 +20,8 @@
 	GPLADDITIONS.
  */
 
-#ifndef ENCODING_H_
-#define ENCODING_H_
+#ifndef NXCOMMON_ENCODING_H_
+#define NXCOMMON_ENCODING_H_
 
 #include <nxcommon/config.h>
 #include <cstddef>
@@ -102,4 +102,4 @@ int GetSufficientTranscodeBufferSize(int length, Encoding srcEnc, Encoding destE
  */
 size_t strlenUTF16(const char* str);
 
-#endif /* ENCODING_H_ */
+#endif /* NXCOMMON_ENCODING_H_ */

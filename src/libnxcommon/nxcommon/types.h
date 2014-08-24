@@ -1,5 +1,5 @@
-#ifndef TYPES_H_
-#define TYPES_H_
+#ifndef NXCOMMON_TYPES_H_
+#define NXCOMMON_TYPES_H_
 
 
 typedef unsigned char uchar;

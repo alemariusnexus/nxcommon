@@ -20,8 +20,8 @@
 	GPLADDITIONS.
  */
 
-#ifndef COLOR4_H_
-#define COLOR4_H_
+#ifndef NXCOMMON_COLOR4_H_
+#define NXCOMMON_COLOR4_H_
 
 #include <nxcommon/config.h>
 #include "math/Vector4.h"
@@ -46,4 +46,4 @@ private:
 	Vector4 vec;
 };
 
-#endif /* COLOR4_H_ */
+#endif /* NXCOMMON_COLOR4_H_ */

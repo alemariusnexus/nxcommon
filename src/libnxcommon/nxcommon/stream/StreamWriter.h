@@ -23,6 +23,7 @@
 #ifndef STREAMWRITER_H_
 #define STREAMWRITER_H_
 
+#include <nxcommon/config.h>
 #include <ostream>
 
 using std::ostream;

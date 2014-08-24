@@ -20,8 +20,8 @@
 	GPLADDITIONS.
  */
 
-#ifndef UTIL_H_
-#define UTIL_H_
+#ifndef NXCOMMON_UTIL_H_
+#define NXCOMMON_UTIL_H_
 
 #include <nxcommon/config.h>
 #include <cstdlib>
@@ -419,4 +419,4 @@ inline unsigned int RoundToMultiple(unsigned int val, unsigned int multiple)
 void SleepMilliseconds(unsigned int time);
 
 
-#endif /* UTIL_H_ */
+#endif /* NXCOMMON_UTIL_H_ */

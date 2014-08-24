@@ -20,9 +20,10 @@
 	GPLADDITIONS.
  */
 
-#ifndef CLIPARSER_H_
-#define CLIPARSER_H_
+#ifndef NXCOMMON_CLIPARSER_H_
+#define NXCOMMON_CLIPARSER_H_
 
+#include <nxcommon/config.h>
 #include <map>
 #include <vector>
 #include "CString.h"
@@ -124,4 +125,4 @@ private:
 	int textWrapLength;
 };
 
-#endif /* CLIPARSER_H_ */
+#endif /* NXCOMMON_CLIPARSER_H_ */

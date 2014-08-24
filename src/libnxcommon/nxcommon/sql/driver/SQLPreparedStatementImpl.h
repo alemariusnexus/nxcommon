@@ -23,6 +23,7 @@
 #ifndef SQLPREPAREDSTATEMENTIMPL_H_
 #define SQLPREPAREDSTATEMENTIMPL_H_
 
+#include <nxcommon/config.h>
 #include <unicode/unistr.h>
 #include "SQLResultImpl.h"
 #include "../../CString.h"

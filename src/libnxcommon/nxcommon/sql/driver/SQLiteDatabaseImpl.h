@@ -23,6 +23,7 @@
 #ifndef SQLITEDATABASEIMPL_H_
 #define SQLITEDATABASEIMPL_H_
 
+#include <nxcommon/config.h>
 #include "SQLDatabaseImpl.h"
 #include "sqlite3.h"
 #include "../../file/File.h"

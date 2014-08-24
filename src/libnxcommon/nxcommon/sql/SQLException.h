@@ -23,6 +23,7 @@
 #ifndef SQLEXCEPTION_H_
 #define SQLEXCEPTION_H_
 
+#include <nxcommon/config.h>
 #include "../exception/Exception.h"
 
 

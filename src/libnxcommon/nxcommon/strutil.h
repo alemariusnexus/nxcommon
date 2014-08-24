@@ -20,8 +20,8 @@
 	GPLADDITIONS.
  */
 
-#ifndef STRUTIL_H_
-#define STRUTIL_H_
+#ifndef NXCOMMON_STRUTIL_H_
+#define NXCOMMON_STRUTIL_H_
 
 #include <nxcommon/config.h>
 #include <locale>
@@ -315,4 +315,4 @@ size_t UInt64ToString(CharT* str, uint64_t value, unsigned int base = 10)
 }
 
 
-#endif /* STRUTIL_H_ */
+#endif /* NXCOMMON_STRUTIL_H_ */

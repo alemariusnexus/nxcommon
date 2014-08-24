@@ -23,6 +23,7 @@
 #ifndef SCRIPTSQLPREPAREDSTATEMENT_H_
 #define SCRIPTSQLPREPAREDSTATEMENT_H_
 
+#include <nxcommon/config.h>
 #include "../ScriptObject.h"
 #include "../../sql/SQLPreparedStatement.h"
 #include "ScriptSQLDatabase.h"

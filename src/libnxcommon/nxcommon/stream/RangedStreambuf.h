@@ -23,6 +23,7 @@
 #ifndef RANGEDSTREAMBUF_H_
 #define RANGEDSTREAMBUF_H_
 
+#include <nxcommon/config.h>
 #include <streambuf>
 #include <ios>
 #include <locale>

@@ -23,6 +23,10 @@
 #ifndef NXCOMMON_CONFIG_H_
 #define NXCOMMON_CONFIG_H_
 
+// This file is the very first file included by virtually all files that use libnxcommon, so it is also used as a
+// general-purpose file for global definitions.
+
+
 #ifdef _MSC_VER
 #	pragma warning(disable : 4996)
 #endif

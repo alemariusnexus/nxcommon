@@ -23,6 +23,7 @@
 #ifndef SCRIPTOBJECT_H_
 #define SCRIPTOBJECT_H_
 
+#include <nxcommon/config.h>
 #include "luasys.h"
 #include "../CString.h"
 #include <memory>

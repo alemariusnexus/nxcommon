@@ -20,8 +20,8 @@
 	GPLADDITIONS.
  */
 
-#ifndef EXCEPTION_H_
-#define EXCEPTION_H_
+#ifndef NXCOMMON_EXCEPTION_H_
+#define NXCOMMON_EXCEPTION_H_
 
 #include <nxcommon/config.h>
 #include "../CString.h"
@@ -73,6 +73,6 @@ private:
 #endif
 };
 
-#endif /* EXCEPTION_H_ */
+#endif /* NXCOMMON_EXCEPTION_H_ */
 
 

@@ -23,6 +23,9 @@
 #ifndef LUASYS_HELPERS_H_
 #define LUASYS_HELPERS_H_
 
+#include <nxcommon/config.h>
+
+
 extern "C" {
 
 #include <lua.h>

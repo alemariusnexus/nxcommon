@@ -23,6 +23,7 @@
 #ifndef TIMEOUTEXCEPTION_H_
 #define TIMEOUTEXCEPTION_H_
 
+#include <nxcommon/config.h>
 #include "../exception/Exception.h"
 
 

@@ -23,6 +23,7 @@
 #ifndef MYSQLUTILS_H_
 #define MYSQLUTILS_H_
 
+#include <nxcommon/config.h>
 #include <mysql/mysql.h>
 #include "sqlbase.h"
 #include "../SQLException.h"
