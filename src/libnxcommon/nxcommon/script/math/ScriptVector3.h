@@ -23,6 +23,7 @@
 #ifndef SCRIPTVECTOR3_H_
 #define SCRIPTVECTOR3_H_
 
+#include <nxcommon/config.h>
 #include "../luasys.h"
 #include "../ScriptObject.h"
 #include "../../math/Vector3.h"

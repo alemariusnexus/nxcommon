@@ -23,6 +23,7 @@
 #ifndef LUASQL_H_
 #define LUASQL_H_
 
+#include <nxcommon/config.h>
 #include "../luasys.h"
 
 

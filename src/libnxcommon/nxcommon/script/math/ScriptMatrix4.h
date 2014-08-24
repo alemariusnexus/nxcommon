@@ -23,6 +23,7 @@
 #ifndef SCRIPTMATRIX4_H_
 #define SCRIPTMATRIX4_H_
 
+#include <nxcommon/config.h>
 #include "../ScriptObject.h"
 #include "../../math/Matrix4.h"
 

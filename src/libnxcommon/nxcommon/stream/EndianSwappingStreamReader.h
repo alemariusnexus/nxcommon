@@ -23,6 +23,7 @@
 #ifndef ENDIANSWAPPINGSTREAMREADER_H_
 #define ENDIANSWAPPINGSTREAMREADER_H_
 
+#include <nxcommon/config.h>
 #include "StreamReader.h"
 #include <nxcommon/util.h>
 

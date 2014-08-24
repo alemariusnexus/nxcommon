@@ -23,6 +23,7 @@
 #ifndef SQLDATABASEIMPL_H_
 #define SQLDATABASEIMPL_H_
 
+#include <nxcommon/config.h>
 #include "../../CString.h"
 #include "../../UString.h"
 #include "../../ByteArray.h"

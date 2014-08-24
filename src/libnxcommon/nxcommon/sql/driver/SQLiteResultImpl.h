@@ -23,6 +23,7 @@
 #ifndef SQLITERESULTIMPL_H_
 #define SQLITERESULTIMPL_H_
 
+#include <nxcommon/config.h>
 #include "sqliteutils.h"
 #include "SQLResultImpl.h"
 #include <map>

@@ -23,6 +23,7 @@
 #ifndef PSQLRESULTIMPL_H_
 #define PSQLRESULTIMPL_H_
 
+#include <nxcommon/config.h>
 #include "SQLResultImpl.h"
 #include "psqlutils.h"
 

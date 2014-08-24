@@ -23,6 +23,7 @@
 #ifndef ARCHIVEHANDLER_H_
 #define ARCHIVEHANDLER_H_
 
+#include <nxcommon/config.h>
 #include "File.h"
 #include "ArchiveChildIterator.h"
 

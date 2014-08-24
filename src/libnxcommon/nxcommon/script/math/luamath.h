@@ -23,6 +23,7 @@
 #ifndef LUAMATH_H_
 #define LUAMATH_H_
 
+#include <nxcommon/config.h>
 #include "../luasys.h"
 
 

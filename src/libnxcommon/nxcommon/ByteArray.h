@@ -20,9 +20,10 @@
 	GPLADDITIONS.
  */
 
-#ifndef BYTEARRAY_H_
-#define BYTEARRAY_H_
+#ifndef NXCOMMON_BYTEARRAY_H_
+#define NXCOMMON_BYTEARRAY_H_
 
+#include <nxcommon/config.h>
 #include "AbstractSharedBuffer.h"
 #include <cstring>
 
@@ -108,4 +109,4 @@ private:
 	}
 };
 
-#endif /* BYTEARRAY_H_ */
+#endif /* NXCOMMON_BYTEARRAY_H_ */

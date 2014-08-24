@@ -23,6 +23,7 @@
 #ifndef PSQLDATABASEIMPL_H_
 #define PSQLDATABASEIMPL_H_
 
+#include <nxcommon/config.h>
 #include "SQLDatabaseImpl.h"
 #include <postgresql/libpq-fe.h>
 

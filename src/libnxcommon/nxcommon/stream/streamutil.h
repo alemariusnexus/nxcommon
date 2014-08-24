@@ -23,6 +23,7 @@
 #ifndef STREAMUTIL_H_
 #define STREAMUTIL_H_
 
+#include <nxcommon/config.h>
 #include <iostream>
 
 using std::iostream;

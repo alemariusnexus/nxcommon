@@ -23,6 +23,7 @@
 #ifndef STREAMREADER_H_
 #define STREAMREADER_H_
 
+#include <nxcommon/config.h>
 #include <istream>
 
 using std::istream;

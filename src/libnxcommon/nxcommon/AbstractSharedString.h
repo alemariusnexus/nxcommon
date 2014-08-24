@@ -1,6 +1,7 @@
 #ifndef ABSTRACTSHAREDSTRING_H_
 #define ABSTRACTSHAREDSTRING_H_
 
+#include <nxcommon/config.h>
 #include "AbstractSharedBuffer.h"
 #include "ByteArray.h"
 

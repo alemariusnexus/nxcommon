@@ -23,6 +23,7 @@
 #ifndef MYSQLDATABASEIMPL_H_
 #define MYSQLDATABASEIMPL_H_
 
+#include <nxcommon/config.h>
 #include "SQLDatabaseImpl.h"
 #include "../../CString.h"
 #include "../SQLException.h"

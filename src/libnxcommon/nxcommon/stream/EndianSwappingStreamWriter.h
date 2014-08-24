@@ -23,6 +23,7 @@
 #ifndef ENDIANSWAPPINGSTREAMWRITER_H_
 #define ENDIANSWAPPINGSTREAMWRITER_H_
 
+#include <nxcommon/config.h>
 #include "StreamWriter.h"
 #include <nxcommon/util.h>
 

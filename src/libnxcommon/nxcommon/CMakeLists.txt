@@ -26,6 +26,5 @@ ADD_SUBDIRECTORY(math)
 ADD_SUBDIRECTORY(script)
 ADD_SUBDIRECTORY(sql)
 ADD_SUBDIRECTORY(stream)
-ADD_SUBDIRECTORY(thread)
 
 ADD_SOURCES(util strutil CString CRC32 CLIParser Color4 encoding ErrorLog image ByteArray UString unicodeutil)

@@ -23,6 +23,7 @@
 #ifndef RESOURCECACHE_H_
 #define RESOURCECACHE_H_
 
+#include <nxcommon/config.h>
 #include "Cache.h"
 #include <map>
 #include <cstdio>

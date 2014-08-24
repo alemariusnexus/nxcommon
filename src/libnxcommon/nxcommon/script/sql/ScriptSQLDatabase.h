@@ -23,6 +23,7 @@
 #ifndef SCRIPTSQLDATABASE_H_
 #define SCRIPTSQLDATABASE_H_
 
+#include <nxcommon/config.h>
 #include "../ScriptObject.h"
 #include "../../sql/SQLDatabase.h"
 #include <memory>

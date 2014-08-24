@@ -23,6 +23,7 @@
 #ifndef FILESYSTEM_H_
 #define FILESYSTEM_H_
 
+#include <nxcommon/config.h>
 #include "ArchiveHandler.h"
 #include <vector>
 

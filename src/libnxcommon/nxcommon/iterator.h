@@ -20,8 +20,11 @@
 	GPLADDITIONS.
  */
 
-#ifndef ITERATOR_H_
-#define ITERATOR_H_
+#ifndef NXCOMMON_ITERATOR_H_
+#define NXCOMMON_ITERATOR_H_
+
+#include <nxcommon/config.h>
+
 
 
 template <class T>
@@ -107,4 +110,4 @@ RangeIterable<T> ItRange(const T& beg, const T& end)
 }
 
 
-#endif /* ITERATOR_H_ */
+#endif /* NXCOMMON_ITERATOR_H_ */

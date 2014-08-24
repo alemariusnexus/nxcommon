@@ -23,6 +23,7 @@
 #ifndef SQLPREPAREDSTATEMENT_H_
 #define SQLPREPAREDSTATEMENT_H_
 
+#include <nxcommon/config.h>
 #include "driver/SQLPreparedStatementImpl.h"
 #include "SQLDatabase.h"
 #include <unicode/unistr.h>

@@ -23,6 +23,7 @@
 #ifndef PSQLUTILS_H_
 #define PSQLUTILS_H_
 
+#include <nxcommon/config.h>
 #include <postgresql/libpq-fe.h>
 #include "../SQLException.h"
 #include "../../UString.h"

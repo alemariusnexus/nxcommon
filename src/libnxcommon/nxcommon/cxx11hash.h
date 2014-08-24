@@ -20,8 +20,8 @@
 	GPLADDITIONS.
  */
 
-#ifndef CXX11HASH_H_
-#define CXX11HASH_H_
+#ifndef NXCOMMON_CXX11HASH_H_
+#define NXCOMMON_CXX11HASH_H_
 
 #include <nxcommon/config.h>
 #include <string>
@@ -67,4 +67,4 @@ public:
 	size_t operator()(const void* ptr) const { return (size_t) ptr; }
 };
 
-#endif /* CXX11HASH_H_ */
+#endif /* NXCOMMON_CXX11HASH_H_ */

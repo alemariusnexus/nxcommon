@@ -23,6 +23,7 @@
 #ifndef INVALIDVALUEEXCEPTION_H_
 #define INVALIDVALUEEXCEPTION_H_
 
+#include <nxcommon/config.h>
 #include "Exception.h"
 
 

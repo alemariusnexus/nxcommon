@@ -23,6 +23,7 @@
 #ifndef RANGEDSTREAM_H_
 #define RANGEDSTREAM_H_
 
+#include <nxcommon/config.h>
 #include "RangedStreambuf.h"
 #include <ios>
 

@@ -23,6 +23,7 @@
 #ifndef SQLITEUTILS_H_
 #define SQLITEUTILS_H_
 
+#include <nxcommon/config.h>
 #include "../SQLException.h"
 #include "sqlite3.h"
 

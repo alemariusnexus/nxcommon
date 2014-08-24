@@ -20,8 +20,8 @@
 	GPLADDITIONS.
  */
 
-#ifndef CRC32_H_
-#define CRC32_H_
+#ifndef NXCOMMON_CRC32_H_
+#define NXCOMMON_CRC32_H_
 
 #include <nxcommon/config.h>
 #include <cstring>
@@ -40,4 +40,4 @@ private:
 	uint32_t checksum;
 };
 
-#endif /* CRC32_H_ */
+#endif /* NXCOMMON_CRC32_H_ */

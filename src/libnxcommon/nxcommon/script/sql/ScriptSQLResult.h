@@ -23,6 +23,7 @@
 #ifndef SCRIPTSQLRESULT_H_
 #define SCRIPTSQLRESULT_H_
 
+#include <nxcommon/config.h>
 #include "../ScriptObject.h"
 #include "../../sql/SQLResult.h"
 #include "ScriptSQLDatabase.h"

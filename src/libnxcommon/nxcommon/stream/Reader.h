@@ -20,8 +20,8 @@
 	GPLADDITIONS.
  */
 
-#ifndef READER_H_
-#define READER_H_
+#ifndef NXCOMMON_READER_H_
+#define NXCOMMON_READER_H_
 
 #include <nxcommon/config.h>
 #include "../CString.h"
@@ -71,4 +71,4 @@ public:
 	virtual CString readNullTerminatedString(bool* terminatorFound = NULL);
 };
 
-#endif /* READER_H_ */
+#endif /* NXCOMMON_READER_H_ */

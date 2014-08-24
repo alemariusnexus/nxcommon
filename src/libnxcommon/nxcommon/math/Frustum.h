@@ -23,6 +23,7 @@
 #ifndef FRUSTUM_H_
 #define FRUSTUM_H_
 
+#include <nxcommon/config.h>
 #include "Vector3.h"
 #include "Matrix4.h"
 

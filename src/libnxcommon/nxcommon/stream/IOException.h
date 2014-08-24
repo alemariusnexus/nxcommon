@@ -20,8 +20,8 @@
 	GPLADDITIONS.
  */
 
-#ifndef IOEXCEPTION_H_
-#define IOEXCEPTION_H_
+#ifndef NXCOMMON_IOEXCEPTION_H_
+#define NXCOMMON_IOEXCEPTION_H_
 
 #include <nxcommon/config.h>
 #include "../exception/Exception.h"
@@ -37,4 +37,4 @@ public:
 			: Exception(message, srcFile, srcLine, nestedException, "IOException") {}
 };
 
-#endif /* IOEXCEPTION_H_ */
+#endif /* NXCOMMON_IOEXCEPTION_H_ */

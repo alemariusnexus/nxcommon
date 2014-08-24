@@ -23,6 +23,7 @@
 #ifndef MYSQLRESULTIMPL_H_
 #define MYSQLRESULTIMPL_H_
 
+#include <nxcommon/config.h>
 #include "SQLResultImpl.h"
 #include "mysqlutils.h"
 #include <map>

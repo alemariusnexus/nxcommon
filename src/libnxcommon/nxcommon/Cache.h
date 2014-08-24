@@ -20,8 +20,8 @@
 	GPLADDITIONS.
  */
 
-#ifndef CACHE_H_
-#define CACHE_H_
+#ifndef NXCOMMON_CACHE_H_
+#define NXCOMMON_CACHE_H_
 
 #include <nxcommon/config.h>
 #include "cxx11hash.h"
@@ -377,4 +377,4 @@ V* Cache<K, V, Compare, MapHash, KeyEqual>::lock(const K& key, bool locked)
 	}
 }
 
-#endif /* CACHE_H_ */
+#endif /* NXCOMMON_CACHE_H_ */

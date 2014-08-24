@@ -23,6 +23,7 @@
 #ifndef ABSTRACTSHAREDBUFFER_H_
 #define ABSTRACTSHAREDBUFFER_H_
 
+#include <nxcommon/config.h>
 #include <cstring>
 #include <memory>
 #include <algorithm>

@@ -23,6 +23,7 @@
 #ifndef SQLRESULT_H_
 #define SQLRESULT_H_
 
+#include <nxcommon/config.h>
 #include <memory>
 #include "SQLDatabase.h"
 #include "SQLPreparedStatement.h"

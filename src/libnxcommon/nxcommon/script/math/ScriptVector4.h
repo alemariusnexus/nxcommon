@@ -23,6 +23,7 @@
 #ifndef SCRIPTVECTOR4_H_
 #define SCRIPTVECTOR4_H_
 
+#include <nxcommon/config.h>
 #include "../ScriptObject.h"
 #include "../../math/Vector4.h"
 

@@ -23,6 +23,8 @@
 #ifndef LUASYS_H_
 #define LUASYS_H_
 
+#include <nxcommon/config.h>
+
 extern "C" {
 
 #include <lua.h>

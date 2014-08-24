@@ -23,6 +23,9 @@
 #ifndef SQLBASE_H_
 #define SQLBASE_H_
 
+#include <nxcommon/config.h>
+
+
 
 #define SQL_DATA_TYPE_NULL 0
 #define SQL_DATA_TYPE_INT32 1

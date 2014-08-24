@@ -23,6 +23,7 @@
 #ifndef PSQLPREPAREDSTATEMENTIMPL_H_
 #define PSQLPREPAREDSTATEMENTIMPL_H_
 
+#include <nxcommon/config.h>
 #include "SQLPreparedStatementImpl.h"
 #include "PSQLDatabaseImpl.h"
 #include "sqlutils.h"

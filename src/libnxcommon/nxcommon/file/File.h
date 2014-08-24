@@ -23,6 +23,7 @@
 #ifndef FILE_H_
 #define FILE_H_
 
+#include <nxcommon/config.h>
 #include "_File.h"
 #include "FileChildList.h"
 

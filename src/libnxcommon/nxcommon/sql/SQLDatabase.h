@@ -23,6 +23,7 @@
 #ifndef SQLDATABASE_H_
 #define SQLDATABASE_H_
 
+#include <nxcommon/config.h>
 #include "driver/SQLDatabaseImpl.h"
 #include "driver/sqlbase.h"
 #include <memory>

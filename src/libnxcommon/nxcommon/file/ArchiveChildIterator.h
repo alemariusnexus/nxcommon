@@ -23,6 +23,9 @@
 #ifndef ARCHIVECHILDITERATOR_H_
 #define ARCHIVECHILDITERATOR_H_
 
+#include <nxcommon/config.h>
+
+
 class ArchiveChildIterator
 {
 public:

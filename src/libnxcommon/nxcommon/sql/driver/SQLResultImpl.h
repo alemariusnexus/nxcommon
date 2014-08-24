@@ -23,6 +23,7 @@
 #ifndef SQLRESULTIMPL_H_
 #define SQLRESULTIMPL_H_
 
+#include <nxcommon/config.h>
 #include "../../UString.h"
 #include "../../ByteArray.h"
 #include "../../CString.h"
