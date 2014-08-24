@@ -81,8 +81,8 @@ public:
 	CString& trim() { return trim(" \t\r\n"); }
 
 protected:
-	static CString convertFromLong(long val, unsigned int base);
-	static CString convertFromULong(unsigned long val, unsigned int base);
+	static CString convertFromLongLong(long long val, unsigned int base);
+	static CString convertFromULongLong(unsigned long long val, unsigned int base);
 	static CString convertFromDouble(double val);
 };
 

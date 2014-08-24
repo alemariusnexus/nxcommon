@@ -45,6 +45,8 @@ public:
 	size_t resize() { resize(ImplT::strlen(BaseClass::d.get())); return this->msize; }
 
 	using BaseClass::append;
+	ImplT& append(long long val, unsigned int base = 10) { return append(ImplT::convertFromLongLong(val, base)); }
+	ImplT& append(unsigned long long val, unsigned int base = 10) { return append(ImplT::convertFromULongLong(val, base)); }
 	ImplT& append(long val, unsigned int base = 10) { return append(ImplT::convertFromLong(val, base)); }
 	ImplT& append(unsigned long val, unsigned int base = 10) { return append(ImplT::convertFromULong(val, base)); }
 	ImplT& append(int val, unsigned int base = 10) { return append(ImplT::convertFromInt(val, base)); }
@@ -57,6 +59,8 @@ public:
 
 	ImplT& operator<<(UnitT c) { return append(c); }
 	ImplT& operator<<(const ImplT& other) { return append(other); }
+	ImplT& operator<<(long long val) { return append(val); }
+	ImplT& operator<<(unsigned long long val) { return append(val); }
 	ImplT& operator<<(long val) { return append(val); }
 	ImplT& operator<<(unsigned long val) { return append(val); }
 	ImplT& operator<<(int val) { return append(val); }
@@ -96,6 +100,8 @@ protected:
 		return res;
 	}
 
+	static ImplT convertFromLong(long val, unsigned int base) { return ImplT::convertFromLongLong(val, base); }
+	static ImplT convertFromULong(unsigned long val, unsigned int base) { return ImplT::convertFromULongLong(val, base); }
 	static ImplT convertFromInt(int val, unsigned int base) { return ImplT::convertFromLong(val, base); }
 	static ImplT convertFromUInt(unsigned int val, unsigned int base) { return ImplT::convertFromULong(val, base); }
 	static ImplT convertFromFloat(float val) { return ImplT::convertFromDouble(val); }

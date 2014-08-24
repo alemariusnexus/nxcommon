@@ -205,9 +205,9 @@ bool UString::isWhitespaceOnly() const
 }
 
 
-UString UString::convertFromLong(long val, unsigned int base)
+UString UString::convertFromLongLong(long long val, unsigned int base)
 {
-	UString str = convertFromULong(labs(val), base);
+	UString str = convertFromULongLong(labs(val), base);
 
 	if (val < 0) {
 		str.prepend(u'-');
@@ -217,10 +217,10 @@ UString UString::convertFromLong(long val, unsigned int base)
 }
 
 
-UString UString::convertFromULong(unsigned long val, unsigned int base)
+UString UString::convertFromULongLong(unsigned long long val, unsigned int base)
 {
-	UString str(64);
-	str.resize(UInt64ToString(str.mget(), val, base));
+	UString str(128);
+	str.resize(ULongLongToString(str.mget(), val, base));
 	return str;
 }
 

@@ -81,8 +81,8 @@ public:
 	CString toUTF8() const;
 
 protected:
-	static UString convertFromLong(long val, unsigned int base);
-	static UString convertFromULong(unsigned long val, unsigned int base);
+	static UString convertFromLongLong(long long val, unsigned int base);
+	static UString convertFromULongLong(unsigned long long val, unsigned int base);
 	static UString convertFromDouble(double val);
 };
 

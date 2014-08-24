@@ -48,37 +48,23 @@ CString& CString::ltrim(const char* chars)
 }
 
 
-CString CString::convertFromLong(long val, unsigned int base)
+CString CString::convertFromLongLong(long long val, unsigned int base)
 {
-	if (base == 10) {
-		CString str(64);
-		sprintf(str.mget(), "%ld", val);
-		str.resize();
-		return str;
-	} else {
-		CString str = convertFromULong(labs(val), base);
+	CString str = convertFromULongLong(labs(val), base);
 
-		if (val < 0) {
-			str.prepend('-');
-		}
-
-		return str;
+	if (val < 0) {
+		str.prepend('-');
 	}
+
+	return str;
 }
 
 
-CString CString::convertFromULong(unsigned long val, unsigned int base)
+CString CString::convertFromULongLong(unsigned long long val, unsigned int base)
 {
-	if (base == 10) {
-		CString str(64);
-		sprintf(str.mget(), "%lu", val);
-		str.resize();
-		return str;
-	} else {
-		CString str(64);
-		str.resize(UInt64ToString(str.mget(), val, base));
-		return str;
-	}
+	CString str(128);
+	str.resize(ULongLongToString(str.mget(), val, base));
+	return str;
 }
 
 
