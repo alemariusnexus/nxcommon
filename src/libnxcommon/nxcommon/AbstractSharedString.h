@@ -7,9 +7,23 @@
 
 
 
+#define ASS_DEFINE_PROTECTED_CONSTRUCTORS(DerivedT) \
+	protected: \
+		DerivedT(DerivedT::unit_t* data, size_t size, size_t bufSize, bool) \
+				: AbstractSharedString(data, size, bufSize, false) {} \
+		DerivedT(DerivedT::unit_t* data, size_t size, size_t bufSize, bool, bool) \
+				: AbstractSharedString(data, size, bufSize, false, false) {} \
+		DerivedT(const DerivedT::unit_t* data, size_t size, bool, bool, bool) \
+				: AbstractSharedString(data, size, false, false, false) {} \
+
+
+
 template <typename ImplT, typename UnitT, UnitT term = 0>
 class AbstractSharedString : public AbstractSharedBuffer<ImplT, UnitT, true, term>
 {
+public:
+	typedef UnitT unit_t;
+
 private:
 	typedef AbstractSharedBuffer<ImplT, UnitT, true, term> BaseClass;
 

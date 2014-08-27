@@ -512,12 +512,12 @@ void Matrix4::toEuler(float& x, float& y, float& z) // b, h, a
 {
 	if (GET_RC(1, 0) > 0.998f) {
 		y = atan2f(GET_RC(0, 2), GET_RC(2, 2));
-		z = M_PI_2;
+		z = (float) M_PI_2;
 		x = 0.0f;
 		return;
 	} else if (GET_RC(1, 0) < -0.998f) {
 		y = atan2f(GET_RC(0, 2), GET_RC(2, 2));
-		z = -M_PI_2;
+		z = - (float) M_PI_2;
 		x = 0.0f;
 		return;
 	}

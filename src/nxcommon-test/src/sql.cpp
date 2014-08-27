@@ -106,10 +106,10 @@ void TestSQLResult(SQLResult res, initializer_list<TestRecord> recs, bool inOrde
 void TestSQLTypes(SQLDatabase db)
 {
 	SQLPreparedStatement stmt = db.createPreparedStatement (
-			u"INSERT INTO typetest1 (id, strval, intval, floatval, boolval) VALUES (?, ?, ?, ?, ?)");
+			UTF16_LIT("INSERT INTO typetest1 (id, strval, intval, floatval, boolval) VALUES (?, ?, ?, ?, ?)"));
 
 	stmt.bindUInt32(0, 1);
-	stmt.bindString(1, u"Planet Y");
+	stmt.bindString(1, UTF16_LIT("Planet Y"));
 	stmt.bindInt32(2, -1337);
 	stmt.bindFloat(3, 3.14159f);
 	stmt.bindBool(4, true);
@@ -117,13 +117,13 @@ void TestSQLTypes(SQLDatabase db)
 
 	stmt.bindInt32(0, 2);
 	stmt.bindInt64(1, 0xCAFEBADDEADBEEFL); // Int -> String conversion
-	stmt.bindString(2, u"30071993"); // String -> Int conversion
+	stmt.bindString(2, UTF16_LIT("30071993")); // String -> Int conversion
 	stmt.bindInt32(3, 1235813); // Int -> Float conversion
 	stmt.bindUInt32(4, 1); // Int -> Bool conversion
 	stmt.execute();
 
 
-	stmt.prepare(u"SELECT id, strval, intval, floatval, boolval FROM typetest1 ORDER BY id ASC");
+	stmt.prepare(UTF16_LIT("SELECT id, strval, intval, floatval, boolval FROM typetest1 ORDER BY id ASC"));
 
 	SQLResult res = stmt.execute();
 
@@ -135,7 +135,7 @@ void TestSQLTypes(SQLDatabase db)
 	EXPECT_TRUE(res.nextRecord());
 
 	EXPECT_EQ(1, res.getUInt32(0, &success)); EXPECT_TRUE(success);
-	EXPECT_EQ(UString(u"Planet Y"), res.getString(1, &success)); EXPECT_TRUE(success);
+	EXPECT_EQ(UString(UTF16_LIT("Planet Y")), res.getString(1, &success)); EXPECT_TRUE(success);
 	EXPECT_EQ(-1337, res.getInt64(2, &success));  EXPECT_TRUE(success);
 	EXPECT_FLOAT_EQ(3.14159f, res.getFloat(3, &success));  EXPECT_TRUE(success);
 	EXPECT_TRUE(res.getBool(4, &success));  EXPECT_TRUE(success);
@@ -144,14 +144,14 @@ void TestSQLTypes(SQLDatabase db)
 
 	EXPECT_TRUE(res.nextRecord());
 
-	EXPECT_EQ(UString(u"2"), res.getString(0, &success)); EXPECT_TRUE(success);
+	EXPECT_EQ(UString(UTF16_LIT("2")), res.getString(0, &success)); EXPECT_TRUE(success);
 	EXPECT_EQ(0xCAFEBADDEADBEEFL, res.getUInt64(1, &success)); EXPECT_TRUE(success);
 	EXPECT_DOUBLE_EQ(30071993.0, res.getDouble(2, &success)); EXPECT_TRUE(success);
 	EXPECT_TRUE(res.getBool(4, &success)); EXPECT_TRUE(success);
 
 	CString fstr = res.getStringUTF8(3, &success);
 	EXPECT_TRUE(success);
-	EXPECT_TRUE(CString(fstr).rtrim('0').rtrim('.') == CString(u8"1235813")) << "SQL getStringUTF8() from float value"
+	EXPECT_TRUE(CString(fstr).rtrim('0').rtrim('.') == CString("1235813")) << "SQL getStringUTF8() from float value"
 			<< " test failed. Got the following string: " << fstr;
 }
 
@@ -161,16 +161,16 @@ void TestSQLDatabase(SQLDatabase db)
 	File sqlDir(File(testRootPath), "sql");
 
 	TestRecord insRecords[] = {
-			{u"Erika",					u"Mustermann",					50,		"erikamustermann.jpg"},
-			{u"Ludwig",					u"van Beethoven",				187,	"lvbeethoven.jpg"},
-			{u"Carl Gustav",			u"Jung",						139,	"cgjung.jpg"},
-			{u"Max",					u"Mustermann",					38,		"maxmustermann.jpg"},
-			{u"Otto Eduard Leopold",	u"von Bismarck-Schönhausen",	199,	"ovbismarck.jpg"}
+			{UTF16_LIT("Erika"),				UTF16_LIT("Mustermann"),				50,		"erikamustermann.jpg"},
+			{UTF16_LIT("Ludwig"),				UTF16_LIT("van Beethoven"),				187,	"lvbeethoven.jpg"},
+			{UTF16_LIT("Carl Gustav"),			UTF16_LIT("Jung"),						139,	"cgjung.jpg"},
+			{UTF16_LIT("Max"),					UTF16_LIT("Mustermann"),				38,		"maxmustermann.jpg"},
+			{UTF16_LIT("Otto Eduard Leopold"),	UTF16_LIT("von Bismarck-Schönhausen"),	199,	"ovbismarck.jpg"}
 	};
 
 	size_t numInsRecords = sizeof(insRecords) / sizeof(TestRecord);
 
-	SQLPreparedStatement stmt = db.createPreparedStatement(u"INSERT INTO person (firstname, lastname, age, image) VALUES (?, ?, ?, ?)");
+	SQLPreparedStatement stmt = db.createPreparedStatement(UTF16_LIT("INSERT INTO person (firstname, lastname, age, image) VALUES (?, ?, ?, ?)"));
 
 	for (TestRecord& record : insRecords) {
 		stmt.bindString(0, record.firstname);
@@ -225,7 +225,7 @@ void TestSQLDatabase(SQLDatabase db)
 		insRecords[i].id = i+1;
 	}
 
-	stmt.prepare(u"SELECT COUNT(*) FROM person");
+	stmt.prepare(UTF16_LIT("SELECT COUNT(*) FROM person"));
 	SQLResult res = stmt.execute();
 
 	EXPECT_TRUE(res.nextRecord());
@@ -233,7 +233,7 @@ void TestSQLDatabase(SQLDatabase db)
 
 	EXPECT_EQ(numInsRecords, numRecords);
 
-	stmt.prepare(u"SELECT id, firstname, lastname, age, image FROM person WHERE age > ? ORDER BY age ASC");
+	stmt.prepare(UTF16_LIT("SELECT id, firstname, lastname, age, image FROM person WHERE age > ? ORDER BY age ASC"));
 	stmt.bindUInt32(0, 75);
 	res = stmt.execute();
 
@@ -253,7 +253,7 @@ void TestSQLDatabase(SQLDatabase db)
 
 	TestSQLResult(res, {insRecords[1]});
 
-	res = db.sendQuery(u"SELECT * FROM person ORDER BY age ASC LIMIT 1");
+	res = db.sendQuery(UTF16_LIT("SELECT * FROM person ORDER BY age ASC LIMIT 1"));
 
 	EXPECT_NE(-1, res.getColumnIndex("age"));
 	EXPECT_NE(-1, res.getColumnIndex("ID"));
@@ -261,9 +261,9 @@ void TestSQLDatabase(SQLDatabase db)
 	EXPECT_EQ(-1, res.getColumnIndex("foobar"));
 
 	res = db.sendQuery (
-			u"INSERT INTO person (firstname, lastname) VALUES ('Adam', 'Ahrendahl'), ('Berta', 'Booglebay');"
-			u"SELECT firstname, lastname FROM person ORDER BY firstname ASC, lastname ASC;"
-			u"INSERT INTO person (firstname, lastname) VALUES ('Caesar', 'Csihar'), ('Derek', 'Dunckenbury'), ('Emily', 'End');"
+			UString(UTF16_LIT("INSERT INTO person (firstname, lastname) VALUES ('Adam', 'Ahrendahl'), ('Berta', 'Booglebay');"))
+			.append(UTF16_LIT("SELECT firstname, lastname FROM person ORDER BY firstname ASC, lastname ASC;"))
+			.append(UTF16_LIT("INSERT INTO person (firstname, lastname) VALUES ('Caesar', 'Csihar'), ('Derek', 'Dunckenbury'), ('Emily', 'End');"))
 		);
 
 	EXPECT_EQ(3, res.getAffectedRowCount());
@@ -305,24 +305,24 @@ TEST(SQLTest, TestSQLite)
 	EXPECT_TRUE(db.hasCapability(SQL_CAP_LAST_INSERT_ID));
 
 	db.sendQuery (
-			u"DROP TABLE IF EXISTS person;"
-			u"DROP TABLE IF EXISTS typetest1;"
+			UString(UTF16_LIT("DROP TABLE IF EXISTS person;"))
+			.append(UTF16_LIT("DROP TABLE IF EXISTS typetest1;"))
 
-			u"CREATE TABLE person ("
-			u"	id INTEGER PRIMARY KEY,"
-			u"	firstname VARCHAR(256),"
-			u"	lastname VARCHAR(256),"
-			u"	age INTEGER,"
-			u"  image BLOB"
-			u");"
+			.append(UTF16_LIT("CREATE TABLE person ("))
+			.append(UTF16_LIT("	id INTEGER PRIMARY KEY,"))
+			.append(UTF16_LIT("	firstname VARCHAR(256),"))
+			.append(UTF16_LIT("	lastname VARCHAR(256),"))
+			.append(UTF16_LIT("	age INTEGER,"))
+			.append(UTF16_LIT("  image BLOB"))
+			.append(UTF16_LIT(");"))
 
-			u"CREATE TABLE typetest1 ("
-			u"	id INTEGER PRIMARY KEY,"
-			u"	strval VARCHAR(256),"
-			u"	intval BIGINT,"
-			u"	floatval DOUBLE,"
-			u"	boolval BOOLEAN"
-			u");"
+			.append(UTF16_LIT("CREATE TABLE typetest1 ("))
+			.append(UTF16_LIT("	id INTEGER PRIMARY KEY,"))
+			.append(UTF16_LIT("	strval VARCHAR(256),"))
+			.append(UTF16_LIT("	intval BIGINT,"))
+			.append(UTF16_LIT("	floatval DOUBLE,"))
+			.append(UTF16_LIT("	boolval BOOLEAN"))
+			.append(UTF16_LIT(");"))
 		);
 
 	TestSQLDatabase(db);
@@ -351,24 +351,24 @@ TEST(SQLTest, TestMySQL)
 	//SQLDatabase db = mysqlDb;
 
 	db.sendQuery (
-			u"DROP TABLE IF EXISTS person;"
-			u"DROP TABLE IF EXISTS typetest1;"
+			UString(UTF16_LIT("DROP TABLE IF EXISTS person;"))
+			.append(UTF16_LIT("DROP TABLE IF EXISTS typetest1;"))
 
-			u"CREATE TABLE person ("
-			u"	id INTEGER AUTO_INCREMENT PRIMARY KEY,"
-			u"	firstname VARCHAR(256),"
-			u"	lastname VARCHAR(256),"
-			u"	age INTEGER,"
-			u"  image MEDIUMBLOB"
-			u");"
+			.append(UTF16_LIT("CREATE TABLE person ("))
+			.append(UTF16_LIT("	id INTEGER AUTO_INCREMENT PRIMARY KEY,"))
+			.append(UTF16_LIT("	firstname VARCHAR(256),"))
+			.append(UTF16_LIT("	lastname VARCHAR(256),"))
+			.append(UTF16_LIT("	age INTEGER,"))
+			.append(UTF16_LIT("  image MEDIUMBLOB"))
+			.append(UTF16_LIT(");"))
 
-			u"CREATE TABLE typetest1 ("
-			u"	id INTEGER AUTO_INCREMENT PRIMARY KEY,"
-			u"	strval VARCHAR(256),"
-			u"	intval BIGINT,"
-			u"	floatval FLOAT,"
-			u"	boolval BOOLEAN"
-			u");"
+			.append(UTF16_LIT("CREATE TABLE typetest1 ("))
+			.append(UTF16_LIT("	id INTEGER AUTO_INCREMENT PRIMARY KEY,"))
+			.append(UTF16_LIT("	strval VARCHAR(256),"))
+			.append(UTF16_LIT("	intval BIGINT,"))
+			.append(UTF16_LIT("	floatval FLOAT,"))
+			.append(UTF16_LIT("	boolval BOOLEAN"))
+			.append(UTF16_LIT(");"))
 		);
 
 	TestSQLDatabase(db);
@@ -393,48 +393,48 @@ TEST(SQLTest, TestPSQL)
 	});
 
 	db.sendQuery (
-			u"DROP TABLE IF EXISTS person;"
-			u"DROP TABLE IF EXISTS typetest1;"
-			u"DROP TABLE IF EXISTS pqtypetest;"
+			UString(UTF16_LIT("DROP TABLE IF EXISTS person;"))
+			.append(UTF16_LIT("DROP TABLE IF EXISTS typetest1;"))
+			.append(UTF16_LIT("DROP TABLE IF EXISTS pqtypetest;"))
 
-			u"CREATE TABLE person ("
-			u"	id SERIAL PRIMARY KEY,"
-			u"	firstname VARCHAR(256),"
-			u"	lastname VARCHAR(256),"
-			u"	age INTEGER,"
-			u"  image BYTEA"
-			u");"
+			.append(UTF16_LIT("CREATE TABLE person ("))
+			.append(UTF16_LIT("	id SERIAL PRIMARY KEY,"))
+			.append(UTF16_LIT("	firstname VARCHAR(256),"))
+			.append(UTF16_LIT("	lastname VARCHAR(256),"))
+			.append(UTF16_LIT("	age INTEGER,"))
+			.append(UTF16_LIT("  image BYTEA"))
+			.append(UTF16_LIT(");"))
 
-			u"CREATE TABLE typetest1 ("
-			u"	id SERIAL PRIMARY KEY,"
-			u"	strval VARCHAR(256),"
-			u"	intval BIGINT,"
-			u"	floatval FLOAT8,"
-			u"	boolval BOOLEAN"
-			u");"
+			.append(UTF16_LIT("CREATE TABLE typetest1 ("))
+			.append(UTF16_LIT("	id SERIAL PRIMARY KEY,"))
+			.append(UTF16_LIT("	strval VARCHAR(256),"))
+			.append(UTF16_LIT("	intval BIGINT,"))
+			.append(UTF16_LIT("	floatval FLOAT8,"))
+			.append(UTF16_LIT("	boolval BOOLEAN"))
+			.append(UTF16_LIT(");"))
 
-			u"CREATE TABLE pqtypetest ("
-			u"	id SERIAL PRIMARY KEY,"
-			u"	pointval POINT"
-			u");"
+			.append(UTF16_LIT("CREATE TABLE pqtypetest ("))
+			.append(UTF16_LIT("	id SERIAL PRIMARY KEY,"))
+			.append(UTF16_LIT("	pointval POINT"))
+			.append(UTF16_LIT(");"))
 		);
 
 	TestSQLDatabase(db);
 
-	db.sendQuery(u"INSERT INTO pqtypetest (id, pointval) VALUES (1, '(1.234, 5.678)');");
+	db.sendQuery(UTF16_LIT("INSERT INTO pqtypetest (id, pointval) VALUES (1, '(1.234, 5.678)');"));
 
-	SQLPreparedStatement stmt = db.createPreparedStatement(u"INSERT INTO pqtypetest (id, pointval) VALUES (?, ?)");
+	SQLPreparedStatement stmt = db.createPreparedStatement(UTF16_LIT("INSERT INTO pqtypetest (id, pointval) VALUES (?, ?)"));
 	stmt.bindUInt32(0, 2);
-	stmt.bindString(1, u"3.14159, 987.6543");
+	stmt.bindString(1, UTF16_LIT("3.14159, 987.6543"));
 	stmt.execute();
 
-	SQLResult res = db.sendQuery(u"SELECT pointval FROM pqtypetest ORDER BY id ASC;");
+	SQLResult res = db.sendQuery(UTF16_LIT("SELECT pointval FROM pqtypetest ORDER BY id ASC;"));
 
 	EXPECT_TRUE(res.nextRecord());
-	EXPECT_EQ(UString(u"(1.234,5.678)"), res.getString(0));
+	EXPECT_EQ(UString(UTF16_LIT("(1.234,5.678)")), res.getString(0));
 
 	EXPECT_TRUE(res.nextRecord());
-	EXPECT_EQ(UString(u"(3.14159,987.6543)"), res.getString(0));
+	EXPECT_EQ(UString(UTF16_LIT("(3.14159,987.6543)")), res.getString(0));
 }
 
 #endif

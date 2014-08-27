@@ -57,9 +57,13 @@ class CString : public AbstractSharedString<CString, char>
 	friend class AbstractSharedString<CString, char>;
 
 public:
-	using AbstractSharedString::AbstractSharedString;
-
+	// Constructor inheritance is not implemented in VS 2013
 	CString() : AbstractSharedString() {}
+	CString(const CString& other) : AbstractSharedString(other) {}
+	CString(const char* str, size_t len) : AbstractSharedString(str, len) {}
+	CString(const char* str) : AbstractSharedString(str) {}
+	CString(size_t capacity) : AbstractSharedString(capacity) {}
+	CString(const ByteArray& other) : AbstractSharedString(other) {}
 
 #ifdef NXCOMMON_QT_SUPPORT_ENABLED
 	CString(const QString& str) : CString(str.toUtf8().constData()) {}
@@ -79,6 +83,8 @@ public:
 	CString& trim(char c) { rtrim(c); ltrim(c); return *this; }
 	CString& trim(const char* chars) { rtrim(chars); ltrim(chars); return *this; }
 	CString& trim() { return trim(" \t\r\n"); }
+
+	ASS_DEFINE_PROTECTED_CONSTRUCTORS(CString)
 
 protected:
 	static CString convertFromLongLong(long long val, unsigned int base);

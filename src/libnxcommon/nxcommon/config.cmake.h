@@ -38,6 +38,28 @@
 #include <nxcommon/nxcommon_stdint.h>
 #include <nxcommon/types.h>
 
+#ifdef _MSC_VER
+
+// For char16_t/char32_t
+#include <yvals.h>
+
+// windef.h defines min() and max() as macros. These interfere with std::min and std::max, but we can use this macro to
+// disable them.
+#define NOMINMAX
+
+// To define things like M_PI
+#define _USE_MATH_DEFINES
+
+#endif
+
+#ifdef _MSC_VER
+#define UTF16_LIT(str) ((const char16_t*) L ## str)
+#define UTF16_LITC(str) L ## str
+#else
+#define UTF16_LIT(str) u ## str
+#define UTF16_LITC(str) u ## str
+#endif
+
 
 #define PI 3.141593f
 

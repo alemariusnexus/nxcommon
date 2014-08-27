@@ -45,7 +45,7 @@ using std::exception;
 class Exception : public exception {
 public:
 	Exception(const CString& message, const CString& srcFile = CString(), int srcLine = -1,
-			const Exception* nestedException = NULL, const CString& exceptionName = "Exception");
+			const Exception* nestedException = NULL, const CString& exceptionName = CString("Exception"));
 	Exception(const Exception& ex);
 	virtual ~Exception() throw();
 	virtual const char* what() const throw() { return fullMessage.get(); }

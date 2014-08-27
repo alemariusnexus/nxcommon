@@ -35,7 +35,7 @@
 //#ifdef __GNUC__
 #if defined(__GNUC__)  &&  (__GNUC__ > 4  ||  (__GNUC__ == 4  &&  __GNUC_MINOR__ >= 3))
 
-#define SwapEndianness16(v) ((((v) >> 8) & 0xFF)  |  (((v) << 8) & 0xFF00))
+#define SwapEndianness16(v) ((uint16_t) ((((v) >> 8) & 0xFF)  |  (((v) << 8) & 0xFF00)))
 #define SwapEndianness32(v) (__builtin_bswap32((v)))
 #define SwapEndianness64(v) (__builtin_bswap64((v)))
 
@@ -47,15 +47,15 @@
 
 #else
 
-#define SwapEndianness16(v) ((((v) >> 8) & 0xFF)  |  (((v) << 8) & 0xFF00))
+#define SwapEndianness16(v) ((uint16_t) ((((v) >> 8) & 0xFF)  |  (((v) << 8) & 0xFF00)))
 
-#define SwapEndianness32(v) ( \
+#define SwapEndianness32(v) ((uint32_t) ( \
 		(((v) >> 24) & 0xFF) \
 		| (((v) >> 8) & 0xFF00) \
 		| (((v) << 8) & 0xFF0000) \
-		| (((v) << 24) & 0xFF000000))
+		| (((v) << 24) & 0xFF000000)))
 
-#define SwapEndianness64(v) ( \
+#define SwapEndianness64(v) ((uint64_t) ( \
 		(((v) >> 56) & 0xFFULL) \
 		| (((v) >> 40) & 0xFF00ULL) \
 		| (((v) >> 24) & 0xFF0000ULL) \
@@ -63,7 +63,7 @@
 		| (((v) << 8) & 0xFF00000000ULL) \
 		| (((v) << 24) & 0xFF0000000000ULL) \
 		| (((v) << 40) & 0xFF000000000000ULL) \
-		| (((v) << 56) & 0xFF00000000000000ULL))
+		| (((v) << 56) & 0xFF00000000000000ULL)))
 
 #endif
 
@@ -344,13 +344,13 @@ public:
 
 	void reset() { setUInt64(0); }
 
-	void setFromUInt() { f = ui64; d = ui64; }
+	void setFromUInt() { f = (float) ui64; d = (double) ui64; }
 	void setFromInt8() { i16 = i8; i32 = i8; i64 = i8; ui64 = i8; f = i8; d = i8; }
-	void setFromInt16() { i8 = i16; i32 = i16; i64 = i16; ui64 = i16; f = i16; d = i16; }
-	void setFromInt32() { i8 = i32; i16 = i32; i64 = i32; ui64 = i32; f = i32; d = i32; }
-	void setFromInt64() { i8 = i64; i16 = i64; i32 = i64; ui64 = i64; f = i64; d = i64; }
-	void setFromFloat() { i64 = (int64_t) f; i32 = i64; i16 = i64; i8 = i64; ui64 = (uint64_t) f; d = f; }
-	void setFromDouble() { i64 = (int64_t) d; i32 = i64; i16 = i64; i8 = i64; ui64 = (uint64_t) d; f = d; }
+	void setFromInt16() { i8 = (int8_t) i16; i32 = i16; i64 = i16; ui64 = i16; f = i16; d = i16; }
+	void setFromInt32() { i8 = (int8_t) i32; i16 = (int16_t) i32; i64 = i32; ui64 = i32; f = (float) i32; d = i32; }
+	void setFromInt64() { i8 = (int8_t) i64; i16 = (int16_t) i64; i32 = (int32_t) i64; ui64 = i64; f = (float) i64; d = (double) i64; }
+	void setFromFloat() { i64 = (int64_t) f; i32 = (int32_t) i64; i16 = (int16_t) i64; i8 = (int8_t) i64; ui64 = (uint64_t) f; d = f; }
+	void setFromDouble() { i64 = (int64_t) d; i32 = (int32_t) i64; i16 = (int16_t) i64; i8 = (int8_t) i64; ui64 = (uint64_t) d; f = (float) d; }
 
 	void setUInt8(uint8_t val) { setUInt64(val); }
 	void setUInt16(uint16_t val) { setUInt64(val); }

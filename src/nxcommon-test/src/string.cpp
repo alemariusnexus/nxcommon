@@ -418,11 +418,17 @@ TEST(StringTest, UStringTest)
 	};
 
 	CaseConvTest tests[] = {
-			{u"Erlkönigs Töchter am düstern Ort",		u"erlkönigs töchter am düstern ort",	u"ERLKÖNIGS TÖCHTER AM DÜSTERN ORT"},
-			{u"Sören aß sämtliche Soßen",				u"sören aß sämtliche soßen",			u"SÖREN ASS SÄMTLICHE SOSSEN"},
-			{u"äöüßÄÖÜß",								u"äöüßäöüß",							u"ÄÖÜSSÄÖÜSS"}
+			{UTF16_LIT("Erlk\U000000F6nigs T\U000000F6chter am d\U000000FCstern Ort"),
+                UTF16_LIT("erlk\U000000F6nigs t\U000000F6chter am d\U000000FCstern ort"),
+                UTF16_LIT("ERLK\U000000D6NIGS T\U000000D6CHTER AM D\U000000DCSTERN ORT")},
+			{UTF16_LIT("S\U000000F6ren a\U000000DF s\U000000E4mtliche So\U000000DFen"),
+                UTF16_LIT("s\U000000F6ren a\U000000DF s\U000000E4mtliche so\U000000DFen"),
+                UTF16_LIT("S\U000000D6REN ASS S\U000000C4MTLICHE SOSSEN")},
+			{UTF16_LIT("\U000000E4\U000000F6\U000000FC\U000000DF\U000000C4\U000000D6\U000000DC\U000000DF"),
+                UTF16_LIT("\U000000E4\U000000F6\U000000FC\U000000DF\U000000E4\U000000F6\U000000FC\U000000DF"),
+                UTF16_LIT("\U000000C4\U000000D6\U000000DCSS\U000000C4\U000000D6\U000000DCSS")}
 	};
-
+	
 	for (CaseConvTest& test : tests) {
 		UString str((const UChar*) test.src);
 		UString lstr(str);
@@ -440,19 +446,19 @@ TEST(StringTest, UStringTest)
 		UString src;
 		UString ltrimmed;
 		UString rtrimmed;
-		UString trimmed;
+        UString trimmed;
 	};
 
 	TrimTest ttests[] = {
-			{u" \t  Ey du!\n",					u"Ey du!\n",					u" \t  Ey du!",				u"Ey du!"},
-			{u"\r\nHallo Wält! \t",				u"Hallo Wält! \t",				u"\r\nHallo Wält!",			u"Hallo Wält!"},
-			{u" A  BC DE F ",					u"A  BC DE F ",					u" A  BC DE F",			u"A  BC DE F"},
-			{u"A",								u"A",							u"A",						u"A"},
-			{u"",								u"",							u"",						u""},
-			{u"\r",								u"",							u"",						u""},
-			{UString(),							u"",							u"",						u""},
-			{u"\u3000Häy du!\u3000",			u"Häy du!\u3000",				u"\u3000Häy du!",			u"Häy du!"},
-			{u"\u3000",							u"",							u"",						u""}
+			{UTF16_LIT(" \t  Ey du!\n"),			    UTF16_LIT("Ey du!\n"),			        UTF16_LIT(" \t  Ey du!"),			    UTF16_LIT("Ey du!")},
+			{UTF16_LIT("\r\nHallo W\U000000E4lt! \t"),	UTF16_LIT("Hallo W\U000000E4lt! \t"),	UTF16_LIT("\r\nHallo W\U000000E4lt!"),	UTF16_LIT("Hallo W\U000000E4lt!")},
+			{UTF16_LIT(" A  BC DE F "),				    UTF16_LIT("A  BC DE F "),		        UTF16_LIT(" A  BC DE F"),			    UTF16_LIT("A  BC DE F")},
+			{UTF16_LIT("A"),						    UTF16_LIT("A"),					        UTF16_LIT("A"),						    UTF16_LIT("A")},
+			{UTF16_LIT(""),							    UTF16_LIT(""),					        UTF16_LIT(""),						    UTF16_LIT("")},
+			{UTF16_LIT("\r"),						    UTF16_LIT(""),					        UTF16_LIT(""),						    UTF16_LIT("")},
+			{UString(),								    UTF16_LIT(""),					        UTF16_LIT(""),						    UTF16_LIT("")},
+			{UTF16_LIT("\u3000H\U000000E4y du!\u3000"),	UTF16_LIT("H\U000000E4y du!\u3000"),    UTF16_LIT("\u3000H\U000000E4y du!"),	UTF16_LIT("H\U000000E4y du!")},
+			{UTF16_LIT("\u3000"),					    UTF16_LIT(""),			                UTF16_LIT(""),						    UTF16_LIT("")}
 	};
 
 	for (TrimTest& test : ttests) {
@@ -462,20 +468,20 @@ TEST(StringTest, UStringTest)
 		trimmed.trim();
 
 		EXPECT_EQ(test.ltrimmed, ltrimmed);
-		EXPECT_EQ(test.rtrimmed, rtrimmed);
+	    EXPECT_EQ(test.rtrimmed, rtrimmed);
 		EXPECT_EQ(test.trimmed, trimmed);
 	}
 
-	EXPECT_TRUE(UString(u"  \r\n\t ").isWhitespaceOnly());
-	EXPECT_TRUE(UString(u"").isWhitespaceOnly());
+	EXPECT_TRUE(UString(UTF16_LIT("  \r\n\t ")).isWhitespaceOnly());
+	EXPECT_TRUE(UString(UTF16_LIT("")).isWhitespaceOnly());
 	EXPECT_TRUE(UString().isWhitespaceOnly());
-	EXPECT_FALSE(UString(u"\r  .\n ").isWhitespaceOnly());
-	EXPECT_FALSE(UString(u";").isWhitespaceOnly());
-	EXPECT_TRUE(UString(u"   ").isWhitespaceOnly());
-	EXPECT_TRUE(UString(u" ").isWhitespaceOnly());
+	EXPECT_FALSE(UString(UTF16_LIT("\r  .\n ")).isWhitespaceOnly());
+	EXPECT_FALSE(UString(UTF16_LIT(";")).isWhitespaceOnly());
+	EXPECT_TRUE(UString(UTF16_LIT("   ")).isWhitespaceOnly());
+	EXPECT_TRUE(UString(UTF16_LIT(" ")).isWhitespaceOnly());
 	EXPECT_TRUE(IsWhitespaceOnlyUTF8(UString().toUTF8()));
-	EXPECT_TRUE(IsWhitespaceOnlyUTF8(UString(u"\r\t ").toUTF8()));
-	EXPECT_FALSE(IsWhitespaceOnlyUTF8(UString(u"\r\t a").toUTF8()));
+	EXPECT_TRUE(IsWhitespaceOnlyUTF8(UString(UTF16_LIT("\r\t ")).toUTF8()));
+	EXPECT_FALSE(IsWhitespaceOnlyUTF8(UString(UTF16_LIT("\r\t a")).toUTF8()));
 
 
 	const unsigned char utf8[] = {

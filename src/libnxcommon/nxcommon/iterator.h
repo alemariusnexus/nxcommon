@@ -34,7 +34,18 @@ private:
 	T& container;
 
 public:
+#ifdef _MSC_VER
+	// The normal decltype(container.begin()) fails on Visual Studio (tested on VS 2013). It seems to be a known compiler
+	// bug. We can work around this by declaring a static variable of the same type.
+	// This value is never actually used, except during compile-time by decltype(), so it is not initialized.
+private:
+	static T& _mscWorkaroundCont;
+
+public:
+	typedef decltype(_mscWorkaroundCont.begin()) BackendIterator;
+#else
 	typedef decltype(container.begin()) BackendIterator;
+#endif
 
 public:
 	class IteratorIterator

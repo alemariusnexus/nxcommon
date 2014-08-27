@@ -39,8 +39,8 @@ bool Project(const Vector3& objPos, const Matrix4& modelMatrix, const Matrix4& p
 	Vector3 normDevPos(clipPos.getX() / cw, clipPos.getY() / cw, clipPos.getZ() / cw);
 
 	winPos = Vector3 (
-			viewX + ((normDevPos.getX() + 1.0f) / 2.0f) * viewW,
-			viewY + ((normDevPos.getY() + 1.0f) / 2.0f) * viewH,
+			viewX + ((normDevPos.getX() + 1.0f) / 2.0f) * (float) viewW,
+			viewY + ((normDevPos.getY() + 1.0f) / 2.0f) * (float) viewH,
 			(normDevPos.getZ() + 1.0f) / 2.0f
 	);
 

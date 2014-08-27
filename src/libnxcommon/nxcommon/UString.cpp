@@ -210,7 +210,7 @@ UString UString::convertFromLongLong(long long val, unsigned int base)
 	UString str = convertFromULongLong(llabs(val), base);
 
 	if (val < 0) {
-		str.prepend(u'-');
+		str.prepend(UTF16_LITC('-'));
 	}
 
 	return str;

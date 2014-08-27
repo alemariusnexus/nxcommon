@@ -58,9 +58,13 @@ public:
 	static UString fromASCII(const CString& ascii);
 
 public:
-	using AbstractSharedString::AbstractSharedString;
-
+	// Constructor inheritance is not implemented in VS 2013
 	UString() : AbstractSharedString() {}
+	UString(const UString& other) : AbstractSharedString(other) {}
+	UString(const UChar* str, size_t len) : AbstractSharedString(str, len) {}
+	UString(const UChar* str) : AbstractSharedString(str) {}
+	UString(size_t capacity) : AbstractSharedString(capacity) {}
+	UString(const ByteArray& other) : AbstractSharedString(other) {}
 
 #ifdef NXCOMMON_QT_SUPPORT_ENABLED
 	UString(const QString& str) : UString((const UChar*) str.utf16()) {}
@@ -79,6 +83,8 @@ public:
 
 	size_t toUTF8(char* dest, size_t destSize) const;
 	CString toUTF8() const;
+
+	ASS_DEFINE_PROTECTED_CONSTRUCTORS(UString)
 
 protected:
 	static UString convertFromLongLong(long long val, unsigned int base);

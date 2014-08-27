@@ -76,20 +76,20 @@ TEST(ByteArrayTest, MainByteArrayTest)
 		EXPECT_EQ(21, ustr1.size());
 		EXPECT_NE(barr.get(), (const char*) ustr1.get());
 		EXPECT_TRUE(memcmp(barr.get(), ustr1.get(), 42) == 0);
-		EXPECT_EQ(u'\0', ustr1[21]);
+		EXPECT_EQ(UTF16_LITC('\0'), ustr1[21]);
 
 		barr = ByteArray((char*) data, 42, 43);
 		UString ustr2(barr);
 		EXPECT_EQ(21, ustr2.size());
 		EXPECT_NE(barr.get(), (const char*) ustr2.get());
 		EXPECT_TRUE(memcmp(barr.get(), ustr2.get(), 42) == 0);
-		EXPECT_EQ(u'\0', ustr2[21]);
+		EXPECT_EQ(UTF16_LITC('\0'), ustr2[21]);
 
 		barr = ByteArray((char*) data, 42, 44);
 		UString ustr3(barr);
 		EXPECT_EQ(21, ustr3.size());
 		EXPECT_EQ(barr.get(), (const char*) ustr3.get());
 		EXPECT_TRUE(memcmp(barr.get(), ustr3.get(), 42) == 0);
-		EXPECT_EQ(u'\0', ustr3[21]);
+		EXPECT_EQ(UTF16_LITC('\0'), ustr3[21]);
 	}
 }
