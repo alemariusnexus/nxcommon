@@ -448,8 +448,13 @@ template <class K, class Compare, class MapHash, class KeyEqual>
 ResourceCache<K, Compare, MapHash, KeyEqual>::~ResourceCache()
 {
 	if (!clear()) {
-		throw InvalidStateException("At least one cache entry is still locked during the destruction of "
-				"this ResourceCache!", __FILE__, __LINE__);
+		fprintf(stderr, "At least one cache entry is still locked during the destruction of "
+				"this ResourceCache!\n");
+	}
+
+	// See ~SharedPointer()
+	for (auto ptrPair : sharedPtrs) {
+		ptrPair.second->cache = NULL;
 	}
 
 	delete loader;
@@ -581,7 +586,11 @@ typename ResourceCache<K, Compare, MapHash, KeyEqual>::Entry* ResourceCache<K, C
 template<class K, class Compare, class MapHash, class KeyEqual>
 ResourceCache<K, Compare, MapHash, KeyEqual>::SharedPointer::~SharedPointer()
 {
-	cache->removeSharedPointer(key);
+	if (cache) {
+		// ~ResourceCache() sets the 'cache' member of SharedPointer to NULL. This way, it is valid to have cache pointers
+		// lying around even after the ResourceCache was destroyed, as long as they are not dereferenced anymore.
+		cache->removeSharedPointer(key);
+	}
 
 	if (entry)
 		entry->unregisterPointer();

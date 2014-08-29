@@ -28,6 +28,7 @@
 #include "exception/InvalidStateException.h"
 #include <utility>
 #include <unordered_map>
+#include <cstdio>
 
 using std::unordered_map;
 using std::pair;
@@ -98,7 +99,7 @@ public:
 	 *
 	 * 	@throws InvalidStateException if entries are still locked.
 	 */
-	~Cache() { if (!clear()) { throw InvalidStateException("Cache entries are still locked upon destruction!", __FILE__, __LINE__); } }
+	~Cache() { if (!clear()) { fprintf(stderr, "Cache entries are still locked upon destruction!\n"); } }
 
 	/**	\brief Inserts a new entry into the cache.
 	 *
