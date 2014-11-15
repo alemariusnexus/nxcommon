@@ -27,6 +27,7 @@
 #include "SQLDatabase.h"
 #include "SQLPreparedStatement.h"
 #include "SQLResult.h"
+#include "SQLException.h"
 
 #ifdef NXCOMMON_SQLITE_ENABLED
 #include "SQLiteDriver.h"
