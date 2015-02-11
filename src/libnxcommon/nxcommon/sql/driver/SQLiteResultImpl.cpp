@@ -32,13 +32,17 @@ using std::pair;
 
 SQLiteResultImpl::SQLiteResultImpl(sqlite3_stmt* stmt, bool firstStepHasData, uint64_t affectedRowCount)
 		: stmt(stmt), firstStep(true), firstStepHasData(firstStepHasData), affectedRowCount(affectedRowCount),
-		  columnIndexByNameMapValid(false)
+		  columnIndexByNameMapValid(false), ownedStmt(NULL)
 {
 }
 
 
 SQLiteResultImpl::~SQLiteResultImpl()
 {
+	if (ownedStmt) {
+		ownedStmt->finalize();
+		delete ownedStmt;
+	}
 }
 
 

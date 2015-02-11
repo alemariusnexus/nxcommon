@@ -26,6 +26,7 @@
 #include <nxcommon/config.h>
 #include "sqliteutils.h"
 #include "SQLResultImpl.h"
+#include "SQLitePreparedStatementImpl.h"
 #include <map>
 
 using std::map;
@@ -70,6 +71,11 @@ private:
 
 	map<CString, int> columnIndexByNameMap;
 	bool columnIndexByNameMapValid;
+
+	// This is just used for SQLiteResultImpls generated internally (SQLiteDatabaseImpl::sendQuery() etc.).
+	// The higher-level API (SQLResult) will handle deletion of any attached SQLPreparedStatementImpls
+	// normally, but when we don't use that API, we have to do that ourselves.
+	SQLitePreparedStatementImpl* ownedStmt;
 
 
 	friend class SQLitePreparedStatementImpl;

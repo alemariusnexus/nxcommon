@@ -74,6 +74,31 @@ public:
 	CString getColumnName(int index) const;
 	int getColumnIndex(const CString& name) const;
 
+	uint32_t getUInt32(const CString& colName, bool* success = NULL) const
+			{ return getUInt32(getColumnIndex(colName), success); }
+	int32_t getInt32(const CString& colName, bool* success = NULL) const
+			{ return getInt32(getColumnIndex(colName), success); }
+	uint64_t getUInt64(const CString& colName, bool* success = NULL) const
+			{ return getUInt64(getColumnIndex(colName), success); }
+	int64_t getInt64(const CString& colName, bool* success = NULL) const
+			{ return getInt64(getColumnIndex(colName), success); }
+	float getFloat(const CString& colName, bool* success = NULL) const
+			{ return getFloat(getColumnIndex(colName), success); }
+	double getDouble(const CString& colName, bool* success = NULL) const
+			{ return getDouble(getColumnIndex(colName), success); }
+	ByteArray getBLOB(const CString& colName, bool* success = NULL) const
+			{ return getBLOB(getColumnIndex(colName), success); }
+	UString getString(const CString& colName, bool* success = NULL) const
+			{ return getString(getColumnIndex(colName), success); }
+	CString getStringUTF8(const CString& colName, bool* success = NULL) const
+			{ return getStringUTF8(getColumnIndex(colName), success); }
+	bool isNull(const CString& colName) const
+			{ return isNull(getColumnIndex(colName)); }
+	bool getBool(const CString& colName, bool* success = NULL) const
+			{ return getBool(getColumnIndex(colName), success); }
+	int getType(const CString& colName) const
+			{ return getType(getColumnIndex(colName)); }
+
 	unsigned int getColumnCount() const;
 
 	uint64_t getAffectedRowCount() const;

@@ -22,6 +22,7 @@
 
 #include "SQLiteDatabaseImpl.h"
 #include "SQLitePreparedStatementImpl.h"
+#include "SQLiteResultImpl.h"
 
 
 
@@ -37,7 +38,11 @@ SQLiteDatabaseImpl::SQLiteDatabaseImpl(const File& file, int flags)
 
 SQLiteDatabaseImpl::~SQLiteDatabaseImpl()
 {
-	sqlite3_close(sqlite);
+	int status;
+	if ((status = sqlite3_close(sqlite)) != SQLITE_OK) {
+		fprintf(stderr, "ERROR: sqlite3_close() returned error code in SQLiteDatabaseImpl::~SQLiteDatabaseImpl(): %d\n",
+				status);
+	}
 }
 
 
@@ -54,7 +59,9 @@ SQLResultImpl* SQLiteDatabaseImpl::sendQuery(const UString& query)
 	const UChar* codeLeft = NULL;
 
 	stmt->prepare(query, &codeLeft);
-	SQLResultImpl* res = stmt->execute();
+	SQLiteResultImpl* res = (SQLiteResultImpl*) stmt->execute();
+
+	res->ownedStmt = stmt;
 
 	while (codeLeft) {
 
@@ -67,7 +74,7 @@ SQLResultImpl* SQLiteDatabaseImpl::sendQuery(const UString& query)
 		delete res;
 
 		stmt->prepare(nextQuery, &codeLeft);
-		res = stmt->execute();
+		res = (SQLiteResultImpl*) stmt->execute();
 	}
 
 	return res;
@@ -81,13 +88,15 @@ SQLResultImpl* SQLiteDatabaseImpl::sendQueryUTF8(const CString& query)
 	const char* codeLeft;
 
 	stmt->prepareUTF8(query, &codeLeft);
-	SQLResultImpl* res = stmt->execute();
+	SQLiteResultImpl* res = (SQLiteResultImpl*) stmt->execute();
+
+	res->ownedStmt = stmt;
 
 	while (codeLeft) {
 		delete res;
 
 		stmt->prepareUTF8(query, &codeLeft);
-		res = stmt->execute();
+		res = (SQLiteResultImpl*) stmt->execute();
 	}
 
 	return res;
