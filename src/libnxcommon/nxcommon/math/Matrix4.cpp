@@ -61,7 +61,7 @@ Matrix4::Matrix4()
 
 Matrix4::Matrix4(const Matrix3& other)
 {
-	const float* odata = other.toArray();
+	const float* odata = other.data;
 
 	data[0] = odata[0];
 	data[1] = odata[1];
@@ -104,6 +104,27 @@ Matrix4::Matrix4(	float m00, float m10, float m20, float m30,
 	data[13] = m13;
 	data[14] = m23;
 	data[15] = m33;
+}
+
+
+Matrix4::Matrix4(Vector4 c0, Vector4 c1, Vector4 c2, Vector4 c3)
+{
+	data[0] = c0.getX();
+	data[1] = c0.getY();
+	data[2] = c0.getZ();
+	data[3] = c0.getW();
+	data[4] = c1.getX();
+	data[5] = c1.getY();
+	data[6] = c1.getZ();
+	data[7] = c1.getW();
+	data[8] = c2.getX();
+	data[9] = c2.getY();
+	data[10] = c2.getZ();
+	data[11] = c2.getW();
+	data[12] = c3.getX();
+	data[13] = c3.getY();
+	data[14] = c3.getZ();
+	data[15] = c3.getW();
 }
 
 
@@ -570,4 +591,12 @@ Matrix3 Matrix4::getUpperLeft() const
 			data[4], data[5], data[6],
 			data[8], data[9], data[10]
 	);
+}
+
+
+void Matrix4::printDebug()
+{
+	printf("(\t%f\t%f\t%f\t%f\n\t%f\t%f\t%f\t%f\n\t%f\t%f\t%f\t%f\n\t%f\t%f\t%f\t%f\n)\n",
+			data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8],
+			data[9], data[10], data[11], data[12], data[13], data[14], data[15]);
 }

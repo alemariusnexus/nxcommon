@@ -25,8 +25,9 @@
 
 #include <nxcommon/config.h>
 #include <cstring>
-
-class Vector3;
+#include <cmath>
+#include "Vector2.h"
+#include "Vector3.h"
 
 
 #ifdef __GNUCBLA__
@@ -65,12 +66,16 @@ public:
 	static const Vector4 NegativeUnitX, NegativeUnitY, NegativeUnitZ;
 
 private:
+	friend class Vector2;
 	friend class Vector3;
 
 public:
 	Vector4() { data.f[0] = 0.0f; data.f[1] = 0.0f; data.f[2] = 0.0f; data.f[3] = 1.0f; }
 	Vector4(const Vector4& other) { memcpy(data.f, other.data.f, 4*4); }
-	Vector4(const Vector3& other, float w = 1.0f);
+	Vector4(const Vector3& other, float w = 1.0f)
+			{ data.f[0] = other.data[0]; data.f[1] = other.data[1]; data.f[2] = other.data[2]; data.f[3] = w; }
+	Vector4(const Vector2& other, float z = 0.0f, float w = 1.0f)
+			{ data.f[0] = other.data[0]; data.f[1] = other.data[1]; data.f[2] = z; data.f[3] = w; }
 	Vector4(float* data) { memcpy(this->data.f, data, 4*4); }
 	Vector4(float x, float y, float z, float w) { data.f[0] = x; data.f[1] = y; data.f[2] = z; data.f[3] = w; }
 	const float* toArray() const { return data.f; }
@@ -96,6 +101,10 @@ public:
 	const Vector4 operator*(float rhv) const { return Vector4(*this) *= rhv; }
 	const Vector4 operator-() const;
 	float dot(const Vector4& rhv) const;
+	float lengthSq() const { return data.f[0]*data.f[0] + data.f[1]*data.f[1] + data.f[2]*data.f[2] + data.f[3]*data.f[3]; }
+	float length() const { return sqrtf(lengthSq()); }
+	float normalize();
+	const Vector4 normalized() const { Vector4 cpy(*this); cpy.normalize(); return cpy; }
 
 private:
 	Vec4SF data;

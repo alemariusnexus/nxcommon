@@ -43,10 +43,15 @@ function CreateClass(base)
     	cls._basetable = {}
     end
     
+    function cls._instantiate()
+    	local inst = setmetatable({}, cls)
+        rawset(inst, "_props", {})
+        return inst
+    end
+    
     setmetatable(cls, {
         __call = function(c, ...)
-            local inst = setmetatable({}, c)
-            rawset(inst, "_props", {})
+        	local inst = c._instantiate()
             local init = inst._init
             
             if init then
@@ -58,7 +63,7 @@ function CreateClass(base)
     })
     
     function cls:__index(key)
-    	local getterName = "_get" .. string.upper(string.sub(key, 1, 1)) ..string.sub(key, 2)
+    	local getterName = "_get" .. string.upper(string.sub(key, 1, 1)) .. string.sub(key, 2)
     	local getter = cls[getterName]
     	
     	if getter ~= nil then
@@ -71,7 +76,19 @@ function CreateClass(base)
     		end
     	end
     	
-    	return cls[key]
+    	local val = cls[key]
+    	
+    	if val ~= nil then
+    		return val
+    	end
+    	
+    	local getter = cls["_get"]
+    	
+    	if getter == nil then
+    		return nil
+    	end
+    	
+    	return getter(self, key)
     end
     
     
@@ -99,5 +116,9 @@ function instanceof(self, othercls)
     return cls  and  (othercls == cls  or  cls._basetable[othercls] ~= nil)
 end
 
+
+function getclass(self)
+	return getmetatable(self)
+end
 
 

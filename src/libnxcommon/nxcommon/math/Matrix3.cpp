@@ -24,6 +24,8 @@
 #include <cstring>
 #include <cstdio>
 
+#define GET_RC(r,c) data[(c)*3+(r)]
+
 
 const Matrix3 Matrix3::Identity = Matrix3();
 
@@ -46,6 +48,20 @@ Matrix3::Matrix3()
 Matrix3::Matrix3(const Matrix3& other)
 {
 	memcpy(data, other.data, 9*4);
+}
+
+
+Matrix3::Matrix3(const Matrix2& other)
+{
+	data[0] = other.data[0];
+	data[1] = other.data[1];
+	data[2] = 0.0f;
+	data[3] = other.data[2];
+	data[4] = other.data[3];
+	data[5] = 0.0f;
+	data[6] = 0.0f;
+	data[7] = 0.0f;
+	data[8] = 1.0f;
 }
 
 
@@ -189,6 +205,38 @@ void Matrix3::transpose()
 	data[6] = odata[2];
 	data[7] = odata[5];
 	data[8] = odata[8];
+}
+
+
+float Matrix3::determinant() const
+{
+	return	GET_RC(0, 0) * GET_RC(1, 1) * GET_RC(2, 2)
+		+	GET_RC(1, 0) * GET_RC(2, 1) * GET_RC(0, 2)
+		+	GET_RC(2, 0) * GET_RC(0, 1) * GET_RC(1, 2)
+		-	GET_RC(0, 0) * GET_RC(2, 1) * GET_RC(1, 2)
+		-	GET_RC(2, 0) * GET_RC(1, 1) * GET_RC(0, 2)
+		-	GET_RC(1, 0) * GET_RC(0, 1) * GET_RC(2, 2);
+}
+
+
+void Matrix3::invert()
+{
+	float data[9];
+	memcpy(data, this->data, 9*sizeof(float));
+
+	float det = determinant();
+
+	this->data[0] = GET_RC(1, 1)*GET_RC(2, 2) - GET_RC(1, 2)*GET_RC(2, 1);
+	this->data[1] = GET_RC(1, 2)*GET_RC(2, 0) - GET_RC(1, 0)*GET_RC(2, 2);
+	this->data[2] = GET_RC(1, 0)*GET_RC(2, 1) - GET_RC(1, 1)*GET_RC(2, 0);
+	this->data[3] = GET_RC(0, 2)*GET_RC(2, 1) - GET_RC(0, 1)*GET_RC(2, 2);
+	this->data[4] = GET_RC(0, 0)*GET_RC(2, 2) - GET_RC(0, 2)*GET_RC(2, 0);
+	this->data[5] = GET_RC(0, 1)*GET_RC(2, 0) - GET_RC(0, 0)*GET_RC(2, 1);
+	this->data[6] = GET_RC(0, 1)*GET_RC(1, 2) - GET_RC(0, 2)*GET_RC(1, 1);
+	this->data[7] = GET_RC(0, 2)*GET_RC(1, 0) - GET_RC(0, 0)*GET_RC(1, 2);
+	this->data[8] = GET_RC(0, 0)*GET_RC(1, 1) - GET_RC(0, 1)*GET_RC(1, 0);
+
+	*this *= (1.0f / det);
 }
 
 

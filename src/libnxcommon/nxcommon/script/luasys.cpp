@@ -235,3 +235,38 @@ bool luaS_checkinstanceof(lua_State* lua, const CString& clsName, int instArgIdx
 		return true;
 	}
 }
+
+
+
+
+
+#if LUA_VERSION_NUM < 502
+
+lua_Unsigned luaL_checkunsigned(lua_State* lua, int arg)
+{
+	lua_Integer val = luaL_checkinteger(lua, arg);
+
+	if (val < 0) {
+		char* msg = new char[64];
+		sprintf(msg, "Argument must be unsigned!");
+		CString cmsg = CString::from(msg);
+		luaL_argerror(lua, arg, cmsg.get());
+		return false;
+	} else {
+		return true;
+	}
+}
+
+
+void lua_pushunsigned(lua_State* lua, lua_Unsigned n)
+{
+	lua_pushinteger(lua, n);
+}
+
+
+int lua_absindex(lua_State *lua, int idx)
+{
+	return (idx > 0  ||  idx <= LUA_REGISTRYINDEX) ? idx : (lua_gettop(lua) + idx + 1);
+}
+
+#endif

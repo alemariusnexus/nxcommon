@@ -21,6 +21,7 @@
  */
 
 #include "Vector3.h"
+#include "Vector4.h"
 #include <cmath>
 #include <cstdio>
 
@@ -36,6 +37,14 @@ const Vector3 Vector3::NegativeUnitZ = Vector3(0.0f, 0.0f, -1.0f);
 
 
 
+
+
+Vector3::Vector3(const Vector4& other)
+{
+	data[0] = other.data.f[0];
+	data[1] = other.data.f[1];
+	data[2] = other.data.f[2];
+}
 
 
 Vector3& Vector3::operator=(const Vector3& rhv)
@@ -94,16 +103,6 @@ const Vector3 Vector3::cross(const Vector3& rhv) const
 			data[2]*rhv[0] - data[0]*rhv[2],
 			data[0]*rhv[1] - data[1]*rhv[0]
 	);
-}
-
-
-float Vector3::length() const
-{
-	double d0 = data[0];
-	double d1 = data[1];
-	double d2 = data[2];
-	return (float) sqrt(d0*d0 + d1*d1 + d2*d2);
-	//return sqrtf(this->dot(*this));
 }
 
 

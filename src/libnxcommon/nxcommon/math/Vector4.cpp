@@ -37,13 +37,6 @@ const Vector4 Vector4::NegativeUnitZ = Vector4(0.0f, 0.0f, -1.0f, 1.0f);
 
 
 
-Vector4::Vector4(const Vector3& other, float w)
-{
-	//memcpy(data.f, other.data, 3*4);
-	memcpy(data.f, other.data, 3*4);
-	data.f[3] = w;
-}
-
 
 Vector4& Vector4::operator=(const Vector4& rhv)
 {
@@ -119,6 +112,20 @@ float Vector4::dot(const Vector4& rhv) const
 #else
 	return data.f[0]*rhv.data.f[0] + data.f[1]*rhv.data.f[1] + data.f[2]*rhv.data.f[2] + data.f[3]*rhv.data.f[3];
 #endif
+}
+
+
+float Vector4::normalize()
+{
+	float len = length();
+	float invlen = 1.0f / len;
+
+	data.f[0] *= invlen;
+	data.f[1] *= invlen;
+	data.f[2] *= invlen;
+	data.f[3] *= invlen;
+
+	return len;
 }
 
 

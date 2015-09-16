@@ -115,7 +115,7 @@ void ScriptSQLDatabase::registerClass(lua_State* lua)
 			return 1;
 		}
 
-		lua_pushunsigned(lua, id);
+		lua_pushinteger(lua, id);
 		return 1;
 	});
 

@@ -47,6 +47,10 @@ class Matrix4
 public:
 	const static Matrix4 Identity;
 
+private:
+	friend class Matrix2;
+	friend class Matrix3;
+
 public:
 	/**	\brief Constructs the identity matrix.
 	 *
@@ -84,6 +88,8 @@ public:
 			float m01, float m11, float m21, float m31,
 			float m02, float m12, float m22, float m32,
 			float m03, float m13, float m23, float m33);
+
+	Matrix4(Vector4 c0, Vector4 c1, Vector4 c2, Vector4 c3);
 
 	/**	\brief Constructs a matrix from a float array containing it's elements.
 	 *
@@ -234,6 +240,8 @@ public:
 	void toEuler(float& x, float& y, float& z);
 
 	Matrix3 getUpperLeft() const;
+
+	void printDebug();
 
 public:
 	/**	\brief Builds a translation matrix.

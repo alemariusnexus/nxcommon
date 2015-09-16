@@ -37,6 +37,15 @@ extern "C" {
 #include "_luasys_helpers.h"
 
 
+#if LUA_VERSION_NUM < 502
+
+#define LUA_OK 0
+
+// TODO: Correct this...
+typedef lua_Integer lua_Unsigned;
+
+#endif
+
 
 void luaS_opencorelibs(lua_State* lua);
 void luaS_newclass(lua_State* lua, bool inherit = false);
@@ -59,6 +68,15 @@ bool luaS_instanceof(lua_State* lua, const CString& clsName, int instIdx);
 lua_Integer luaS_checkintrange(lua_State* lua, int arg, lua_Integer min, lua_Integer max);
 lua_Unsigned luaS_checkuintrange(lua_State* lua, int arg, lua_Unsigned min, lua_Unsigned max);
 bool luaS_checkinstanceof(lua_State* lua, const CString& clsName, int instArgIdx);
+
+
+#if LUA_VERSION_NUM < 502
+
+lua_Unsigned luaL_checkunsigned(lua_State* lua, int arg);
+void lua_pushunsigned(lua_State* lua, lua_Unsigned n);
+int lua_absindex(lua_State *lua, int idx);
+
+#endif
 
 
 #endif /* LUASYS_H_ */

@@ -25,11 +25,14 @@
 
 #include <nxcommon/config.h>
 #include <cstring>
-#include "Vector4.h"
+#include <cmath>
+#include "Vector2.h"
 
 #ifdef NXCOMMON_BULLET_SUPPORT_ENABLED
 #include <LinearMath/btVector3.h>
 #endif
+
+class Vector4;
 
 
 class Vector3
@@ -40,12 +43,14 @@ public:
 	static const Vector3 NegativeUnitX, NegativeUnitY, NegativeUnitZ;
 
 private:
+	friend class Vector2;
 	friend class Vector4;
 
 public:
 	Vector3() { data[0] = 0.0f; data[1] = 0.0f; data[2] = 0.0f; }
+	Vector3(const Vector2& other) { memcpy(data, other.data, 3*4); }
 	Vector3(const Vector3& other) { memcpy(data, other.data, 3*4); }
-	Vector3(const Vector4& other) { memcpy(data, other.data.f, 3*4); }
+	Vector3(const Vector4& other);
 	Vector3(float* data) { memcpy(this->data, data, 3*4); }
 	Vector3(float x, float y, float z) { data[0] = x; data[1] = y; data[2] = z; }
 
@@ -78,8 +83,10 @@ public:
 	const Vector3 operator-() const;
 	float dot(const Vector3& rhv) const;
 	const Vector3 cross(const Vector3& rhv) const;
-	float length() const;
+	float lengthSq() const { return data[0]*data[0] + data[1]*data[1] + data[2]*data[2]; }
+	float length() const { return sqrtf(lengthSq()); }
 	float normalize();
+	const Vector3 normalized() const { Vector3 cpy(*this); cpy.normalize(); return cpy; }
 	float angle(const Vector3& other) const;
 
 private:

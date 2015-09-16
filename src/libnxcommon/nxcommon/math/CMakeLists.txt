@@ -19,4 +19,4 @@
 # GPLADDITIONS.
 
 
-ADD_SOURCES(Vector3 Vector4 Matrix3 Matrix4 intersection Quaternion project Frustum)
+ADD_SOURCES(Vector2 Vector3 Vector4 Matrix2 Matrix3 Matrix4 intersection Quaternion project Frustum)

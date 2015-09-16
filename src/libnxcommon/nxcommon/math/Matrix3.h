@@ -25,6 +25,7 @@
 
 #include <nxcommon/config.h>
 #include "Vector3.h"
+#include "Matrix2.h"
 #include <cmath>
 
 
@@ -46,6 +47,10 @@ public:
 public:
 	static Matrix3 fromEulerYZX(float x, float y, float z);
 
+private:
+	friend class Matrix2;
+	friend class Matrix4;
+
 public:
 	/**	\brief Constructs the identity matrix.
 	 *
@@ -57,6 +62,7 @@ public:
 	/**	\brief Copy constructor.
 	 */
 	Matrix3(const Matrix3& other);
+	Matrix3(const Matrix2& other);
 	Matrix3(float* data) { memcpy(this->data, data, 9*4); }
 	Matrix3(float m00, float m10, float m20,
 			float m01, float m11, float m21,
@@ -75,6 +81,9 @@ public:
 	const Vector3 row(int i) const;
 	const Vector3 column(int i) const;
 	void transpose();
+	float determinant() const;
+	void invert();
+	const Matrix3 inverse() const { Matrix3 cpy(*this); cpy.invert(); return cpy; }
 	void printDebug();
 
 private:
