@@ -1,4 +1,4 @@
-# Copyright 2010-2013 David "Alemarius Nexus" Lerch
+# Copyright 2010-2015 David "Alemarius Nexus" Lerch
 # 
 # This file is part of nxcommon.
 #
@@ -18,14 +18,7 @@
 # Additional permissions are granted, which are listed in the file
 # GPLADDITIONS.
 
-CONFIGURE_FILE(config.cmake.h "${CMAKE_CURRENT_BINARY_DIR}/config.h")
 
-ADD_SUBDIRECTORY(exception)
-ADD_SUBDIRECTORY(file)
-ADD_SUBDIRECTORY(gl)
-ADD_SUBDIRECTORY(math)
-ADD_SUBDIRECTORY(script)
-ADD_SUBDIRECTORY(sql)
-ADD_SUBDIRECTORY(stream)
-
-ADD_SOURCES(util strutil CString CRC32 CLIParser Color4 encoding ErrorLog image ByteArray UString unicodeutil tinyxml2)
+IF(NXCOMMON_OPENGL_ENABLED)
+    ADD_SOURCES(gl GLException Shader ShaderProgram)
+ENDIF(NXCOMMON_OPENGL_ENABLED)

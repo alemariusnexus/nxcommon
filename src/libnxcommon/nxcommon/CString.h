@@ -57,6 +57,9 @@ class CString : public AbstractSharedString<CString, char>
 	friend class AbstractSharedString<CString, char>;
 
 public:
+	static CString fromFloatWithMaxPrecision(float val, int precision);
+
+public:
 	// Constructor inheritance is not implemented in VS 2013
 	CString() : AbstractSharedString() {}
 	CString(const CString& other) : AbstractSharedString(other) {}

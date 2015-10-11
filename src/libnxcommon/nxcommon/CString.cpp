@@ -25,6 +25,27 @@
 
 
 
+CString CString::fromFloatWithMaxPrecision(float val, int precision)
+{
+	const char* fmt = "%.*f";
+	int bufSize = snprintf(NULL, 0, fmt, val, (int) precision);
+	char* buf = new char[bufSize+1];
+	snprintf(buf, bufSize+1, fmt, val, (int) precision);
+	CString str = CString::from(buf, bufSize, bufSize+1);
+
+	// TODO: This is not how you're supposed to implement different decimal point chars...
+	if (strchr(buf, '.')  ||  strchr(buf, ',')) {
+		str.rtrim('0');
+
+		if (str.get()[str.length()-1] == '.'  ||  str.get()[str.length()-1] == ',') {
+			// We removed all digits after the decimal point. In that case we want to keep a single zero
+			str.append('0');
+		}
+	}
+
+	return str;
+}
+
 
 CString& CString::ltrim(const char* chars)
 {

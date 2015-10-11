@@ -405,6 +405,15 @@ TEST(StringTest, CheckStrutilAndCString)
 		tstr2.grow(1);
 		EXPECT_NE(tstr.get(), tstr2.get());
 	}
+
+	EXPECT_EQ(CString("123.457"), CString::fromFloatWithMaxPrecision(123.456789f, 3));
+	EXPECT_EQ(CString("123.456"), CString::fromFloatWithMaxPrecision(123.456123f, 3));
+	EXPECT_EQ(CString("0.15"), CString::fromFloatWithMaxPrecision(0.15, 3));
+	EXPECT_EQ(CString("0.101"), CString::fromFloatWithMaxPrecision(0.10101f, 3));
+	EXPECT_EQ(CString("0.101"), CString::fromFloatWithMaxPrecision(0.10101f, 4));
+	EXPECT_EQ(CString("13.0"), CString::fromFloatWithMaxPrecision(13.0f, 4));
+	EXPECT_EQ(CString("13.0"), CString::fromFloatWithMaxPrecision(13.00001f, 4));
+	EXPECT_EQ(CString("0.0"), CString::fromFloatWithMaxPrecision(0.0f, 10));
 }
 
 

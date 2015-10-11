@@ -224,6 +224,18 @@ unsigned int IntersectRayAABox (
 		}
 	}
 
+	if (intersectionRayR[0] > intersectionRayR[1]) {
+		// We have to swap results
+		float tmp = intersectionRayR[0];
+		intersectionRayR[0] = intersectionRayR[1];
+		intersectionRayR[1] = tmp;
+
+		Vector3 ptmp;
+		ptmp = intersectionPoints[0];
+		intersectionPoints[0] = intersectionPoints[1];
+		intersectionPoints[1] = ptmp;
+	}
+
 	return intersectCount;
 }
 
