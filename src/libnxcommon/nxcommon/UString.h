@@ -58,7 +58,7 @@ public:
 	static UString fromASCII(const CString& ascii);
 
 public:
-	// Constructor inheritance is not implemented in VS 2013
+	// NOTE: Constructor inheritance is not implemented in VS 2013...
 	UString() : AbstractSharedString() {}
 	UString(const UString& other) : AbstractSharedString(other) {}
 	UString(const UChar* str, size_t len) : AbstractSharedString(str, len) {}

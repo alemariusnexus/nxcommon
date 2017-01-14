@@ -9,8 +9,9 @@
 
 #define ASS_DEFINE_PROTECTED_CONSTRUCTORS(DerivedT) \
 	protected: \
-		DerivedT(DerivedT::unit_t* data, size_t size, size_t bufSize, bool) \
-				: AbstractSharedString(data, size, bufSize, false) {} \
+		template <typename Deleter> \
+		DerivedT(DerivedT::unit_t* data, size_t size, size_t bufSize, Deleter del = default_delete<DerivedT::unit_t[]>()) \
+				: AbstractSharedString(data, size, bufSize, del) {} \
 		DerivedT(DerivedT::unit_t* data, size_t size, size_t bufSize, bool, bool) \
 				: AbstractSharedString(data, size, bufSize, false, false) {} \
 		DerivedT(const DerivedT::unit_t* data, size_t size, bool, bool, bool) \
@@ -28,12 +29,23 @@ private:
 	typedef AbstractSharedBuffer<ImplT, UnitT, true, term> BaseClass;
 
 public:
+	template <typename Deleter>
+	static ImplT fromCustomDelete(UnitT* s, size_t len, size_t bufSize, Deleter del)
+			{ return ImplT(s, len, bufSize-1, del); }
 	static ImplT from(UnitT* s, size_t len, size_t bufSize)
-			{ return ImplT(s, len, bufSize-1, false); }
+			{ return fromCustomDelete(s, len, bufSize, default_delete<UnitT[]>()); }
+
+	template <typename Deleter>
+	static ImplT fromCustomDelete(UnitT* s, size_t len, Deleter del)
+			{ return fromCustomDelete(s, len, len+1, del); }
 	static ImplT from(UnitT* s, size_t len)
-			{ return from(s, len, len+1); }
+			{ return fromCustomDelete(s, len, default_delete<UnitT[]>()); }
+
+	template <typename Deleter>
+	static ImplT fromCustomDelete(UnitT* s, Deleter del)
+			{ return fromCustomDelete(s, ImplT::strlen(s), del); }
 	static ImplT from(UnitT* s)
-			{ return from(s, ImplT::strlen(s)); }
+			{ return fromCustomDelete(s, default_delete<UnitT[]>()); }
 
 	static ImplT writeAlias(UnitT* s, size_t len, size_t bufSize)
 			{ return ImplT(s, len, bufSize-1, false, false); }
@@ -47,12 +59,21 @@ public:
 	static ImplT readAlias(const UnitT* s)
 			{ return readAlias(s, ImplT::strlen(s)); }
 
+	static ImplT join(const ImplT& separator, const UnitT** elems, size_t numElems);
+
+	using BaseClass::join;
+
 public:
 	AbstractSharedString() : AbstractSharedBuffer<ImplT, UnitT, true, term>() {}
+
 	AbstractSharedString(const AbstractSharedString& other) : BaseClass(other) {}
+
 	AbstractSharedString(const UnitT* str, size_t len) : BaseClass(str, len) {}
+
 	AbstractSharedString(const UnitT* str) : AbstractSharedBuffer<ImplT, UnitT, true, term>(str, str ? ImplT::strlen(str) : 0) {}
+
 	AbstractSharedString(size_t capacity) : AbstractSharedBuffer<ImplT, UnitT, true, term>(capacity) {}
+
 	AbstractSharedString(const ByteArray& other);
 
 	using BaseClass::resize;
@@ -70,6 +91,9 @@ public:
 
 	ImplT substr(size_t begin, size_t len) const;
 	ImplT substr(size_t begin) const { return substr(begin, this->msize-begin); }
+
+	bool startsWith(const ImplT& other);
+	bool endsWith(const ImplT& other);
 
 	ImplT& operator<<(UnitT c) { return append(c); }
 	ImplT& operator<<(const ImplT& other) { return append(other); }
@@ -90,8 +114,9 @@ public:
 	bool operator>=(const ImplT& other) const { return ImplT::strcmp(*static_cast<const ImplT*>(this), other) >= 0; }
 
 protected:
-	AbstractSharedString(UnitT* data, size_t size, size_t bufSize, bool)
-			: AbstractSharedBuffer<ImplT, UnitT, true, term>(data, size, bufSize, default_delete<UnitT[]>()) {}
+	template <typename Deleter>
+	AbstractSharedString(UnitT* data, size_t size, size_t bufSize, Deleter del = default_delete<UnitT[]>())
+			: AbstractSharedBuffer<ImplT, UnitT, true, term>(data, size, bufSize, del) {}
 	AbstractSharedString(UnitT* data, size_t size, size_t bufSize, bool, bool)
 			: AbstractSharedBuffer<ImplT, UnitT, true, term>(data, size, bufSize, false) {}
 	AbstractSharedString(const UnitT* data, size_t size, bool, bool, bool)
@@ -105,11 +130,16 @@ protected:
 		return len;
 	}
 
+	static int strncmp(const ImplT& s1, const ImplT& s2, size_t len)
+	{
+		return memcmp(s1.d.get(), s2.d.get(), len);
+	}
+
 	static int strcmp(const ImplT& s1, const ImplT& s2)
 	{
 		size_t s1Len = s1.length();
 		size_t s2Len = s2.length();
-		int res = memcmp(s1.d.get(), s2.d.get(), min(s1Len, s2Len));
+		int res = ImplT::strncmp(s1, s2, min(s1Len, s2Len));
 		if (res == 0) res = s1Len-s2Len;
 		return res;
 	}
@@ -159,6 +189,47 @@ ImplT AbstractSharedString<ImplT, UnitT, term>::substr(size_t begin, size_t len)
 	return ImplT::from(sub, len);
 }
 
+
+template <typename ImplT, typename UnitT, UnitT term>
+ImplT AbstractSharedString<ImplT, UnitT, term>::join(const ImplT& separator, const UnitT** elems, size_t numElems)
+{
+	ImplT joined;
+
+	for (size_t i = 0 ; i < numElems ; i++) {
+		if (i != 0) {
+			joined.append(separator);
+		}
+		joined.append(elems[i]);
+	}
+
+	return joined;
+}
+
+
+template <typename ImplT, typename UnitT, UnitT term>
+bool AbstractSharedString<ImplT, UnitT, term>::startsWith(const ImplT& other)
+{
+	if (other.length() > this->length()) {
+		return false;
+	}
+
+	return ImplT::strncmp(*static_cast<const ImplT*>(this), other, other.length()) == 0;
+}
+
+
+template <typename ImplT, typename UnitT, UnitT term>
+bool AbstractSharedString<ImplT, UnitT, term>::endsWith(const ImplT& other)
+{
+	size_t len = this->length();
+	size_t olen = other.length();
+
+	if (olen > len) {
+		return false;
+	}
+
+	// TODO: This should be done without a copy, but ImplT::strncmp() currently doesn't support offsets
+	return substr(len-olen, olen) == other;
+}
 
 
 

@@ -304,6 +304,25 @@ TEST(StringTest, CheckStrutilAndCString)
 	EXPECT_NE(wastr, CString(writeAliasedBuf));
 	EXPECT_EQ(CString("The quick brown fox. It is running over the fields."), CString(writeAliasedBuf));
 
+	const char* mallocdStr = "Fuck yeah, sparkle sparkle sparkle!";
+	char* mallocdBuf = (char*) malloc(64);
+	strcpy(mallocdBuf, mallocdStr);
+
+	CString mstr = CString::fromCustomDelete(mallocdBuf, [](char* v) { free(v); });
+	EXPECT_EQ(CString(mallocdStr), mstr);
+	EXPECT_EQ(mallocdBuf, mstr.get());
+	EXPECT_EQ(mallocdBuf, mstr.mget());
+
+	mallocdBuf = (char*) malloc(64);
+	strcpy(mallocdBuf, mallocdStr);
+
+	mstr = CString::fromCustomDelete(mallocdBuf, strlen(mallocdBuf), 64, [](char* v) { free(v); });
+	EXPECT_EQ(CString(mallocdStr), mstr);
+	EXPECT_EQ(mallocdBuf, mstr.get());
+	EXPECT_EQ(mallocdBuf, mstr.mget());
+	EXPECT_GE(63, mstr.capacity());
+
+
 	CString nstr;
 
 	EXPECT_TRUE(nstr.isNull());
@@ -414,6 +433,41 @@ TEST(StringTest, CheckStrutilAndCString)
 	EXPECT_EQ(CString("13.0"), CString::fromFloatWithMaxPrecision(13.0f, 4));
 	EXPECT_EQ(CString("13.0"), CString::fromFloatWithMaxPrecision(13.00001f, 4));
 	EXPECT_EQ(CString("0.0"), CString::fromFloatWithMaxPrecision(0.0f, 10));
+
+	EXPECT_EQ(CString("Numbers: 74159 -35, Hex: 0xDEADBEEF, String: [Just a test]"),
+			CString::format("Numbers: %d %d, Hex: 0x%X, String: %s", 74159, -35, 0xDEADBEEF, "[Just a test]"));
+	EXPECT_EQ(CString("Just a static string"), CString::format("Just a static string"));
+
+	{
+		CString strs[] = { "eins", "zwei", "und auch drei" };
+		EXPECT_EQ(CString("eins, zwei, und auch drei"), CString::join((const CString&) CString(", "), (const CString*) strs, (size_t) 3));
+	}
+
+	EXPECT_EQ(CString("eins:zwei:und auch drei"), CString::joinv(":", "eins", "zwei", "und auch drei"));
+	EXPECT_EQ(CString("Just one element"), CString::joinv(", ", "Just one element"));
+	EXPECT_EQ(CString("Just one element"), CString::joinv(", ", "Just one element"));
+	EXPECT_EQ(CString(""), CString::joinv(", "));
+	EXPECT_EQ(CString(", , "), CString::joinv(", ", "", "", ""));
+	EXPECT_EQ(CString("append for dummies."), CString::joinv("", "append ", "for ", "dummies."));
+
+	{
+		const char* strs[] = { "one", "two", "and three" };
+		EXPECT_EQ(CString("one, two, and three"), CString::join(", ", strs, 3));
+	}
+
+	EXPECT_TRUE(CString("Hello World").startsWith("Hello"));
+	EXPECT_FALSE(CString("Hello World").startsWith("HELLO"));
+	EXPECT_TRUE(CString("Hello World").startsWith("Hello World"));
+	EXPECT_FALSE(CString("Hello World").startsWith("Hello World, how are you?"));
+	EXPECT_TRUE(CString("Hello World").startsWith(""));
+	EXPECT_TRUE(CString("").startsWith(""));
+
+	EXPECT_TRUE(CString("Hello World").endsWith("World"));
+	EXPECT_FALSE(CString("Hello World").endsWith("WORLD"));
+	EXPECT_TRUE(CString("Hello World").endsWith("Hello World"));
+	EXPECT_FALSE(CString("Hello World").endsWith("He said: Hello World"));
+	EXPECT_TRUE(CString("Hello World").endsWith(""));
+	EXPECT_TRUE(CString("").endsWith(""));
 }
 
 

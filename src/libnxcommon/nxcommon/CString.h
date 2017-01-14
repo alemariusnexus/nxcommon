@@ -24,6 +24,7 @@
 #define NXCOMMON_CSTRING_H_
 
 #include <nxcommon/config.h>
+#include <cstdio>
 #include "AbstractSharedString.h"
 #include "strutil.h"
 #include "ByteArray.h"
@@ -59,8 +60,12 @@ class CString : public AbstractSharedString<CString, char>
 public:
 	static CString fromFloatWithMaxPrecision(float val, int precision);
 
+	template <typename... Args>
+	static CString format(const char* fmt, Args... args);
+
 public:
-	// Constructor inheritance is not implemented in VS 2013
+	// NOTE: Constructor inheritance is not implemented in VS 2013...
+
 	CString() : AbstractSharedString() {}
 	CString(const CString& other) : AbstractSharedString(other) {}
 	CString(const char* str, size_t len) : AbstractSharedString(str, len) {}
@@ -94,5 +99,21 @@ protected:
 	static CString convertFromULongLong(unsigned long long val, unsigned int base);
 	static CString convertFromDouble(double val);
 };
+
+
+
+
+
+
+
+
+template <typename... Args>
+CString CString::format(const char* fmt, Args... args)
+{
+	int len = snprintf(nullptr, 0, fmt, args...);
+	char* buf = new char[len+1];
+	snprintf(buf, len+1, fmt, args...);
+	return CString::from(buf, len, len+1);
+}
 
 #endif /* NXCOMMON_CSTRING_H_ */

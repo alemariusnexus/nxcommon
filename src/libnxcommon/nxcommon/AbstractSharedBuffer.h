@@ -94,6 +94,22 @@ public:
 	typedef typename std::conditional<terminated, _TermLen1, _TermLen0>::type TermLen;
 
 public:
+	// Unfortunately, it must be named differently. If it's named "join", it will often be matched instead
+	// of the other join()'s because the parameter pack can be matched more directly (i.e. with fewer type
+	// conversions) to incoming parameter values. One example is calling join() with int instead of size_t:
+	//
+	// 		join((const DerivedT&) a, (const DerivedT*) b, 10)
+	//
+	// This will actually call the variadic method overload instead of the the array-based one, because
+	// the last parameter is an int (!= size_t), which more directly matches the variadic method.
+	//
+	// Parameter pack overloading is a nightmare...
+	template <class... Args>
+	static DerivedT joinv(const DerivedT& separator = DerivedT(), Args... args);
+
+	static DerivedT join(const DerivedT& separator, const DerivedT* bufs, size_t numBufs);
+
+public:
 	/**	\brief Determine whether this is a null buffer.
 	 *
 	 * 	A null buffer is a special buffer that is constructed using the default constructor. Null buffers are different
@@ -763,6 +779,31 @@ size_t AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::resize()
 	UnitT* data = d.get();
 	for (msize = 0 ; msize < mcapacity  &&  data[msize] != term ; msize++);
 	return msize;
+}
+
+
+template <typename DerivedT, typename UnitT, bool terminated, UnitT term>
+DerivedT AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::join(const DerivedT& separator,
+		const DerivedT* bufs, size_t numBufs)
+{
+	DerivedT joined;
+
+	for (size_t i = 0 ; i < numBufs ; i++) {
+		if (i != 0) {
+			joined.append(separator);
+		}
+		joined.append(bufs[i]);
+	}
+
+	return joined;
+}
+
+template <typename DerivedT, typename UnitT, bool terminated, UnitT term>
+template <class... Args>
+DerivedT AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::joinv(const DerivedT& separator, Args... args)
+{
+	DerivedT bufs[sizeof...(args)] = { args... };
+	return join(separator, bufs, sizeof...(args));
 }
 
 #endif /* ABSTRACTSHAREDBUFFER_H_ */
