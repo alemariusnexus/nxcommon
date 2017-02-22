@@ -104,10 +104,12 @@ void MySQLPreparedStatementImpl::bindDouble(size_t index, double value)
 }
 
 
+#ifdef NXCOMMON_UNICODE_ENABLED
 void MySQLPreparedStatementImpl::bindString(size_t index, const UString& value)
 {
 	bindStringUTF8(index, value.toUTF8());
 }
+#endif
 
 
 void MySQLPreparedStatementImpl::bindStringUTF8(size_t index, const CString& value)
@@ -151,10 +153,12 @@ void MySQLPreparedStatementImpl::bindBool(size_t index, bool value)
 }
 
 
+#ifdef NXCOMMON_UNICODE_ENABLED
 void MySQLPreparedStatementImpl::prepare(const UString& query)
 {
 	prepareUTF8(query.toUTF8());
 }
+#endif
 
 
 void MySQLPreparedStatementImpl::prepareUTF8(const CString& query)

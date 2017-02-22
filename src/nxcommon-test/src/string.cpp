@@ -203,6 +203,8 @@ TEST(StringTest, CheckStrutilAndCString)
 	strcpy(tstr1, "Hallo schoene Welt!");
 	CString cstr1(tstr1);
 	EXPECT_EQ(CString("Hallo schoene Welt!"), cstr1);
+	EXPECT_TRUE(cstr1 == "Hallo schoene Welt!");
+	EXPECT_TRUE(cstr1 != "Hallo schoene welt!");
 	strcpy(tstr1, "Hallo grausame Welt!");
 	EXPECT_EQ(CString("Hallo schoene Welt!"), cstr1);
 	delete[] tstr1;
@@ -305,6 +307,7 @@ TEST(StringTest, CheckStrutilAndCString)
 	EXPECT_EQ(CString("The quick brown fox. It is running over the fields."), CString(writeAliasedBuf));
 
 	const char* mallocdStr = "Fuck yeah, sparkle sparkle sparkle!";
+
 	char* mallocdBuf = (char*) malloc(64);
 	strcpy(mallocdBuf, mallocdStr);
 
@@ -316,7 +319,24 @@ TEST(StringTest, CheckStrutilAndCString)
 	mallocdBuf = (char*) malloc(64);
 	strcpy(mallocdBuf, mallocdStr);
 
+	mstr = CString::fromMalloc(mallocdBuf);
+	EXPECT_EQ(CString(mallocdStr), mstr);
+	EXPECT_EQ(mallocdBuf, mstr.get());
+	EXPECT_EQ(mallocdBuf, mstr.mget());
+
+	mallocdBuf = (char*) malloc(64);
+	strcpy(mallocdBuf, mallocdStr);
+
 	mstr = CString::fromCustomDelete(mallocdBuf, strlen(mallocdBuf), 64, [](char* v) { free(v); });
+	EXPECT_EQ(CString(mallocdStr), mstr);
+	EXPECT_EQ(mallocdBuf, mstr.get());
+	EXPECT_EQ(mallocdBuf, mstr.mget());
+	EXPECT_GE(63, mstr.capacity());
+
+	mallocdBuf = (char*) malloc(64);
+	strcpy(mallocdBuf, mallocdStr);
+
+	mstr = CString::fromMalloc(mallocdBuf, strlen(mallocdBuf), 64);
 	EXPECT_EQ(CString(mallocdStr), mstr);
 	EXPECT_EQ(mallocdBuf, mstr.get());
 	EXPECT_EQ(mallocdBuf, mstr.mget());
@@ -374,6 +394,11 @@ TEST(StringTest, CheckStrutilAndCString)
 	{
 		EXPECT_EQ(CString("1337"), CString().append((unsigned long) 1337));
 		EXPECT_EQ(CString("1337"), CString() << (long) 1337);
+		EXPECT_EQ(CString("0"), CString() << (long) 0);
+		EXPECT_EQ(CString("1000"), CString() << (long) 1000);
+		EXPECT_EQ(CString("10000"), CString() << (long) 10000);
+		EXPECT_EQ(CString("1234"), CString() << (long) 1234);
+		EXPECT_EQ(CString("12345"), CString() << (long) 12345);
 		EXPECT_EQ(CString("-1234567"), CString().append((int) -1234567));
 		EXPECT_EQ(CString("12D687"), CString().append(1234567, 16));
 		EXPECT_EQ(CString("100101101011010000111"), CString().append(1234567, 2));

@@ -176,10 +176,12 @@ void PSQLPreparedStatementImpl::bindDouble(size_t index, double value)
 }
 
 
+#ifdef NXCOMMON_UNICODE_ENABLED
 void PSQLPreparedStatementImpl::bindString(size_t index, const UString& value)
 {
 	bindStringUTF8(index, value.toUTF8());
 }
+#endif
 
 
 void PSQLPreparedStatementImpl::bindStringUTF8(size_t index, const CString& value)
@@ -227,10 +229,12 @@ void PSQLPreparedStatementImpl::bindBool(size_t index, bool value)
 }
 
 
+#ifdef NXCOMMON_UNICODE_ENABLED
 void PSQLPreparedStatementImpl::prepare(const UString& query)
 {
 	prepareUTF8(ConvertPlaceholdersToPSQL(query).toUTF8());
 }
+#endif
 
 
 void PSQLPreparedStatementImpl::prepareUTF8(const CString& query)

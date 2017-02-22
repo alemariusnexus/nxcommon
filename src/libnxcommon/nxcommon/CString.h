@@ -28,6 +28,7 @@
 #include "AbstractSharedString.h"
 #include "strutil.h"
 #include "ByteArray.h"
+#include <string>
 
 #ifdef NXCOMMON_QT_SUPPORT_ENABLED
 #include <QtCore/QString>
@@ -72,6 +73,7 @@ public:
 	CString(const char* str) : AbstractSharedString(str) {}
 	CString(size_t capacity) : AbstractSharedString(capacity) {}
 	CString(const ByteArray& other) : AbstractSharedString(other) {}
+	CString(const std::string& str) : AbstractSharedString(str.c_str(), str.length()) {}
 
 #ifdef NXCOMMON_QT_SUPPORT_ENABLED
 	CString(const QString& str) : CString(str.toUtf8().constData()) {}

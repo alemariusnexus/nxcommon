@@ -272,6 +272,43 @@ float StringToFloat(const char* str, size_t len, bool* success = NULL);
 template <class CharT>
 size_t ULongLongToString(CharT* str, unsigned long long value, unsigned int base = 10)
 {
+	if (value == 0) {
+		str[0] = '0';
+		str[1] = '\0';
+		return 1;
+	}
+
+	CharT* origStr = str;
+
+	// Write it in reverse...
+	while (value != 0) {
+		unsigned int digit = value % base;
+		*str++ = (CharT) _DigitToCharMap[digit];
+		value /= base;
+	}
+
+	size_t len = str-origStr;
+
+	*str-- = '\0';
+
+	// Aaaand reverse it...
+	while (origStr < str) {
+		CharT tmp = *origStr;
+		*origStr = *str;
+		*str = tmp;
+		origStr++;
+		str--;
+	}
+
+	return len;
+
+	// TODO: It doesn't work. And I don't care. Fuck this shit.
+	/*if (value == 0) {
+		str[0] = '0';
+		str[1] = '\0';
+		return 1;
+	}
+
 	CharT* origStr = str;
 	unsigned long long div = _MaxPowersByBaseULongLong[base];
 
@@ -288,7 +325,7 @@ size_t ULongLongToString(CharT* str, unsigned long long value, unsigned int base
 
 	*str = (CharT) '\0';
 
-	return str-origStr;
+	return str-origStr;*/
 }
 
 

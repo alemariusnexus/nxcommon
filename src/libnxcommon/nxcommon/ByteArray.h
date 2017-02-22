@@ -47,10 +47,21 @@
 class ByteArray : public AbstractSharedBuffer<ByteArray, char>
 {
 public:
+	template <typename Deleter>
+	static ByteArray fromCustomDelete(char* s, size_t size, size_t bufSize, Deleter del)
+			{ return ByteArray(s, size, bufSize, del); }
 	static ByteArray from(char* s, size_t size, size_t bufSize)
-			{ return ByteArray(s, size, bufSize, false); }
+			{ return fromCustomDelete(s, size, bufSize, default_delete<char[]>()); }
+	static ByteArray fromMalloc(char* s, size_t size, size_t bufSize)
+			{ return fromCustomDelete(s, size, bufSize, MallocFreeDeleter()); }
+
+	template <typename Deleter>
+	static ByteArray fromCustomDelete(char* s, size_t size, Deleter del)
+			{ return fromCustomDelete(s, size, size, del); }
 	static ByteArray from(char* s, size_t size)
-			{ return from(s, size, size); }
+			{ return fromCustomDelete(s, size, default_delete<char[]>()); }
+	static ByteArray fromMalloc(char* s, size_t size)
+			{ return fromCustomDelete(s, size, MallocFreeDeleter()); }
 
 	static ByteArray writeAlias(char* s, size_t size, size_t bufSize)
 			{ return ByteArray(s, size, bufSize, false, false); }
@@ -93,8 +104,9 @@ public:
 	bool operator!=(const ByteArray& other) const { return !(*this == other); }
 
 private:
-	ByteArray(char* data, size_t size, size_t bufSize, bool)
-			: AbstractSharedBuffer(data, size, bufSize, default_delete<char[]>())
+	template <typename Deleter>
+	ByteArray(char* data, size_t size, size_t bufSize, Deleter del = default_delete<char[]>())
+			: AbstractSharedBuffer(data, size, bufSize, del)
 	{
 	}
 

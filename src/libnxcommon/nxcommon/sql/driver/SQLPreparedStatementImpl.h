@@ -24,11 +24,14 @@
 #define SQLPREPAREDSTATEMENTIMPL_H_
 
 #include <nxcommon/config.h>
-#include <unicode/unistr.h>
 #include "SQLResultImpl.h"
 #include "../../CString.h"
-#include "../../UString.h"
 #include "../../ByteArray.h"
+
+#ifdef NXCOMMON_UNICODE_ENABLED
+#include <unicode/unistr.h>
+#include "../../UString.h"
+#endif
 
 
 
@@ -44,13 +47,17 @@ public:
 	virtual void bindInt64(size_t index, int64_t value) = 0;
 	virtual void bindFloat(size_t index, float value) = 0;
 	virtual void bindDouble(size_t index, double value) = 0;
+#ifdef NXCOMMON_UNICODE_ENABLED
 	virtual void bindString(size_t index, const UString& value) = 0;
+#endif
 	virtual void bindStringUTF8(size_t index, const CString& value) = 0;
 	virtual void bindBLOB(size_t index, const ByteArray& value) = 0;
 	virtual void bindNull(size_t index) = 0;
 	virtual void bindBool(size_t index, bool value) = 0;
 
+#ifdef NXCOMMON_UNICODE_ENABLED
 	virtual void prepare(const UString& query) = 0;
+#endif
 	virtual void prepareUTF8(const CString& query) = 0;
 	virtual SQLResultImpl* execute() = 0;
 	virtual void reset() = 0;

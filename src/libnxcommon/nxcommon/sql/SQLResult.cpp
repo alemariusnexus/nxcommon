@@ -91,10 +91,12 @@ ByteArray SQLResult::getBLOB(size_t index, bool* success) const
 }
 
 
+#ifdef NXCOMMON_UNICODE_ENABLED
 UString SQLResult::getString(size_t index, bool* success) const
 {
 	return data->impl->getString(index, success);
 }
+#endif
 
 
 CString SQLResult::getStringUTF8(size_t index, bool* success) const

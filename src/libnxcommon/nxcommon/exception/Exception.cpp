@@ -21,6 +21,7 @@
  */
 
 #include "Exception.h"
+#include "../file/FilePath.h"
 #include <nxcommon/config.h>
 #include <cstring>
 #include <cstdio>
@@ -34,7 +35,9 @@ Exception::Exception(const CString& message, const CString& srcFile, int srcLine
 		: exceptionName(exceptionName), srcFile(srcFile), srcLine(srcLine),
 		  nestedException(nestedException ? nestedException->clone() : NULL)
 {
-	setMessage(message);
+#if defined(NXCOMMON_EXCEPTION_POSITION_INFO)  &&  !defined(NXCOMMON_EXCEPTION_POSITION_INFO_FULL)
+	this->srcFile = FilePath(srcFile).getFileName();
+#endif
 
 #ifdef _BACKTRACE_AVAILABLE
 	void* buf[50];
@@ -47,6 +50,8 @@ Exception::Exception(const CString& message, const CString& srcFile, int srcLine
 
 	free(btArr);
 #endif
+
+	setMessage(message);
 }
 
 
@@ -112,6 +117,17 @@ CString Exception::buildFullMessage() const throw()
 	} else {
 		msg.append("No message");
 	}
+
+#ifdef NXCOMMON_EXCEPTION_VERBOSE_MESSAGES
+	CString trace = getBacktrace();
+
+	// TODO: Better formatting, escpacially with nested exceptions
+	if (!trace.isNull()) {
+		msg.append("\n===== STACK TRACE =====\n");
+		msg.append(trace);
+		msg.append("===== END TRACE =====\n");
+	}
+#endif
 
 	if (nestedException) {
 		CString nestedMsg = nestedException->what();

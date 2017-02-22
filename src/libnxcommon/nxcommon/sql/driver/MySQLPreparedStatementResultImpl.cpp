@@ -335,10 +335,12 @@ ByteArray MySQLPreparedStatementResultImpl::getBLOB(int index, bool* success) co
 }
 
 
+#ifdef NXCOMMON_UNICODE_ENABLED
 UString MySQLPreparedStatementResultImpl::getString(int index, bool* success) const
 {
 	return UString::fromUTF8(getStringUTF8(index, success));
 }
+#endif
 
 
 CString MySQLPreparedStatementResultImpl::getStringUTF8(int index, bool* success) const

@@ -131,6 +131,7 @@ ByteArray SQLiteResultImpl::getBLOB(int index, bool* success) const
 }
 
 
+#ifdef NXCOMMON_UNICODE_ENABLED
 UString SQLiteResultImpl::getString(int index, bool* success) const
 {
 	if (success) {
@@ -139,6 +140,7 @@ UString SQLiteResultImpl::getString(int index, bool* success) const
 	}
 	return UString::readAlias((const UChar*) sqlite3_column_text16(stmt, index), sqlite3_column_bytes16(stmt, index) / 2);
 }
+#endif
 
 
 CString SQLiteResultImpl::getStringUTF8(int index, bool* success) const

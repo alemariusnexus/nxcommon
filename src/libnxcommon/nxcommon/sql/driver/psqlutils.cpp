@@ -246,6 +246,7 @@ CharT* _ConvertPlaceholdersToPSQL(const CharT* sin, size_t len, size_t& outOffs)
 }
 
 
+#ifdef NXCOMMON_UNICODE_ENABLED
 UString ConvertPlaceholdersToPSQL(const UString& query)
 {
 	size_t len;
@@ -253,6 +254,7 @@ UString ConvertPlaceholdersToPSQL(const UString& query)
 			query.get(), query.length(), len);
 	return UString::from(str, len);
 }
+#endif
 
 
 CString ConvertPlaceholdersToPSQLUTF8(const CString& query)

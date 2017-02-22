@@ -54,12 +54,14 @@ SQLPreparedStatement SQLDatabase::createPreparedStatement()
 }
 
 
+#ifdef NXCOMMON_UNICODE_ENABLED
 SQLPreparedStatement SQLDatabase::createPreparedStatement(const UString& query)
 {
 	SQLPreparedStatement stmt = createPreparedStatement();
 	stmt.prepare(query);
 	return stmt;
 }
+#endif
 
 
 SQLPreparedStatement SQLDatabase::createPreparedStatementUTF8(const CString& query)
@@ -70,11 +72,13 @@ SQLPreparedStatement SQLDatabase::createPreparedStatementUTF8(const CString& que
 }
 
 
+#ifdef NXCOMMON_UNICODE_ENABLED
 SQLResult SQLDatabase::sendQuery(const UString& query)
 {
 	SQLResultImpl* impl = data->impl->sendQuery(query);
 	return SQLResult(*this, SQLPreparedStatement(), shared_ptr<SQLResultImpl>(impl));
 }
+#endif
 
 
 SQLResult SQLDatabase::sendQueryUTF8(const CString& query)
@@ -84,10 +88,12 @@ SQLResult SQLDatabase::sendQueryUTF8(const CString& query)
 }
 
 
+#ifdef NXCOMMON_UNICODE_ENABLED
 UString SQLDatabase::escapeString(const UString& str) const
 {
 	return data->impl->escapeString(str);
 }
+#endif
 
 
 CString SQLDatabase::escapeStringUTF8(const CString& str) const

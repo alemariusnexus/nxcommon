@@ -24,6 +24,7 @@
 #include <nxcommon/ByteArray.h>
 #include <nxcommon/CString.h>
 #include <nxcommon/UString.h>
+#include <cstdlib>
 
 
 
@@ -91,5 +92,46 @@ TEST(ByteArrayTest, MainByteArrayTest)
 		EXPECT_EQ(barr.get(), (const char*) ustr3.get());
 		EXPECT_TRUE(memcmp(barr.get(), ustr3.get(), 42) == 0);
 		EXPECT_EQ(UTF16_LITC('\0'), ustr3[21]);
+	}
+
+	{
+		ByteArray barr;
+		char* dataCpy;
+
+		dataCpy = new char[sizeof(data)];
+		memcpy(dataCpy, data, sizeof(data));
+		barr = ByteArray::from(dataCpy, sizeof(data));
+		EXPECT_EQ(dataCpy, barr.get());
+		EXPECT_EQ(dataCpy, barr.mget());
+
+		dataCpy = new char[sizeof(data)];
+		memcpy(dataCpy, data, sizeof(data));
+		barr = ByteArray::from(dataCpy, sizeof(data), sizeof(data));
+		EXPECT_EQ(dataCpy, barr.get());
+		EXPECT_EQ(dataCpy, barr.mget());
+
+		dataCpy = (char*) malloc(sizeof(data));
+		memcpy(dataCpy, data, sizeof(data));
+		barr = ByteArray::fromCustomDelete(dataCpy, sizeof(data), [](char* v) { free(v); });
+		EXPECT_EQ(dataCpy, barr.get());
+		EXPECT_EQ(dataCpy, barr.mget());
+
+		dataCpy = (char*) malloc(sizeof(data));
+		memcpy(dataCpy, data, sizeof(data));
+		barr = ByteArray::fromCustomDelete(dataCpy, sizeof(data), sizeof(data), [](char* v) { free(v); });
+		EXPECT_EQ(dataCpy, barr.get());
+		EXPECT_EQ(dataCpy, barr.mget());
+
+		dataCpy = (char*) malloc(sizeof(data));
+		memcpy(dataCpy, data, sizeof(data));
+		barr = ByteArray::fromMalloc(dataCpy, sizeof(data));
+		EXPECT_EQ(dataCpy, barr.get());
+		EXPECT_EQ(dataCpy, barr.mget());
+
+		dataCpy = (char*) malloc(sizeof(data));
+		memcpy(dataCpy, data, sizeof(data));
+		barr = ByteArray::fromMalloc(dataCpy, sizeof(data), sizeof(data));
+		EXPECT_EQ(dataCpy, barr.get());
+		EXPECT_EQ(dataCpy, barr.mget());
 	}
 }

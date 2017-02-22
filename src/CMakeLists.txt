@@ -62,8 +62,6 @@ ENDIF(NXCOMMON_VERSION_SVNREV)
 
 SET(NXCOMMON_TEST_BUILD OFF CACHE BOOL "Whether you want to build the unit tests")
 
-CREATE_RESOURCE(libnxcommon/nxcommon/script/scriptsys.lua scriptsys_script)
-
 ADD_SUBDIRECTORY(libnxcommon)
 
 IF(NXCOMMON_TEST_BUILD)

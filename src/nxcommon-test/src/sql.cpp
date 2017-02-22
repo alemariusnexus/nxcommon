@@ -52,6 +52,8 @@ struct TestRecord
 
 
 
+#ifdef NXCOMMON_SQL_ENABLED
+
 void TestSQLResult(SQLResult res, initializer_list<TestRecord> recs, bool inOrder = false)
 {
 	size_t numRecs = recs.size();
@@ -436,5 +438,7 @@ TEST(SQLTest, TestPSQL)
 	EXPECT_TRUE(res.nextRecord());
 	EXPECT_EQ(UString(UTF16_LIT("(3.14159,987.6543)")), res.getString(0));
 }
+
+#endif
 
 #endif

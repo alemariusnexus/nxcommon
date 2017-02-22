@@ -36,6 +36,7 @@
 uint64_t GetTickcount()
 {
 #ifdef _POSIX_VERSION
+	return GetEpochTickcount();
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
 	return tv.tv_sec*1000 + tv.tv_usec/1000;
@@ -56,6 +57,25 @@ uint64_t GetTickcountMicroseconds()
 	return GetTickcount() * 1000;
 #endif
 }
+
+
+#ifdef _POSIX_VERSION
+
+// TODO: Implement this for Windows. It HAS TO BE the milliseconds since the epoch (as defined by POSIX), not
+// any other kind of tickcount!
+
+uint64_t GetEpochTickcount()
+{
+#ifdef _POSIX_VERSION
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+	return tv.tv_sec*1000 + tv.tv_usec/1000;
+#else
+	return GetTickCount();
+#endif
+}
+
+#endif
 
 
 float RandomFloat(float min, float max)

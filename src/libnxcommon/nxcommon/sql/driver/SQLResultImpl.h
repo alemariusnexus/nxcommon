@@ -24,9 +24,12 @@
 #define SQLRESULTIMPL_H_
 
 #include <nxcommon/config.h>
-#include "../../UString.h"
 #include "../../ByteArray.h"
 #include "../../CString.h"
+
+#ifdef NXCOMMON_UNICODE_ENABLED
+#include "../../UString.h"
+#endif
 
 
 
@@ -44,7 +47,9 @@ public:
 	virtual float getFloat(int index, bool* success = NULL) const = 0;
 	virtual double getDouble(int index, bool* success = NULL) const = 0;
 	virtual ByteArray getBLOB(int index, bool* success = NULL) const = 0;
+#ifdef NXCOMMON_UNICODE_ENABLED
 	virtual UString getString(int index, bool* success = NULL) const = 0;
+#endif
 	virtual CString getStringUTF8(int index, bool* success = NULL) const = 0;
 	virtual bool isNull(int index) const = 0;
 	virtual bool getBool(int index, bool* success = NULL) const = 0;

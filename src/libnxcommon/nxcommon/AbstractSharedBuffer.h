@@ -37,15 +37,6 @@ using std::max;
 
 
 
-template <typename T>
-class _NopDeleter
-{
-public:
-	_NopDeleter() {}
-	void operator()(T*) const {}
-};
-
-
 /*template <class ImplT, typename UnitT, UnitT term>
 class AbstractSharedString;*/
 
@@ -61,7 +52,7 @@ class AbstractSharedString;*/
  *
  * 	The AbstractSharedBuffer can optionally be terminated using a selectable terminator. This is commonly used for
  * 	null-termination of strings. If termination is requested, this class makes sure that the first element after the
- * 	actual data is always the terminator. _The size and capacity values do are measured excluding the terminator_, which
+ * 	actual data is always the terminator. _The size and capacity values are measured excluding the terminator_, which
  * 	means that the number of UnitTs allocated for the buffer is actually capacity+1.
  *
  * 	This class is an abstract base class and can not be used on its own. It uses a form of static polymorphism by means
@@ -89,6 +80,12 @@ private:
 
 	// Select one of the above structs, depending on whether the buffer is terminated.
 	typedef typename std::conditional<terminated, _EmptyPtrTerm, _EmptyPtrNonterm>::type EmptyPtr;
+
+protected:
+	struct MallocFreeDeleter
+	{
+		void operator()(UnitT* v) { free(v); }
+	};
 
 public:
 	typedef typename std::conditional<terminated, _TermLen1, _TermLen0>::type TermLen;
@@ -530,14 +527,14 @@ AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::AbstractSharedBuffer(Un
 
 template <typename DerivedT, typename UnitT, bool terminated, UnitT term>
 AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::AbstractSharedBuffer(UnitT* data, size_t size, size_t capacity, bool)
-		: d(data ? shared_ptr<UnitT>(data, _NopDeleter<UnitT>()) : EmptyPtr::value), msize(size), mcapacity(capacity), isnull(data == NULL)
+		: d(data ? shared_ptr<UnitT>(data, NopDeleter<UnitT>()) : EmptyPtr::value), msize(size), mcapacity(capacity), isnull(data == NULL)
 {
 }
 
 
 template <typename DerivedT, typename UnitT, bool terminated, UnitT term>
 AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::AbstractSharedBuffer(const UnitT* data, size_t size, bool, bool)
-		: d(data ? shared_ptr<UnitT>(const_cast<UnitT*>(data), _NopDeleter<UnitT>()) : EmptyPtr::value), msize(size), mcapacity(size),
+		: d(data ? shared_ptr<UnitT>(const_cast<UnitT*>(data), NopDeleter<UnitT>()) : EmptyPtr::value), msize(size), mcapacity(size),
 		  isnull(data == NULL), readAliasDummy(d)
 {
 }

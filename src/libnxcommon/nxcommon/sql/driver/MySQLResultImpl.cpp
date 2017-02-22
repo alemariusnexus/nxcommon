@@ -99,10 +99,12 @@ ByteArray MySQLResultImpl::getBLOB(int index, bool* success) const
 }
 
 
+#ifdef NXCOMMON_UNICODE_ENABLED
 UString MySQLResultImpl::getString(int index, bool* success) const
 {
 	return UString::fromUTF8(getStringUTF8(index, success));
 }
+#endif
 
 
 CString MySQLResultImpl::getStringUTF8(int index, bool* success) const

@@ -34,18 +34,24 @@ public:
 			{ return ImplT(s, len, bufSize-1, del); }
 	static ImplT from(UnitT* s, size_t len, size_t bufSize)
 			{ return fromCustomDelete(s, len, bufSize, default_delete<UnitT[]>()); }
+	static ImplT fromMalloc(UnitT* s, size_t len, size_t bufSize)
+			{ return fromCustomDelete(s, len, bufSize, typename BaseClass::MallocFreeDeleter()); }
 
 	template <typename Deleter>
 	static ImplT fromCustomDelete(UnitT* s, size_t len, Deleter del)
 			{ return fromCustomDelete(s, len, len+1, del); }
 	static ImplT from(UnitT* s, size_t len)
 			{ return fromCustomDelete(s, len, default_delete<UnitT[]>()); }
+	static ImplT fromMalloc(UnitT* s, size_t len)
+			{ return fromCustomDelete(s, len, BaseClass::MallocFreeDeleter()); }
 
 	template <typename Deleter>
 	static ImplT fromCustomDelete(UnitT* s, Deleter del)
 			{ return fromCustomDelete(s, ImplT::strlen(s), del); }
 	static ImplT from(UnitT* s)
 			{ return fromCustomDelete(s, default_delete<UnitT[]>()); }
+	static ImplT fromMalloc(UnitT* s)
+			{ return fromCustomDelete(s, typename BaseClass::MallocFreeDeleter()); }
 
 	static ImplT writeAlias(UnitT* s, size_t len, size_t bufSize)
 			{ return ImplT(s, len, bufSize-1, false, false); }
@@ -112,6 +118,13 @@ public:
 	bool operator<=(const ImplT& other) const { return ImplT::strcmp(*static_cast<const ImplT*>(this), other) <= 0; }
 	bool operator>(const ImplT& other) const { return ImplT::strcmp(*static_cast<const ImplT*>(this), other) > 0; }
 	bool operator>=(const ImplT& other) const { return ImplT::strcmp(*static_cast<const ImplT*>(this), other) >= 0; }
+
+	bool operator==(const UnitT* other) const { return *this == ImplT(other); }
+	bool operator!=(const UnitT* other) const { return *this != ImplT(other); }
+	bool operator<(const UnitT* other) const { return *this < ImplT(other); }
+	bool operator<=(const UnitT* other) const { return *this <= ImplT(other); }
+	bool operator>(const UnitT* other) const { return *this > ImplT(other); }
+	bool operator>=(const UnitT* other) const { return *this >= ImplT(other); }
 
 protected:
 	template <typename Deleter>

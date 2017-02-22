@@ -34,7 +34,11 @@ INCLUDE(TestBigEndian)
 TEST_BIG_ENDIAN(NXCOMMON_BIG_ENDIAN)
 
 
-SET(NXCOMMON_EXCEPTION_POSITION_INFO OFF CACHE BOOL "If true, exception messages will include the full path to the source file and the line in which the exception was thrown.")
+SET(NXCOMMON_EXCEPTION_POSITION_INFO OFF CACHE BOOL "If true, exception messages will include the name of the source file and the line in which the exception was thrown.")
+SET(NXCOMMON_EXCEPTION_POSITION_INFO_FULL OFF CACHE BOOL "If true, exception messages will include the full path to the source file (instead of just the name) and the line in which the exception was thrown.")
+SET(NXCOMMON_EXCEPTION_VERBOSE_MESSAGES OFF CACHE BOOL "If true, exception messages will include the full stack trace, if available.")
+SET(NXCOMMON_UNICODE_ENABLED ON CACHE BOOL "Enable Unicode support for nxcommon. Requires ICU.")
+SET(NXCOMMON_SQL_ENABLED OFF CACHE BOOL "Enable SQL support for nxcommon.")
 SET(NXCOMMON_SQLITE_ENABLED OFF CACHE BOOL "Enable SQLite support for the nxcommon SQL module. Uses builtin SQLite code.")
 SET(NXCOMMON_MYSQL_ENABLED OFF CACHE BOOL "Enable MySQL support for the nxcommon SQL module. Requires libmysqlclient.")
 SET(NXCOMMON_PSQL_ENABLED OFF CACHE BOOL "Enable PostgreSQL support for the nxcommon SQL module. Requires libpq.")
@@ -48,6 +52,18 @@ IF(NXCOMMON_EXCEPTION_POSITION_INFO)
 ELSE(NXCOMMON_EXCEPTION_POSITION_INFO)
     MESSAGE(STATUS "Exception position information disabled.")
 ENDIF(NXCOMMON_EXCEPTION_POSITION_INFO)
+
+IF(NXCOMMON_UNICODE_ENABLED)
+    MESSAGE(STATUS "Unicode support enabled.")
+ELSE(NXCOMMON_UNICODE_ENABLED)
+    MESSAGE(STATUS "Unicode support disabled.")
+ENDIF(NXCOMMON_UNICODE_ENABLED)
+
+IF(NXCOMMON_SQL_ENABLED)
+    MESSAGE(STATUS "SQL support enabled.")
+ELSE(NXCOMMON_SQL_ENABLED)
+    MESSAGE(STATUS "SQL support disabled.")
+ENDIF(NXCOMMON_SQL_ENABLED)
 
 IF(NXCOMMON_SQLITE_ENABLED)
     MESSAGE(STATUS "SQLite support enabled.")
@@ -99,7 +115,9 @@ ELSE(NXCOMMON_BULLET_SUPPORT STREQUAL "on")
     MESSAGE(STATUS "Bullet support disabled.")
 ENDIF(NXCOMMON_BULLET_SUPPORT STREQUAL "on")
 
-FIND_PACKAGE(ICU REQUIRED)
+IF(NXCOMMON_UNICODE_ENABLED)
+    FIND_PACKAGE(ICU REQUIRED)
+ENDIF(NXCOMMON_UNICODE_ENABLED)
 
 IF(NXCOMMON_MYSQL_ENABLED)
     FIND_PACKAGE(LibMySQLClient REQUIRED)
@@ -170,8 +188,10 @@ IF(NXCOMMON_BULLET_SUPPORT STREQUAL "on")
     SET(INCLUDES ${INCLUDES} ${BULLET_INCLUDE_DIRS})
 ENDIF(NXCOMMON_BULLET_SUPPORT STREQUAL "on")
 
-SET(LIBRARIES ${LIBRARIES} "${ICU_LIBRARIES}")
-SET(INCLUDES ${INCLUDES} "${ICU_INCLUDE_DIRS}")
+IF(NXCOMMON_UNICODE_ENABLED)
+    SET(LIBRARIES ${LIBRARIES} "${ICU_LIBRARIES}")
+    SET(INCLUDES ${INCLUDES} "${ICU_INCLUDE_DIRS}")
+ENDIF(NXCOMMON_UNICODE_ENABLED)
 
 IF(WIN32)
     # For some of the Uuid* functions on Windows (used e.g. by File.cpp for generating unique temporary file names)
@@ -182,6 +202,10 @@ IF(UNIX AND NXCOMMON_SQLITE_ENABLED)
     SET(LIBRARIES ${LIBRARIES} dl)
 ENDIF(UNIX AND NXCOMMON_SQLITE_ENABLED)
 
+
+IF(NXCOMMON_LUA_ENABLED)
+    CREATE_RESOURCE(nxcommon/script/scriptsys.lua scriptsys_script)
+ENDIF(NXCOMMON_LUA_ENABLED)
 
 ADD_SUBDIRECTORY(nxcommon)
 

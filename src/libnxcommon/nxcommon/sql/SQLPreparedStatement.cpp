@@ -65,6 +65,7 @@ SQLPreparedStatement::Data::~Data()
 }
 
 
+#ifdef NXCOMMON_UNICODE_ENABLED
 void SQLPreparedStatement::prepare(const UString& query)
 {
 	if (data->prepared)
@@ -73,6 +74,7 @@ void SQLPreparedStatement::prepare(const UString& query)
 	data->impl->prepare(query);
 	data->prepared = true;
 }
+#endif
 
 
 void SQLPreparedStatement::prepareUTF8(const CString& query)
@@ -150,12 +152,14 @@ SQLPreparedStatement& SQLPreparedStatement::bindDouble(size_t index, double valu
 }
 
 
+#ifdef NXCOMMON_UNICODE_ENABLED
 SQLPreparedStatement& SQLPreparedStatement::bindString(size_t index, const UString& value)
 {
 	ensureBindable();
 	data->impl->bindString(index, value);
 	return *this;
 }
+#endif
 
 
 SQLPreparedStatement& SQLPreparedStatement::bindStringUTF8(size_t index, const CString& value)

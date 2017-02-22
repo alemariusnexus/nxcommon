@@ -36,11 +36,15 @@ public:
 	SQLiteDatabaseImpl(const File& file, int flags);
 	virtual ~SQLiteDatabaseImpl();
 	virtual SQLPreparedStatementImpl* createPreparedStatement();
+#ifdef NXCOMMON_UNICODE_ENABLED
 	virtual SQLResultImpl* sendQuery(const UString& query);
+#endif
 	virtual SQLResultImpl* sendQueryUTF8(const CString& query);
 	sqlite3* getSQLiteHandle() { return sqlite; }
 	virtual uint64_t getLastInsertID() const;
+#ifdef NXCOMMON_UNICODE_ENABLED
 	virtual UString escapeString(const UString& str) const;
+#endif
 	virtual CString escapeStringUTF8(const CString& str) const;
 
 private:

@@ -49,14 +49,19 @@ MACRO(INITIALIZE_RESOURCE_COMPILER)
                 COPY_FILE "${CMAKE_BINARY_DIR}/rcc")
 
     IF(NOT RES_COMPILE_RESULT)
-        MESSAGE(SEND_ERROR "Compiling the resource compiler itself failed! Will use CMake implementation instead. Compiler log:\n**********\n${RES_COMPILE_OUTPUT}\n**********")
+        MESSAGE(WARNING "Compiling the resource compiler itself failed! Will use CMake implementation instead. Compiler log:\n**********\n${RES_COMPILE_OUTPUT}\n**********")
     ENDIF(NOT RES_COMPILE_RESULT)
 ENDMACRO(INITIALIZE_RESOURCE_COMPILER)
 
 
 MACRO(CREATE_RESOURCE RESFILE ALIAS)
 	SET(DESTFILE "${RES_DESTDIR}/res_${ALIAS}.h")
-	SET(SRCFILE "${CMAKE_CURRENT_SOURCE_DIR}/${RESFILE}")
+	
+	IF(IS_ABSOLUTE "${RESFILE}")
+	   SET(SRCFILE "${RESFILE}")
+	ELSE(IS_ABSOLUTE "${RESFILE}")
+	   SET(SRCFILE "${CMAKE_CURRENT_SOURCE_DIR}/${RESFILE}")
+	ENDIF(IS_ABSOLUTE "${RESFILE}")
 	
 	SET(RES_CPPCOMPILER_SUCCESS OFF)
 	

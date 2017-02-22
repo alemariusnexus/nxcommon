@@ -382,12 +382,28 @@ public:
 };
 
 
+/**
+ * A delete functor that does nothing (i.e. does not delete its argument).
+ */
+template <typename T>
+class NopDeleter
+{
+public:
+	NopDeleter() {}
+	void operator()(T*) const {}
+};
+
+
 
 
 
 
 uint64_t GetTickcount();
 uint64_t GetTickcountMicroseconds();
+
+#ifdef _POSIX_VERSION
+uint64_t GetEpochTickcount();
+#endif
 
 float RandomFloat(float min, float max);
 

@@ -25,12 +25,15 @@
 
 #include <nxcommon/config.h>
 #include "../../CString.h"
-#include "../../UString.h"
 #include "../../ByteArray.h"
 #include "sqlbase.h"
 #include "SQLPreparedStatementImpl.h"
 #include "SQLResultImpl.h"
 #include <set>
+
+#ifdef NXCOMMON_UNICODE_ENABLED
+#include "../../UString.h"
+#endif
 
 using std::set;
 
@@ -43,10 +46,14 @@ public:
 	SQLDatabaseImpl();
 	virtual ~SQLDatabaseImpl() {}
 	virtual SQLPreparedStatementImpl* createPreparedStatement() = 0;
+#ifdef NXCOMMON_UNICODE_ENABLED
 	virtual SQLResultImpl* sendQuery(const UString& query) = 0;
+#endif
 	virtual SQLResultImpl* sendQueryUTF8(const CString& query) = 0;
 	virtual uint64_t getLastInsertID() const = 0;
+#ifdef NXCOMMON_UNICODE_ENABLED
 	virtual UString escapeString(const UString& str) const = 0;
+#endif
 	virtual CString escapeStringUTF8(const CString& str) const = 0;
 	virtual void setTimeout(uint64_t timeoutMillis) {}
 

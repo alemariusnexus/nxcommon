@@ -73,10 +73,12 @@ SQLPreparedStatementImpl* MySQLDatabaseImpl::createPreparedStatement()
 }
 
 
+#ifdef NXCOMMON_UNICODE_ENABLED
 SQLResultImpl* MySQLDatabaseImpl::sendQuery(const UString& query)
 {
 	return sendQueryUTF8(query.toUTF8());
 }
+#endif
 
 
 SQLResultImpl* MySQLDatabaseImpl::sendQueryUTF8(const CString& query)
@@ -112,10 +114,12 @@ uint64_t MySQLDatabaseImpl::getLastInsertID() const
 }
 
 
+#ifdef NXCOMMON_UNICODE_ENABLED
 UString MySQLDatabaseImpl::escapeString(const UString& str) const
 {
 	return UString::fromUTF8(escapeStringUTF8(str.toUTF8()));
 }
+#endif
 
 
 CString MySQLDatabaseImpl::escapeStringUTF8(const CString& str) const

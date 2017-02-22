@@ -79,10 +79,12 @@ ByteArray MySQLPreparedStatementResultInstanceImpl::getBLOB(int index, bool* suc
 }
 
 
+#ifdef NXCOMMON_UNICODE_ENABLED
 UString MySQLPreparedStatementResultInstanceImpl::getString(int index, bool* success) const
 {
 	return impl->getString(index, success);
 }
+#endif
 
 
 CString MySQLPreparedStatementResultInstanceImpl::getStringUTF8(int index, bool* success) const

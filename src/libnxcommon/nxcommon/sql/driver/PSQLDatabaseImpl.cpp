@@ -47,10 +47,12 @@ SQLPreparedStatementImpl* PSQLDatabaseImpl::createPreparedStatement()
 }
 
 
+#ifdef NXCOMMON_UNICODE_ENABLED
 SQLResultImpl* PSQLDatabaseImpl::sendQuery(const UString& query)
 {
 	return sendQueryUTF8(query.toUTF8());
 }
+#endif
 
 
 SQLResultImpl* PSQLDatabaseImpl::sendQueryUTF8(const CString& query)
@@ -89,10 +91,12 @@ uint64_t PSQLDatabaseImpl::getLastInsertID() const
 }
 
 
+#ifdef NXCOMMON_UNICODE_ENABLED
 UString PSQLDatabaseImpl::escapeString(const UString& str) const
 {
 	return UString::fromUTF8(escapeStringUTF8(str.toUTF8()));
 }
+#endif
 
 
 CString PSQLDatabaseImpl::escapeStringUTF8(const CString& str) const

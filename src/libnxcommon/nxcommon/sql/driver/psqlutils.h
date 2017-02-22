@@ -26,7 +26,10 @@
 #include <nxcommon/config.h>
 #include <postgresql/libpq-fe.h>
 #include "../SQLException.h"
+
+#ifdef NXCOMMON_UNICODE_ENABLED
 #include "../../UString.h"
+#endif
 
 
 #define NXPSQLOID_BOOL 16
@@ -50,7 +53,9 @@ void FlushPSQL(PGconn* pq, timeval* timeout = NULL);
 PGresult* FetchAsyncPSQLResult(PGconn* pq, timeval* timeout = NULL);
 
 
+#ifdef NXCOMMON_UNICODE_ENABLED
 UString ConvertPlaceholdersToPSQL(const UString& query);
+#endif
 CString ConvertPlaceholdersToPSQLUTF8(const CString& query);
 
 #endif /* PSQLUTILS_H_ */

@@ -66,7 +66,9 @@ public:
 	float getFloat(size_t index, bool* success = NULL) const;
 	double getDouble(size_t index, bool* success = NULL) const;
 	ByteArray getBLOB(size_t index, bool* success = NULL) const;
+#ifdef NXCOMMON_UNICODE_ENABLED
 	UString getString(size_t index, bool* success = NULL) const;
+#endif
 	CString getStringUTF8(size_t index, bool* success = NULL) const;
 	bool isNull(size_t index) const;
 	bool getBool(size_t index, bool* success = NULL) const;
@@ -88,8 +90,10 @@ public:
 			{ return getDouble(getColumnIndex(colName), success); }
 	ByteArray getBLOB(const CString& colName, bool* success = NULL) const
 			{ return getBLOB(getColumnIndex(colName), success); }
+#ifdef NXCOMMON_UNICODE_ENABLED
 	UString getString(const CString& colName, bool* success = NULL) const
 			{ return getString(getColumnIndex(colName), success); }
+#endif
 	CString getStringUTF8(const CString& colName, bool* success = NULL) const
 			{ return getStringUTF8(getColumnIndex(colName), success); }
 	bool isNull(const CString& colName) const

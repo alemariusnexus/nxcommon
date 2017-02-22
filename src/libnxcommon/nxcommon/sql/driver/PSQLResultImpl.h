@@ -43,7 +43,9 @@ public:
 	virtual float getFloat(int index, bool* success = NULL) const;
 	virtual double getDouble(int index, bool* success = NULL) const;
 	virtual ByteArray getBLOB(int index, bool* success = NULL) const;
+#ifdef NXCOMMON_UNICODE_ENABLED
 	virtual UString getString(int index, bool* success = NULL) const;
+#endif
 	virtual CString getStringUTF8(int index, bool* success = NULL) const;
 	virtual bool isNull(int index) const;
 	virtual bool getBool(int index, bool* success = NULL) const;

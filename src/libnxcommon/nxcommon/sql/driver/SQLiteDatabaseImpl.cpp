@@ -52,6 +52,7 @@ SQLPreparedStatementImpl* SQLiteDatabaseImpl::createPreparedStatement()
 }
 
 
+#ifdef NXCOMMON_UNICODE_ENABLED
 SQLResultImpl* SQLiteDatabaseImpl::sendQuery(const UString& query)
 {
 	SQLitePreparedStatementImpl* stmt = (SQLitePreparedStatementImpl*) createPreparedStatement();
@@ -79,6 +80,7 @@ SQLResultImpl* SQLiteDatabaseImpl::sendQuery(const UString& query)
 
 	return res;
 }
+#endif
 
 
 SQLResultImpl* SQLiteDatabaseImpl::sendQueryUTF8(const CString& query)
@@ -109,10 +111,12 @@ uint64_t SQLiteDatabaseImpl::getLastInsertID() const
 }
 
 
+#ifdef NXCOMMON_UNICODE_ENABLED
 UString SQLiteDatabaseImpl::escapeString(const UString& str) const
 {
 	return UString::fromUTF8(escapeStringUTF8(str.toUTF8()));
 }
+#ifdef NXCOMMON_UNICODE_ENABLED
 
 
 CString SQLiteDatabaseImpl::escapeStringUTF8(const CString& str) const

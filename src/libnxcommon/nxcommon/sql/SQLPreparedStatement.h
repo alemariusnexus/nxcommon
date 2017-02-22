@@ -26,10 +26,14 @@
 #include <nxcommon/config.h>
 #include "driver/SQLPreparedStatementImpl.h"
 #include "SQLDatabase.h"
-#include <unicode/unistr.h>
 #include <memory>
 
+#ifdef NXCOMMON_UNICODE_ENABLED
+#include <unicode/unistr.h>
+
 using icu::UnicodeString;
+#endif
+
 using std::shared_ptr;
 
 
@@ -69,13 +73,17 @@ public:
 	SQLPreparedStatement& bindInt64(size_t index, int64_t value);
 	SQLPreparedStatement& bindFloat(size_t index, float value);
 	SQLPreparedStatement& bindDouble(size_t index, double value);
+#ifdef NXCOMMON_UNICODE_ENABLED
 	SQLPreparedStatement& bindString(size_t index, const UString& value);
+#endif
 	SQLPreparedStatement& bindStringUTF8(size_t index, const CString& value);
 	SQLPreparedStatement& bindBLOB(size_t index, const ByteArray& value);
 	SQLPreparedStatement& bindNull(size_t index);
 	SQLPreparedStatement& bindBool(size_t index, bool value);
 
+#ifdef NXCOMMON_UNICODE_ENABLED
 	void prepare(const UString& query);
+#endif
 	void prepareUTF8(const CString& query);
 	SQLResult execute();
 

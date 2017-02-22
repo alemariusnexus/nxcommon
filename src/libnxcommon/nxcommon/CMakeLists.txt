@@ -28,4 +28,8 @@ ADD_SUBDIRECTORY(script)
 ADD_SUBDIRECTORY(sql)
 ADD_SUBDIRECTORY(stream)
 
-ADD_SOURCES(util strutil CString CRC32 CLIParser Color4 encoding ErrorLog image ByteArray UString unicodeutil tinyxml2)
+ADD_SOURCES(util strutil CString CRC32 CLIParser Color4 encoding ErrorLog image ByteArray tinyxml2)
+
+IF(NXCOMMON_UNICODE_ENABLED)
+    ADD_SOURCES(UString unicodeutil)
+ENDIF(NXCOMMON_UNICODE_ENABLED)

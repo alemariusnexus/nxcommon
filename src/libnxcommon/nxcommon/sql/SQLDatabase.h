@@ -60,13 +60,20 @@ public:
 	bool isValid() const { return data.get() != NULL; }
 
 	SQLPreparedStatement createPreparedStatement();
+#ifdef NXCOMMON_UNICODE_ENABLED
 	SQLPreparedStatement createPreparedStatement(const UString& query);
+#endif
 	SQLPreparedStatement createPreparedStatementUTF8(const CString& query);
 
+
+#ifdef NXCOMMON_UNICODE_ENABLED
 	SQLResult sendQuery(const UString& query);
+#endif
 	SQLResult sendQueryUTF8(const CString& query);
 
+#ifdef NXCOMMON_UNICODE_ENABLED
 	UString escapeString(const UString& str) const;
+#endif
 	CString escapeStringUTF8(const CString& str) const;
 
 	uint64_t getCapabilities() const { return data->impl->getCapabilities(); }

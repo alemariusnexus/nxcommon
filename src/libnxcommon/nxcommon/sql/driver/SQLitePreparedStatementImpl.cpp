@@ -25,10 +25,13 @@
 #include "../SQLException.h"
 #include "sqliteutils.h"
 #include "SQLiteResultImpl.h"
+
+#ifdef NXCOMMON_UNICODE_ENABLED
 #include <unicode/schriter.h>
 #include <unicode/uchar.h>
 #include <unicode/utf8.h>
 #include "../../unicodeutil.h"
+#endif
 
 using icu::StringCharacterIterator;
 
@@ -46,12 +49,14 @@ SQLitePreparedStatementImpl::~SQLitePreparedStatementImpl()
 }
 
 
+#ifdef NXCOMMON_UNICODE_ENABLED
 void SQLitePreparedStatementImpl::prepare(const UString& query, const UChar** codeLeft)
 {
 	if (sqlite3_prepare16_v2(db->getSQLiteHandle(), query.get(), query.length()*2, &stmt, (const void**) codeLeft) != SQLITE_OK) {
 		ThrowSQLiteException(db->getSQLiteHandle(), "Error preparing SQLite statement", __FILE__, __LINE__);
 	}
 }
+#endif
 
 
 void SQLitePreparedStatementImpl::prepareUTF8(const CString& query, const char** codeLeft)
@@ -62,6 +67,7 @@ void SQLitePreparedStatementImpl::prepareUTF8(const CString& query, const char**
 }
 
 
+#ifdef NXCOMMON_UNICODE_ENABLED
 void SQLitePreparedStatementImpl::prepare(const UString& query)
 {
 	const UChar* codeLeft = NULL;
@@ -78,6 +84,7 @@ void SQLitePreparedStatementImpl::prepare(const UString& query)
 				__FILE__, __LINE__);
 	}
 }
+#endif
 
 
 void SQLitePreparedStatementImpl::prepareUTF8(const CString& query)
@@ -142,12 +149,14 @@ void SQLitePreparedStatementImpl::bindDouble(size_t index, double value)
 }
 
 
+#ifdef NXCOMMON_UNICODE_ENABLED
 void SQLitePreparedStatementImpl::bindString(size_t index, const UString& value)
 {
 	if (sqlite3_bind_text16(stmt, index+1, value.get(), value.length()*2, SQLITE_STATIC) != SQLITE_OK) {
 		ThrowSQLiteException(db->getSQLiteHandle(), NULL, __FILE__, __LINE__);
 	}
 }
+#endif
 
 
 void SQLitePreparedStatementImpl::bindStringUTF8(size_t index, const CString& value)

@@ -51,13 +51,17 @@ public:
 	virtual void bindInt64(size_t index, int64_t value);
 	virtual void bindFloat(size_t index, float value);
 	virtual void bindDouble(size_t index, double value);
+#ifdef NXCOMMON_UNICODE_ENABLED
 	virtual void bindString(size_t index, const UString& value);
+#endif
 	virtual void bindStringUTF8(size_t index, const CString& value);
 	virtual void bindBLOB(size_t index, const ByteArray& value);
 	virtual void bindNull(size_t index);
 	virtual void bindBool(size_t index, bool value);
 
+#ifdef NXCOMMON_UNICODE_ENABLED
 	virtual void prepare(const UString& query);
+#endif
 	virtual void prepareUTF8(const CString& query);
 	virtual SQLResultImpl* execute();
 	virtual void reset();
