@@ -116,7 +116,7 @@ UString SQLiteDatabaseImpl::escapeString(const UString& str) const
 {
 	return UString::fromUTF8(escapeStringUTF8(str.toUTF8()));
 }
-#ifdef NXCOMMON_UNICODE_ENABLED
+#endif
 
 
 CString SQLiteDatabaseImpl::escapeStringUTF8(const CString& str) const
