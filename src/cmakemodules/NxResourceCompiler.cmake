@@ -21,113 +21,89 @@
 
 # Resource Compiler
 #
-# This module provides a simple cross-platform resource compiler. It creates a C-header file for each input file containing a static array
-# with the file's contents. This way, files can be linked into the executable and read using the header. To generate the headers, a simple
-# C++ program (rc.cpp) is used. In cross-compilation mode, because we can't run the executables built by CMake, we fall back to using a
-# CMake implementation of the resource compiler, which is much slower than the C++ version.
-# The directory containing the generated header files is automatically added to the program include path, so you include resource headers
-# like so:
-#	#include <res_ALIAS.h>
+# This module provides a simple cross-platform resource compiler. It creates a C header file for each input
+# file containing a static array with the file's contents. This way, files can be linked into the executable
+# and read using the header. To generate the headers, a simple resource compiler C++ program (rc.cpp) is
+# used.
+#
+# Both the resource compiler itself and the header files are built at build-time, so they can be used with
+# resource files that are generated e.g. by a custom command (ADD_CUSTOM_COMMAND()).
+#
+# The directory containing the generated header files is automatically added to the default include path, and
+# resource headers can be included like so:
+#
+#   #include <res_ALIAS.h>
+#
+# In cross-compiling mode, a variable BUILD_CXX_COMPILER must be set to a valid compiler that can be used to
+# create programs running on the build machine.
 #
 #
-# CREATE_RESOURCE(RESFILE ALIAS)
-#	Creates a header file called "res_${ALIAS}.h" containing the contents of the file RESFILE in an unsigned int array with name
-#	"res_${ALIAS}_data".
+# CREATE_RESOURCE(TARGET RESFILE ALIAS)
+#       Creates a header file calles "res_${ALIAS}.h" containing the contents of the file RESFILE in an
+#       unsigned char array of the name "res_${ALIAS}_data". The commands used to build the resource file are
+#       added as a dependency to the given TARGET, which is usually a simple custom target created specifically
+#       for the resource files.
 
 
 SET(RES_DESTDIR "${CMAKE_CURRENT_BINARY_DIR}/resources")
 SET(RES_CPP_COMPILER "${CMAKE_CURRENT_LIST_DIR}/rc.cpp")
-FILE(MAKE_DIRECTORY "${RES_DESTDIR}")
 INCLUDE_DIRECTORIES(${RES_DESTDIR})
 
 
-MACRO(INITIALIZE_RESOURCE_COMPILER)
-    MESSAGE(STATUS "Compiling the resource compiler itself...")
-    
-    TRY_COMPILE(RES_COMPILE_RESULT ${CMAKE_BINARY_DIR} "${RES_CPP_COMPILER}"
-                OUTPUT_VARIABLE RES_COMPILE_OUTPUT
-                COPY_FILE "${CMAKE_BINARY_DIR}/rcc")
 
-    IF(NOT RES_COMPILE_RESULT)
-        MESSAGE(WARNING "Compiling the resource compiler itself failed! Will use CMake implementation instead. Compiler log:\n**********\n${RES_COMPILE_OUTPUT}\n**********")
-    ENDIF(NOT RES_COMPILE_RESULT)
+MACRO(INITIALIZE_RESOURCE_COMPILER)
+    IF(CMAKE_CROSSCOMPILING)
+        # TODO: Add auto-detection
+        SET(BUILD_CXX_COMPILER "" CACHE FILEPATH "Path to C++ compiler that can be used to build programs running on the build machine.")
+    ELSE()
+        SET(BUILD_CXX_COMPILER "${CMAKE_CXX_COMPILER}")
+    ENDIF()
+    
+    IF(NOT EXISTS "${BUILD_CXX_COMPILER}")
+        MESSAGE(SEND_ERROR "Variable BUILD_CXX_COMPILER does not point to a valid build compiler!")
+    ENDIF()
+
+    IF(NOT TARGET nxcommon_rcc)
+        ADD_CUSTOM_COMMAND (
+            OUTPUT "${CMAKE_BINARY_DIR}/rcc"
+            COMMAND "${BUILD_CXX_COMPILER}" -o "${CMAKE_BINARY_DIR}/rcc" "${RES_CPP_COMPILER}"
+            MAIN_DEPENDENCY "${RES_CPP_COMPILER}"
+            COMMENT "Compiling resource compiler"
+            VERBATIM
+            )
+        ADD_CUSTOM_TARGET(nxcommon_rcc DEPENDS "${CMAKE_BINARY_DIR}/rcc")
+    ENDIF()
 ENDMACRO(INITIALIZE_RESOURCE_COMPILER)
 
 
-MACRO(CREATE_RESOURCE RESFILE ALIAS)
-	SET(DESTFILE "${RES_DESTDIR}/res_${ALIAS}.h")
-	
-	IF(IS_ABSOLUTE "${RESFILE}")
-	   SET(SRCFILE "${RESFILE}")
-	ELSE(IS_ABSOLUTE "${RESFILE}")
-	   SET(SRCFILE "${CMAKE_CURRENT_SOURCE_DIR}/${RESFILE}")
-	ENDIF(IS_ABSOLUTE "${RESFILE}")
-	
-	SET(RES_CPPCOMPILER_SUCCESS OFF)
-	
-	IF(NOT EXISTS "${CMAKE_BINARY_DIR}/rcc")
-	    INITIALIZE_RESOURCE_COMPILER()
-	ENDIF(NOT EXISTS "${CMAKE_BINARY_DIR}/rcc")
-	
-	MESSAGE(STATUS "Compiling resource ${ALIAS}...")
-	
-	IF(NOT CMAKE_CROSSCOMPILING AND EXISTS "${RES_CPP_COMPILER}")
-		# Use the resource compiler written in C++.
-		#TRY_RUN(RES_RUN_RESULT RES_COMPILE_RESULT ${CMAKE_BINARY_DIR} "${RES_CPP_COMPILER}"
-		#        COMPILE_OUTPUT_VARIABLE RES_COMPILE_OUTPUT
-		#	RUN_OUTPUT_VARIABLE RES_RUN_OUTPUT
-		#        ARGS "\"${SRCFILE}\"" "\"${DESTFILE}\"" "\"${ALIAS}\"")
-		
-		EXECUTE_PROCESS(COMMAND "${CMAKE_BINARY_DIR}/rcc" "${SRCFILE}" "${DESTFILE}" "${ALIAS}"
-		                OUTPUT_VARIABLE RES_RUN_OUTPUT
-		                ERROR_VARIABLE RES_RUN_ERROR)
-		
-		IF(NOT "${RES_RUN_OUTPUT}" MATCHES "^Success$")
-			MESSAGE(SEND_ERROR "Running the resource compiler on file ${RESFILE} failed. Will use CMake implementation instead. Output:\n**********\n${RES_RUN_OUTPUT}\n\n\n${RES_RUN_ERROR}\n**********")
-		ELSE(NOT "${RES_RUN_OUTPUT}" MATCHES "^Success$")
-			SET(RES_CPPCOMPILER_SUCCESS ON)
-		ENDIF(NOT "${RES_RUN_OUTPUT}" MATCHES "^Success$")
-	ENDIF(NOT CMAKE_CROSSCOMPILING AND EXISTS "${RES_CPP_COMPILER}")
 
-	IF(NOT RES_CPPCOMPILER_SUCCESS)
-		# In cross-compilation mode we can't execute the binaries we build, so we can't use TRY_RUN to execute the C++ resource compiler.
-		# In this case, we have to use a CMake-only resource compiler, which is much slower than the C++ version, but it works.
-
-		#IF(NOT CMAKE_CROSSCOMPILING)
-		#	MESSAGE("Warning: C++ resource compiler rc.cpp not found, using CMake implementation.")
-		#ENDIF(NOT CMAKE_CROSSCOMPILING)
-
-		STRING(TOUPPER "${ALIAS}" UPPER_ALIAS)
-
-		FILE(WRITE "${DESTFILE}" "")
-		FILE(APPEND "${DESTFILE}" "// Automatically compiled from resource file ${SRCFILE}\n")
-		FILE(APPEND "${DESTFILE}" "// DO NOT EDIT THIS FILE! CHANGES WILL BE LOST UPON RECOMPILATION!\n\n")
-
-		FILE(APPEND "${DESTFILE}" "#ifndef RES_${UPPER_ALIAS}_H_\n")
-		FILE(APPEND "${DESTFILE}" "#define RES_${UPPER_ALIAS}_H_\n")
-
-		FILE(APPEND "${DESTFILE}" "static const unsigned char res_${ALIAS}_data[] = {")
-		
-		FILE(READ "${SRCFILE}" RESDATA HEX)
-
-		STRING(LENGTH "${RESDATA}" RESDATA_LEN)
-		MATH(EXPR RESDATA_BYTES "${RESDATA_LEN}/2-1")
-
-		FOREACH(RESDATA_BYTEOFF RANGE ${RESDATA_BYTES})
-			MATH(EXPR RESDATA_MOD "${RESDATA_BYTEOFF}%20")
-
-			IF(${RESDATA_MOD} EQUAL 0)
-				FILE(APPEND "${DESTFILE}" "\n\t")
-			ENDIF(${RESDATA_MOD} EQUAL 0)
-
-			MATH(EXPR RESDATA_STROFF "${RESDATA_BYTEOFF}*2")
-			STRING(SUBSTRING "${RESDATA}" ${RESDATA_STROFF} 2 RESDATA_BYTE)
-			FILE(APPEND "${DESTFILE}" "0x${RESDATA_BYTE}, ")
-		ENDFOREACH(RESDATA_BYTEOFF)
-
-		FILE(APPEND "${DESTFILE}" "\n};\n")
-		FILE(APPEND "${DESTFILE}" "#endif\n")
-	ENDIF(NOT RES_CPPCOMPILER_SUCCESS)
-
-	SET(RESOURCE_FILES ${RESOURCE_FILES} "${DESTFILE}")
+MACRO(CREATE_RESOURCE TARGET RESFILE ALIAS)
+    SET(DESTFILE "${RES_DESTDIR}/res_${ALIAS}.h")
+    
+    IF(IS_ABSOLUTE "${RESFILE}")
+       SET(SRCFILE "${RESFILE}")
+    ELSE(IS_ABSOLUTE "${RESFILE}")
+       SET(SRCFILE "${CMAKE_CURRENT_SOURCE_DIR}/${RESFILE}")
+    ENDIF(IS_ABSOLUTE "${RESFILE}")
+    
+    INITIALIZE_RESOURCE_COMPILER()
+    
+    ADD_CUSTOM_COMMAND (
+        OUTPUT "${DESTFILE}"
+        COMMAND "${CMAKE_COMMAND}" -E make_directory ${RES_DESTDIR}
+        COMMAND "${CMAKE_BINARY_DIR}/rcc" "${SRCFILE}" "${DESTFILE}" "${ALIAS}"
+        MAIN_DEPENDENCY "${SRCFILE}"
+        DEPENDS nxcommon_rcc
+        COMMENT "Compiling resource ${ALIAS}"
+        VERBATIM
+        )
+    
+    # This seems to be necessary, because having an ADD_CUSTOM_COMMAND() output as a dependency on
+    # an external target does not always work.
+    # TODO: Maybe investigate this further.
+    ADD_CUSTOM_TARGET(rcc_${ALIAS} ALL DEPENDS "${DESTFILE}")
+    
+    ADD_DEPENDENCIES("${TARGET}" rcc_${ALIAS})
+    
+    SET(RESOURCE_FILES ${RESOURCE_FILES} "${DESTFILE}")
 ENDMACRO(CREATE_RESOURCE)

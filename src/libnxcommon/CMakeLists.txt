@@ -203,8 +203,10 @@ IF(UNIX AND NXCOMMON_SQLITE_ENABLED)
 ENDIF(UNIX AND NXCOMMON_SQLITE_ENABLED)
 
 
+ADD_CUSTOM_TARGET(nxcommon_res)
+
 IF(NXCOMMON_LUA_ENABLED)
-    CREATE_RESOURCE(nxcommon/script/scriptsys.lua scriptsys_script)
+    CREATE_RESOURCE(nxcommon_res "${CMAKE_CURRENT_SOURCE_DIR}/nxcommon/script/scriptsys.lua" scriptsys_script)
 ENDIF(NXCOMMON_LUA_ENABLED)
 
 ADD_SUBDIRECTORY(nxcommon)
@@ -219,6 +221,7 @@ ADD_SUBDIRECTORY(nxcommon)
 INCLUDE(GenerateExportHeader)
 
 ADD_LIBRARY(nxcommon STATIC ${SRCS})
+ADD_DEPENDENCIES(nxcommon nxcommon_res)
 TARGET_LINK_LIBRARIES(nxcommon PUBLIC ${LIBRARIES})
 TARGET_INCLUDE_DIRECTORIES(nxcommon PUBLIC ${INCLUDES} $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}> $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 TARGET_COMPILE_OPTIONS(nxcommon PUBLIC --std=gnu++11) # --std=c++11 is usually enough, but GTest sometimes complains on MinGW when we don't enable GNU extensions.
