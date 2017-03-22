@@ -37,6 +37,10 @@ using std::initializer_list;
 
 
 
+// TODO: Maybe make the tests work without Unicode support enabled
+#ifdef NXCOMMON_UNICODE_ENABLED
+
+
 struct TestRecord
 {
 	UString firstname;
@@ -438,6 +442,8 @@ TEST(SQLTest, TestPSQL)
 	EXPECT_TRUE(res.nextRecord());
 	EXPECT_EQ(UString(UTF16_LIT("(3.14159,987.6543)")), res.getString(0));
 }
+
+#endif
 
 #endif
 

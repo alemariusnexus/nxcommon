@@ -25,6 +25,8 @@
 
 #include <nxcommon/config.h>
 #include <cstring>
+#include <cstddef>
+#include <cstdio>
 #include <memory>
 #include <algorithm>
 #include "util.h"
@@ -91,6 +93,15 @@ public:
 	typedef typename std::conditional<terminated, _TermLen1, _TermLen0>::type TermLen;
 
 public:
+
+	// The following will be disabled for a while because of a compiler bug in GCC, probably related to
+	// the following report, which prevents the code from compiling:
+	//
+	//		https://gcc.gnu.org/bugzilla/show_bug.cgi?id=61507
+	//
+	// It seems to be fixed in GCC 4.9.1, but for now I want to support compilers that are a bit older.
+	// Also, this method has very limited use anyway, so it's not much of a loss.
+#if 0
 	// Unfortunately, it must be named differently. If it's named "join", it will often be matched instead
 	// of the other join()'s because the parameter pack can be matched more directly (i.e. with fewer type
 	// conversions) to incoming parameter values. One example is calling join() with int instead of size_t:
@@ -103,6 +114,7 @@ public:
 	// Parameter pack overloading is a nightmare...
 	template <class... Args>
 	static DerivedT joinv(const DerivedT& separator = DerivedT(), Args... args);
+#endif
 
 	static DerivedT join(const DerivedT& separator, const DerivedT* bufs, size_t numBufs);
 
@@ -251,6 +263,11 @@ public:
 	UnitT* mget() { ensureUniqueness(); return d.get(); }
 
 
+	ptrdiff_t indexOf(UnitT u, size_t offset = 0);
+
+	ptrdiff_t indexOf(const DerivedT& other, size_t offset = 0);
+
+
 	/**	\brief Append another buffer to the end of this buffer.
 	 *
 	 * 	@param other The other buffer
@@ -332,6 +349,13 @@ public:
 
 	DerivedT& operator+=(UnitT u) { append(u); return *static_cast<DerivedT*>(this); }
 
+	bool operator==(const DerivedT& other) const { return DerivedT::compare(*static_cast<const DerivedT*>(this), other) == 0; }
+	bool operator!=(const DerivedT& other) const { return DerivedT::compare(*static_cast<const DerivedT*>(this), other) != 0; }
+	bool operator<(const DerivedT& other) const { return DerivedT::compare(*static_cast<const DerivedT*>(this), other) < 0; }
+	bool operator<=(const DerivedT& other) const { return DerivedT::compare(*static_cast<const DerivedT*>(this), other) <= 0; }
+	bool operator>(const DerivedT& other) const { return DerivedT::compare(*static_cast<const DerivedT*>(this), other) > 0; }
+	bool operator>=(const DerivedT& other) const { return DerivedT::compare(*static_cast<const DerivedT*>(this), other) >= 0; }
+
 protected:
 	/**	\brief Construct a null buffer.
 	 *
@@ -400,7 +424,6 @@ protected:
 	 */
 	AbstractSharedBuffer(UnitT* data, size_t size, size_t capacity, bool);
 
-	// Read-aliasing
 	/**	\brief Construct a new buffer that read-aliases the given array.
 	 *
 	 * 	Ownership of the buffer will _not_ be taken by tis class. The buffer will only be used for read-only operations, and
@@ -415,7 +438,25 @@ protected:
 	 */
 	AbstractSharedBuffer(const UnitT* data, size_t size, bool, bool);
 
-	AbstractSharedBuffer(const shared_ptr<UnitT>& sharedPtr, size_t size, size_t capacity, const shared_ptr<UnitT>& readAliasDummy);
+	/**	\brief Constructs a new buffer that aliases the array behind an external shared_ptr, sharing its reference count.
+	 *
+	 * 	Behavior is similar to either the read-aliasing or write-aliasing constructor, depending on the value used for
+	 * 	readAliasDummy. The advantage of using this constructor over either the read-aliasing or write-aliasing constructors
+	 * 	is that it shares a reference count with the given shared_ptr, which means that the data will remain valid even if
+	 * 	the shared_ptr passed in as an argument is later destroyed.
+	 *
+	 * 	\param sharedPtr The input buffer. The newly created AbstractSharedBuffer shares a reference count with it, so it is
+	 * 		guaranteed to remain valid for as long as the new object desires.
+	 * 	\param size The valid buffer data size.
+	 * 	\param capacity The current capacity of the input buffer, _excluding_ the terminator, if any.
+	 * 	\param readAliasDummy Set this to a copy of sharedPtr (the actual raw pointer does not matter, so shared_ptr's
+	 * 		aliasing constructor could be used) for read-aliasing, or an empty shared_ptr for write-aliasing. See comment
+	 * 		on readAliasDummy member variable for more info.
+	 * 	\param isnull Whether the new buffer is a null buffer. Must be given explicitly because a null AbstractSharedBuffer
+	 * 		actually uses a non-null pointer inside its shared_ptr.
+	 */
+	AbstractSharedBuffer(const shared_ptr<UnitT>& sharedPtr, size_t size, size_t capacity,
+			const shared_ptr<UnitT>& readAliasDummy, bool isnull);
 
 	void realloc(size_t newCapacity);
 	void reallocWithOffset(size_t newCapacity, size_t srcOffset, size_t destOffset);
@@ -437,6 +478,58 @@ protected:
 
 	size_t resize();
 
+protected:
+	static int compare(const UnitT* a, const UnitT* b, size_t size)
+	{
+		return memcmp(a, b, size*sizeof(UnitT));
+	}
+
+	static UnitT* find(UnitT* beg, UnitT* end, UnitT c)
+	{
+		while (beg != end) {
+			if (*beg == c) {
+				return beg;
+			}
+			beg++;
+		}
+		return end;
+	}
+
+
+
+	static int compare(const UnitT* a, const UnitT* b, size_t aLen, size_t bLen)
+	{
+		int res = DerivedT::compare(a, b, min(aLen, bLen));
+		return (res != 0) ? res : aLen-bLen;
+	}
+
+	static int compare(const DerivedT& a, const DerivedT& b)
+	{
+		return DerivedT::compare(a.get(), b.get(), a.length(), b.length());
+	}
+
+	static UnitT* find(UnitT* beg, UnitT* end, const UnitT* data, size_t size)
+	{
+		if (size == 0) {
+			return beg;
+		}
+
+		UnitT d = *data;
+		data++;
+		size--;
+
+		UnitT* mbeg = beg;
+
+		while ((end-mbeg) > size  &&  (mbeg = DerivedT::find(mbeg, end, d)) != end) {
+			mbeg++;
+			if (DerivedT::compare(mbeg, data, size) == 0) {
+				return mbeg-1;
+			}
+		}
+
+		return end;
+	}
+
 private:
 	static size_t getGrownCapacity(size_t newCapacity);
 
@@ -447,6 +540,12 @@ protected:
 	bool isnull;
 
 private:
+	// The sole purpose of this is to make read-aliasing work. Normally, this is an empty shared_ptr that
+	// isn't used for anything. If the read-aliasing constructor is used however, it will contain a copy
+	// if this->d, so that this->d.unique() == false and a copy will be made on the next write operation,
+	// which is the desired behavior for read-aliasing (see ensureUniqueness()).
+	// The actual pointer stored in here does not matter, so the aliasing constructor of shared_ptr could
+	// be used.
 	shared_ptr<UnitT> readAliasDummy;
 };
 
@@ -542,8 +641,8 @@ AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::AbstractSharedBuffer(co
 
 template <typename DerivedT, typename UnitT, bool terminated, UnitT term>
 AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::AbstractSharedBuffer(const shared_ptr<UnitT>& sharedPtr,
-		size_t size, size_t capacity, const shared_ptr<UnitT>& readAliasDummy)
-		: d(sharedPtr ? sharedPtr : EmptyPtr::value), msize(size), mcapacity(capacity), isnull(sharedPtr),
+		size_t size, size_t capacity, const shared_ptr<UnitT>& readAliasDummy, bool isnull)
+		: d(sharedPtr ? sharedPtr : EmptyPtr::value), msize(size), mcapacity(capacity), isnull(isnull),
 		  readAliasDummy(readAliasDummy)
 {
 }
@@ -698,6 +797,24 @@ void AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::ensureUniqueness()
 
 
 template <typename DerivedT, typename UnitT, bool terminated, UnitT term>
+ptrdiff_t AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::indexOf(UnitT u, size_t offset)
+{
+	UnitT* end = d.get() + msize;
+	UnitT* o = DerivedT::find(d.get() + offset, end, u);
+	return o != end ? (o - d.get()) : -1;
+}
+
+
+template <typename DerivedT, typename UnitT, bool terminated, UnitT term>
+ptrdiff_t AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::indexOf(const DerivedT& other, size_t offset)
+{
+	UnitT* end = d.get() + msize;
+	UnitT* o = DerivedT::find(d.get() + offset, end, other.get(), other.length());
+	return o != end ? (o - d.get()) : -1;
+}
+
+
+template <typename DerivedT, typename UnitT, bool terminated, UnitT term>
 DerivedT& AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::append(const DerivedT& other)
 {
 	grow(msize + other.msize);
@@ -795,6 +912,8 @@ DerivedT AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::join(const Der
 	return joined;
 }
 
+
+#if 0
 template <typename DerivedT, typename UnitT, bool terminated, UnitT term>
 template <class... Args>
 DerivedT AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::joinv(const DerivedT& separator, Args... args)
@@ -802,5 +921,6 @@ DerivedT AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::joinv(const De
 	DerivedT bufs[sizeof...(args)] = { args... };
 	return join(separator, bufs, sizeof...(args));
 }
+#endif
 
 #endif /* ABSTRACTSHAREDBUFFER_H_ */

@@ -4,6 +4,8 @@
 #include <nxcommon/config.h>
 #include "AbstractSharedBuffer.h"
 #include "ByteArray.h"
+#include <vector>
+#include <iterator>
 
 
 
@@ -101,6 +103,13 @@ public:
 	bool startsWith(const ImplT& other);
 	bool endsWith(const ImplT& other);
 
+	using BaseClass::indexOf;
+
+	template <typename OutputIterator>
+	void split(OutputIterator out, UnitT separator);
+
+	std::vector<ImplT> split(UnitT separator) { std::vector<ImplT> v; split(std::back_inserter(v), separator); return v; }
+
 	ImplT& operator<<(UnitT c) { return append(c); }
 	ImplT& operator<<(const ImplT& other) { return append(other); }
 	ImplT& operator<<(long long val) { return append(val); }
@@ -112,12 +121,19 @@ public:
 	ImplT& operator<<(double val) { return append(val); }
 	ImplT& operator<<(float val) { return append(val); }
 
-	bool operator==(const ImplT& other) const { return ImplT::strcmp(*static_cast<const ImplT*>(this), other) == 0; }
+	/*bool operator==(const ImplT& other) const { return ImplT::strcmp(*static_cast<const ImplT*>(this), other) == 0; }
 	bool operator!=(const ImplT& other) const { return ImplT::strcmp(*static_cast<const ImplT*>(this), other) != 0; }
 	bool operator<(const ImplT& other) const { return ImplT::strcmp(*static_cast<const ImplT*>(this), other) < 0; }
 	bool operator<=(const ImplT& other) const { return ImplT::strcmp(*static_cast<const ImplT*>(this), other) <= 0; }
 	bool operator>(const ImplT& other) const { return ImplT::strcmp(*static_cast<const ImplT*>(this), other) > 0; }
-	bool operator>=(const ImplT& other) const { return ImplT::strcmp(*static_cast<const ImplT*>(this), other) >= 0; }
+	bool operator>=(const ImplT& other) const { return ImplT::strcmp(*static_cast<const ImplT*>(this), other) >= 0; }*/
+
+	using BaseClass::operator==;
+	using BaseClass::operator!=;
+	using BaseClass::operator<;
+	using BaseClass::operator<=;
+	using BaseClass::operator>;
+	using BaseClass::operator>=;
 
 	bool operator==(const UnitT* other) const { return *this == ImplT(other); }
 	bool operator!=(const UnitT* other) const { return *this != ImplT(other); }
@@ -143,20 +159,6 @@ protected:
 		return len;
 	}
 
-	static int strncmp(const ImplT& s1, const ImplT& s2, size_t len)
-	{
-		return memcmp(s1.d.get(), s2.d.get(), len);
-	}
-
-	static int strcmp(const ImplT& s1, const ImplT& s2)
-	{
-		size_t s1Len = s1.length();
-		size_t s2Len = s2.length();
-		int res = ImplT::strncmp(s1, s2, min(s1Len, s2Len));
-		if (res == 0) res = s1Len-s2Len;
-		return res;
-	}
-
 	static ImplT convertFromLong(long val, unsigned int base) { return ImplT::convertFromLongLong(val, base); }
 	static ImplT convertFromULong(unsigned long val, unsigned int base) { return ImplT::convertFromULongLong(val, base); }
 	static ImplT convertFromInt(int val, unsigned int base) { return ImplT::convertFromLong(val, base); }
@@ -175,7 +177,8 @@ AbstractSharedString<ImplT, UnitT, term>::AbstractSharedString(const ByteArray& 
 																	// the valid data region of other, which would be illegal.
 				other.mcapacity / sizeof(UnitT) - 1,	// Round down, otherwise we would access the buffer out of bounds.
 														// Also, decrease by 1 because we need a slot for the null terminator.
-				shared_ptr<UnitT>(other.readAliasDummy, NULL)) // We don't care about the actual pointer in readAliasDummy
+				shared_ptr<UnitT>(other.readAliasDummy, NULL),	// We don't care about the actual pointer in readAliasDummy
+				other.isnull)
 {
 	if (this->mcapacity < this->msize) {
 		// It could very well be that the capacity is lower than the size because of the rounding up and decrementing above.
@@ -226,7 +229,8 @@ bool AbstractSharedString<ImplT, UnitT, term>::startsWith(const ImplT& other)
 		return false;
 	}
 
-	return ImplT::strncmp(*static_cast<const ImplT*>(this), other, other.length()) == 0;
+	return ImplT::compare(this->d.get(), other.get(), other.length()) == 0;
+	//return ImplT::strncmp(*static_cast<const ImplT*>(this), other, other.length()) == 0;
 }
 
 
@@ -241,7 +245,24 @@ bool AbstractSharedString<ImplT, UnitT, term>::endsWith(const ImplT& other)
 	}
 
 	// TODO: This should be done without a copy, but ImplT::strncmp() currently doesn't support offsets
-	return substr(len-olen, olen) == other;
+	//return substr(len-olen, olen) == other;
+	return ImplT::compare(this->d.get() + (len-olen), other.get(), olen) == 0;
+}
+
+
+template <typename ImplT, typename UnitT, UnitT term>
+template <typename OutputIterator>
+void AbstractSharedString<ImplT, UnitT, term>::split(OutputIterator out, UnitT separator)
+{
+	ptrdiff_t prevIdx = 0;
+	ptrdiff_t idx = 0;
+
+	while ((idx = indexOf(separator, prevIdx)) != -1) {
+		*out++ = substr(prevIdx, idx-prevIdx);
+		prevIdx = idx+1;
+	}
+
+	*out++ = substr(prevIdx);
 }
 
 

@@ -26,15 +26,19 @@
 
 ostream& operator<<(ostream& stream, const CString& cstr)
 {
-	return stream << cstr.get();
+	return stream << "\"" << cstr.get() << "\"";
 }
 
+
+#ifdef NXCOMMON_UNICODE_ENABLED
 
 ostream& operator<<(ostream& stream, const UString& cstr)
 {
 	CString utf8 = cstr.toUTF8();
-	return stream << utf8.get();
+	return stream << "\"" << utf8.get() << "\"";
 }
+
+#endif
 
 
 ostream& operator<<(ostream& stream, const FilePath& fp)

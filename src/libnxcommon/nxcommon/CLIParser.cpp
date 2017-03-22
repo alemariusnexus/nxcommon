@@ -30,13 +30,14 @@ using std::string;
 
 
 
-int CLIParser::addOption(char name, const char* longName, const char* description, bool takesArgument)
+int CLIParser::addOption(char name, const char* longName, const char* description, bool takesArgument, const char* argName)
 {
 	Option opt;
 	opt.name = name;
 	opt.longName = longName;
 	opt.description = description;
 	opt.takesArgument = takesArgument;
+	opt.argName = argName;
 	options.push_back(opt);
 	return options.size();
 }
@@ -174,7 +175,7 @@ CLIParser& CLIParser::printOption(int option, CString& str)
 		str.append(buf);
 
 		if (opt.takesArgument) {
-			str.append(" ARG");
+			str.append(" ").append(opt.argName);
 		}
 
 		if (opt.longName) {
@@ -182,7 +183,7 @@ CLIParser& CLIParser::printOption(int option, CString& str)
 			str.append(buf);
 
 			if (opt.takesArgument) {
-				str.append(" ARG");
+				str.append(" ").append(opt.argName);
 			}
 		}
 	} else {
@@ -190,7 +191,7 @@ CLIParser& CLIParser::printOption(int option, CString& str)
 		str.append(buf);
 
 		if (opt.takesArgument) {
-			str.append(" ARG");
+			str.append(" ").append(opt.argName);
 		}
 	}
 	str.append("\n");
@@ -206,7 +207,7 @@ CLIParser& CLIParser::printOption(int option, CString& str)
 				if (srcDescr[1] != '\0') {
 					switch (srcDescr[1]) {
 					case 'a':
-						description += "ARG";
+						description += opt.argName;
 						break;
 					case 's':
 						description += opt.name;
@@ -271,9 +272,13 @@ CLIParser& CLIParser::printOption(int option)
 }
 
 
-void CLIParser::printOptions()
+void CLIParser::printOptions(const char* spacing)
 {
 	for (unsigned int i = 0 ; i < options.size() ; i++) {
+		if (i != 0) {
+			printf("%s", spacing);
+		}
+
 		printOption(i+1);
 	}
 }

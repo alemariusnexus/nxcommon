@@ -134,4 +134,41 @@ TEST(ByteArrayTest, MainByteArrayTest)
 		EXPECT_EQ(dataCpy, barr.get());
 		EXPECT_EQ(dataCpy, barr.mget());
 	}
+
+	{
+		CString cstr1;
+		ByteArray barr1(cstr1);
+		EXPECT_TRUE(cstr1.isNull());
+		EXPECT_TRUE(barr1.isNull());
+
+		CString cstr2("Hello World");
+		ByteArray barr2(cstr2);
+		EXPECT_FALSE(cstr2.isNull());
+		EXPECT_FALSE(barr2.isNull());
+		EXPECT_EQ(cstr2.get(), barr2.get()); // Should be using read-aliasing instead of copy
+	}
+
+	{
+		const char* cstr1Ptr = nullptr;
+		ByteArray barr1;
+		{
+			CString cstr2;
+			{
+				CString cstr1("Hello World");
+				cstr1Ptr = cstr1.get();
+				cstr2 = cstr1;
+				barr1 = cstr1;
+				EXPECT_EQ(cstr1.get(), cstr2.get());
+				EXPECT_EQ(cstr1.get(), barr1.get());
+			}
+
+			// Should still be valid because cstr2 keeps a shared reference
+			EXPECT_EQ(cstr1Ptr, cstr2.get());
+			EXPECT_EQ(CString("Hello World"), cstr2);
+		}
+
+		// Should still be valid because barr1 keeps a shared reference (conversion uses read-aliasing)
+		EXPECT_EQ(cstr1Ptr, barr1.get());
+		EXPECT_TRUE(strcmp("Hello World", barr1.get()) == 0); // Should still have cstr1's null terminator
+	}
 }

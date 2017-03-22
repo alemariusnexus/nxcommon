@@ -78,7 +78,8 @@ public:
 
 	template <typename ODerivedT, typename OUnitT, bool oterminated, OUnitT oterm>
 	ByteArray(const AbstractSharedBuffer<ODerivedT, OUnitT, oterminated, oterm>& other)
-			: AbstractSharedBuffer(other.d, other.msize*sizeof(OUnitT), other.mcapacity*sizeof(OUnitT), other.readAliasDummy) {}
+			: AbstractSharedBuffer(other.d, other.msize*sizeof(OUnitT), other.mcapacity*sizeof(OUnitT),
+					other.readAliasDummy, other.isnull) {}
 
 	ByteArray(const ByteArray& other) : AbstractSharedBuffer(other) {}
 

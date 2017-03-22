@@ -27,7 +27,7 @@
 
 void luaS_opencorelibs(lua_State* lua)
 {
-	luaL_loadbuffer(lua, (const char*) res_scriptsys_script_data, sizeof(res_scriptsys_script_data), "scriptsys.lua");
+	luaL_loadbuffer(lua, (const char*) res_scriptsys_script_data, res_scriptsys_script_size, "scriptsys.lua");
 	lua_pcall(lua, 0, 0, 0);
 }
 

@@ -61,6 +61,7 @@ private:
 		const char* longName;
 		const char* description;
 		bool takesArgument;
+		const char* argName;
 	};
 
 public:
@@ -78,7 +79,8 @@ public:
 	 * 	@param takesArgument If true, the option needs an argument (as in '-f /example/path')
 	 * 	@return The option identifier. It is always > 0.
 	 */
-	int addOption(char name, const char* longName, const char* description, bool takesArgument = false);
+	int addOption(char name, const char* longName, const char* description, bool takesArgument = false,
+			const char* argName = "ARG");
 
 	/**	\brief Parse the next command line argument(s).
 	 *
@@ -117,7 +119,7 @@ public:
 
 	/**	\brief Prints a string listing the valid options and their descriptions.
 	 */
-	void printOptions();
+	void printOptions(const char* spacing = "");
 
 private:
 	vector<Option> options;

@@ -22,9 +22,19 @@
 
 #include "global.h"
 #include <nxcommon/CString.h>
-#include <nxcommon/UString.h>
 #include <nxcommon/strutil.h>
+#include <vector>
+#include <list>
+#include <set>
+
+#ifdef NXCOMMON_UNICODE_ENABLED
+#include <nxcommon/UString.h>
 #include <nxcommon/unicodeutil.h>
+#endif
+
+using std::vector;
+using std::list;
+using std::set;
 
 
 
@@ -468,12 +478,15 @@ TEST(StringTest, CheckStrutilAndCString)
 		EXPECT_EQ(CString("eins, zwei, und auch drei"), CString::join((const CString&) CString(", "), (const CString*) strs, (size_t) 3));
 	}
 
+	// See comment at AbstractSharedBuffer::joinv()
+#if 0
 	EXPECT_EQ(CString("eins:zwei:und auch drei"), CString::joinv(":", "eins", "zwei", "und auch drei"));
 	EXPECT_EQ(CString("Just one element"), CString::joinv(", ", "Just one element"));
 	EXPECT_EQ(CString("Just one element"), CString::joinv(", ", "Just one element"));
 	EXPECT_EQ(CString(""), CString::joinv(", "));
 	EXPECT_EQ(CString(", , "), CString::joinv(", ", "", "", ""));
 	EXPECT_EQ(CString("append for dummies."), CString::joinv("", "append ", "for ", "dummies."));
+#endif
 
 	{
 		const char* strs[] = { "one", "two", "and three" };
@@ -493,9 +506,47 @@ TEST(StringTest, CheckStrutilAndCString)
 	EXPECT_FALSE(CString("Hello World").endsWith("He said: Hello World"));
 	EXPECT_TRUE(CString("Hello World").endsWith(""));
 	EXPECT_TRUE(CString("").endsWith(""));
+
+	EXPECT_EQ(0, CString("Hello World").indexOf('H'));
+	EXPECT_EQ(2, CString("Hello World").indexOf('l'));
+	EXPECT_EQ(2, CString("Hello World").indexOf('l', 2));
+	EXPECT_EQ(3, CString("Hello World").indexOf('l', 3));
+	EXPECT_EQ(9, CString("Hello World").indexOf('l', 4));
+	EXPECT_EQ(5, CString("Hello World").indexOf(' '));
+	EXPECT_EQ(-1, CString("Hello World").indexOf('x'));
+	EXPECT_EQ(-1, CString("Hello World").indexOf('e', 2));
+	EXPECT_EQ(-1, CString("").indexOf('e'));
+	EXPECT_EQ(-1, CString("Hello").indexOf('o', 5));
+
+	EXPECT_EQ(0, CString("Hello World").indexOf("Hell"));
+	EXPECT_EQ(6, CString("Hello World").indexOf("Wor"));
+	EXPECT_EQ(6, CString("Hello World").indexOf("W"));
+	EXPECT_EQ(9, CString("Hello World").indexOf("ld"));
+	EXPECT_EQ(2, CString("Hello World").indexOf("ll"));
+	EXPECT_EQ(2, CString("Hello World").indexOf("ll", 2));
+	EXPECT_EQ(-1, CString("Hello World").indexOf("ll", 3));
+	EXPECT_EQ(-1, CString("Hello World").indexOf("Helo"));
+	EXPECT_EQ(-1, CString("Hello World").indexOf("ld "));
+	EXPECT_EQ(-1, CString("Hello World").indexOf("Hello World and more"));
+	EXPECT_EQ(-1, CString("Hello World").indexOf("ld and yet even more"));
+	EXPECT_EQ(-1, CString("Hello").indexOf("o", 5));
+	EXPECT_EQ(0, CString("Hello").indexOf(""));
+	EXPECT_EQ(2, CString("Hello").indexOf("", 2));
+
+	EXPECT_EQ(vector<CString>({"eins", "zwei", "drei"}), CString("eins;zwei;drei").split(';'));
+	EXPECT_EQ(vector<CString>({"eins", "zwei", "", "", "drei", "vier"}),
+			CString("eins;zwei;;;drei;vier").split(';'));
+	EXPECT_EQ(vector<CString>({"just one value"}), CString("just one value").split(';'));
+	EXPECT_EQ(vector<CString>({"", "eins"}), CString(";eins").split(';'));
+	EXPECT_EQ(vector<CString>({"eins", ""}), CString("eins;").split(';'));
+	EXPECT_EQ(vector<CString>({"", ""}), CString(";").split(';'));
+	EXPECT_EQ(vector<CString>({""}), CString("").split(';'));
+	EXPECT_EQ(vector<CString>({"this;should", "also;work;well"}), CString("this;should also;work;well").split(' '));
 }
 
 
+
+#ifdef NXCOMMON_UNICODE_ENABLED
 
 TEST(StringTest, UStringTest)
 {
@@ -597,3 +648,5 @@ TEST(StringTest, UStringTest)
 
 	EXPECT_EQ(realUtf8Str, utf8Str);
 }
+
+#endif

@@ -36,7 +36,6 @@
 
 
 
-
 /**	\brief A simple and lightweight string class using data sharing.
  *
  * 	This class is used to store strings in an unspecified 8-bit character encoding and charset. It assumes that the charset
@@ -101,6 +100,26 @@ protected:
 	static CString convertFromULongLong(unsigned long long val, unsigned int base);
 	static CString convertFromDouble(double val);
 };
+
+
+
+namespace std
+{
+	template <>
+	struct hash<CString>
+	{
+		typedef CString argument_type;
+		typedef size_t result_type;
+
+		result_type operator()(const argument_type& s) const
+		{
+			// TODO: This is slow because it copies the string. We would need to implement our
+			// own hash function...
+			return strHash(std::string(s.get(), s.length()));
+		}
+		std::hash<std::string> strHash;
+	};
+}
 
 
 

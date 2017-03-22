@@ -26,16 +26,22 @@
 #include "global.h"
 #include <ostream>
 #include <nxcommon/CString.h>
-#include <nxcommon/UString.h>
 #include <nxcommon/file/FilePath.h>
 #include <nxcommon/file/File.h>
+
+#ifdef NXCOMMON_UNICODE_ENABLED
+#include <nxcommon/UString.h>
+#endif
 
 using std::ostream;
 
 
 ostream& operator<<(ostream& stream, const CString& cstr);
-ostream& operator<<(ostream& stream, const UString& cstr);
 ostream& operator<<(ostream& stream, const FilePath& fp);
 ostream& operator<<(ostream& stream, const File& f);
+
+#ifdef NXCOMMON_UNICODE_ENABLED
+ostream& operator<<(ostream& stream, const UString& cstr);
+#endif
 
 #endif /* PRINTHELPERS_H_ */
