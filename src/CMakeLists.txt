@@ -22,6 +22,8 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
 
 PROJECT(nxcommon-parent C CXX)
 
+SET(NXCOMMON_INSTALL_ENABLED OFF CACHE BOOL "If true, CMake INSTALL commands will be run for nxcommon.")
+
 SET(NXCOMMON_VERSION_MAJOR "0") # Major version, must be numeric
 SET(NXCOMMON_VERSION_MINOR "1") # Minor version, must be numeric
 SET(NXCOMMON_VERSION_SUFFIX "-dev") # A suffix for the version string, could e.g. be 'b' for beta versions, or empty

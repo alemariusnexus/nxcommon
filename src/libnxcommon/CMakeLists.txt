@@ -33,19 +33,39 @@ INCLUDE(TestBigEndian)
 
 TEST_BIG_ENDIAN(NXCOMMON_BIG_ENDIAN)
 
+MACRO(SET_DEFAULT outvar defval typ docstr)
+    IF(NOT DEFINED ${outvar}_DEFAULT)
+        SET(${outvar}_DEFAULT "${defval}")
+    ENDIF()
+    
+    SET(${outvar} "${${outvar}_DEFAULT}" CACHE "${typ}" "${docstr}")
+ENDMACRO(SET_DEFAULT)
 
-SET(NXCOMMON_EXCEPTION_POSITION_INFO OFF CACHE BOOL "If true, exception messages will include the name of the source file and the line in which the exception was thrown.")
-SET(NXCOMMON_EXCEPTION_POSITION_INFO_FULL OFF CACHE BOOL "If true, exception messages will include the full path to the source file (instead of just the name) and the line in which the exception was thrown.")
-SET(NXCOMMON_EXCEPTION_VERBOSE_MESSAGES OFF CACHE BOOL "If true, exception messages will include the full stack trace, if available.")
-SET(NXCOMMON_UNICODE_ENABLED ON CACHE BOOL "Enable Unicode support for nxcommon. Requires ICU.")
-SET(NXCOMMON_SQL_ENABLED OFF CACHE BOOL "Enable SQL support for nxcommon.")
-SET(NXCOMMON_SQLITE_ENABLED OFF CACHE BOOL "Enable SQLite support for the nxcommon SQL module. Uses builtin SQLite code.")
-SET(NXCOMMON_MYSQL_ENABLED OFF CACHE BOOL "Enable MySQL support for the nxcommon SQL module. Requires libmysqlclient.")
-SET(NXCOMMON_PSQL_ENABLED OFF CACHE BOOL "Enable PostgreSQL support for the nxcommon SQL module. Requires libpq.")
-SET(NXCOMMON_LUA_ENABLED ON CACHE BOOL "Enable Lua scripting support. Requires liblua.")
-SET(NXCOMMON_OPENGL_ENABLED OFF CACHE BOOL "Enable OpenGL support. Requires OpenGL and GLEW libraries.")
-SET(NXCOMMON_QT_SUPPORT "off" CACHE STRING "Enables some Qt support, e.g. for converting QStrings to UStrings. (off/qt4/qt5)")
-SET(NXCOMMON_BULLET_SUPPORT "off" CACHE STRING "Enables some Bullet support, e.g. for converting Vector3s to btVectors. (off/on)")
+SET_DEFAULT(NXCOMMON_EXCEPTION_POSITION_INFO OFF BOOL "If true, exception messages will include the name of the source file and the line in which the exception was thrown.")
+SET_DEFAULT(NXCOMMON_EXCEPTION_POSITION_INFO_FULL OFF BOOL "If true, exception messages will include the full path to the source file (instead of just the name) and the line in which the exception was thrown.")
+SET_DEFAULT(NXCOMMON_EXCEPTION_VERBOSE_MESSAGES OFF BOOL "If true, exception messages will include the full stack trace, if available.")
+SET_DEFAULT(NXCOMMON_UNICODE_ENABLED ON BOOL "Enable Unicode support for nxcommon. Requires ICU.")
+SET_DEFAULT(NXCOMMON_SQL_ENABLED OFF BOOL "Enable SQL support for nxcommon.")
+SET_DEFAULT(NXCOMMON_SQLITE_ENABLED OFF BOOL "Enable SQLite support for the nxcommon SQL module. Uses builtin SQLite code.")
+SET_DEFAULT(NXCOMMON_MYSQL_ENABLED OFF BOOL "Enable MySQL support for the nxcommon SQL module. Requires libmysqlclient.")
+SET_DEFAULT(NXCOMMON_PSQL_ENABLED OFF BOOL "Enable PostgreSQL support for the nxcommon SQL module. Requires libpq.")
+SET_DEFAULT(NXCOMMON_LUA_ENABLED ON BOOL "Enable Lua scripting support. Requires liblua.")
+SET_DEFAULT(NXCOMMON_OPENGL_ENABLED OFF BOOL "Enable OpenGL support. Requires OpenGL and GLEW libraries.")
+SET_DEFAULT(NXCOMMON_QT_SUPPORT "off" STRING "Enables some Qt support, e.g. for converting QStrings to UStrings. (off/qt4/qt5)")
+SET_DEFAULT(NXCOMMON_BULLET_SUPPORT "off" STRING "Enables some Bullet support, e.g. for converting Vector3s to btVectors. (off/on)")
+
+#SET(NXCOMMON_EXCEPTION_POSITION_INFO OFF CACHE BOOL "If true, exception messages will include the name of the source file and the line in which the exception was thrown.")
+#SET(NXCOMMON_EXCEPTION_POSITION_INFO_FULL OFF CACHE BOOL "If true, exception messages will include the full path to the source file (instead of just the name) and the line in which the exception was thrown.")
+#SET(NXCOMMON_EXCEPTION_VERBOSE_MESSAGES OFF CACHE BOOL "If true, exception messages will include the full stack trace, if available.")
+#SET(NXCOMMON_UNICODE_ENABLED "${NXCOMMON_UNICODE_ENABLED_DEFAULT}" CACHE BOOL "Enable Unicode support for nxcommon. Requires ICU.")
+#SET(NXCOMMON_SQL_ENABLED OFF CACHE BOOL "Enable SQL support for nxcommon.")
+#SET(NXCOMMON_SQLITE_ENABLED OFF CACHE BOOL "Enable SQLite support for the nxcommon SQL module. Uses builtin SQLite code.")
+#SET(NXCOMMON_MYSQL_ENABLED OFF CACHE BOOL "Enable MySQL support for the nxcommon SQL module. Requires libmysqlclient.")
+#SET(NXCOMMON_PSQL_ENABLED OFF CACHE BOOL "Enable PostgreSQL support for the nxcommon SQL module. Requires libpq.")
+#SET(NXCOMMON_LUA_ENABLED ON CACHE BOOL "Enable Lua scripting support. Requires liblua.")
+#SET(NXCOMMON_OPENGL_ENABLED OFF CACHE BOOL "Enable OpenGL support. Requires OpenGL and GLEW libraries.")
+#SET(NXCOMMON_QT_SUPPORT "off" CACHE STRING "Enables some Qt support, e.g. for converting QStrings to UStrings. (off/qt4/qt5)")
+#SET(NXCOMMON_BULLET_SUPPORT "off" CACHE STRING "Enables some Bullet support, e.g. for converting Vector3s to btVectors. (off/on)")
 
 IF(NXCOMMON_EXCEPTION_POSITION_INFO)
     MESSAGE(STATUS "Exception position information enabled.")
@@ -230,27 +250,29 @@ TARGET_COMPILE_DEFINITIONS(nxcommon PUBLIC -D__STDC_LIMIT_MACROS -DUCHAR_TYPE=ch
 SET(NXCOMMON_CMAKE_MODULE_DIR_BUILD "${CMAKE_CURRENT_SOURCE_DIR}/../cmakemodules")
 SET(NXCOMMON_CMAKE_MODULE_DIR_INSTALL ".") # Relative to the export file
 
-INSTALL(TARGETS nxcommon EXPORT NxcommonTargets DESTINATION lib)
-INSTALL (
-    DIRECTORY nxcommon
-    DESTINATION include
-    FILES_MATCHING
-        PATTERN *.h
-        PATTERN .svn EXCLUDE
-        PATTERN *.cmake.h EXCLUDE
-)
-INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/nxcommon/config.h" DESTINATION include/nxcommon)
-
-EXPORT(EXPORT NxcommonTargets FILE "${CMAKE_CURRENT_BINARY_DIR}/cmakecfg/NxcommonTargets.cmake")
-CONFIGURE_FILE(NxcommonConfig.cmake.in "${CMAKE_CURRENT_BINARY_DIR}/cmakecfg/NxcommonConfig.cmake" @ONLY)
-
-INSTALL (
-    EXPORT NxcommonTargets
-    FILE NxcommonTargets.cmake
-    DESTINATION lib/cmake
-)
-
-INSTALL (
-    FILES "${CMAKE_CURRENT_BINARY_DIR}/cmakecfg/NxcommonConfig.cmake"
-    DESTINATION lib/cmake
-)
+IF(NXCOMMON_INSTALL_ENABLED)
+    INSTALL(TARGETS nxcommon EXPORT NxcommonTargets DESTINATION lib)
+    INSTALL (
+        DIRECTORY nxcommon
+        DESTINATION include
+        FILES_MATCHING
+            PATTERN *.h
+            PATTERN .svn EXCLUDE
+            PATTERN *.cmake.h EXCLUDE
+    )
+    INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/nxcommon/config.h" DESTINATION include/nxcommon)
+    
+    EXPORT(EXPORT NxcommonTargets FILE "${CMAKE_CURRENT_BINARY_DIR}/cmakecfg/NxcommonTargets.cmake")
+    CONFIGURE_FILE(NxcommonConfig.cmake.in "${CMAKE_CURRENT_BINARY_DIR}/cmakecfg/NxcommonConfig.cmake" @ONLY)
+    
+    INSTALL (
+        EXPORT NxcommonTargets
+        FILE NxcommonTargets.cmake
+        DESTINATION lib/cmake
+    )
+    
+    INSTALL (
+        FILES "${CMAKE_CURRENT_BINARY_DIR}/cmakecfg/NxcommonConfig.cmake"
+        DESTINATION lib/cmake
+    )
+ENDIF()

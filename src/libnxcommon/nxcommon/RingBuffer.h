@@ -130,7 +130,7 @@ RingBuffer<T, SizeType>::RingBuffer()
 template <typename T, typename SizeType>
 RingBuffer<T, SizeType>::RingBuffer(RingBuffer&& other)
 		: buf(other.buf), mcapacity(other.mcapacity), readOffs(other.readOffs), writeOffs(other.writeOffs),
-		  mcount(other.mcount.load(std::memory_order_release))
+		  mcount(other.mcount.load(std::memory_order_acquire))
 {
 	// Set same values as default constructor would set
 	//other.buf = nullptr; // Done automatically by move-constructor of unique_ptr<T[]>
@@ -324,7 +324,7 @@ RingBuffer<T, SizeType>& RingBuffer<T, SizeType>::operator=(RingBuffer&& other)
 	mcapacity = other.mcapacity;
 	readOffs = other.readOffs;
 	writeOffs = other.writeOffs;
-	mcount = other.mcount.load(std::memory_order_release);
+	mcount = other.mcount.load(std::memory_order_acquire);
 
 	// Set same values as default constructor would set
 	//other.buf = nullptr; // Done automatically by move-assignment of unique_ptr<T[]>

@@ -100,5 +100,7 @@ INCLUDE_DIRECTORIES(${INCLUDES} "${nxcommon-test_BINARY_DIR}/includes")
 ADD_EXECUTABLE(nxcommon-test ${SRCS})
 TARGET_LINK_LIBRARIES(nxcommon-test ${LIBRARIES} nxcommon)
 
-INSTALL(TARGETS nxcommon-test DESTINATION bin)
+IF(NXCOMMON_INSTALL_ENABLED)
+    INSTALL(TARGETS nxcommon-test DESTINATION bin)
+ENDIF()
 
