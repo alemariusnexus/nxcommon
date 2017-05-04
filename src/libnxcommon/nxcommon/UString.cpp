@@ -247,3 +247,11 @@ UString UString::convertFromDouble(double val)
 }
 
 
+
+
+std::ostream& operator<<(std::ostream& stream, const UString& cstr)
+{
+	CString utf8 = cstr.toUTF8();
+	return stream << utf8.get();
+}
+

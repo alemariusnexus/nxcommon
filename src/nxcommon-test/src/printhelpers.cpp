@@ -24,18 +24,6 @@
 
 
 
-ostream& operator<<(ostream& stream, const CString& cstr)
-{
-	return stream << cstr.get();
-}
-
-
-ostream& operator<<(ostream& stream, const UString& cstr)
-{
-	CString utf8 = cstr.toUTF8();
-	return stream << utf8.get();
-}
-
 
 ostream& operator<<(ostream& stream, const FilePath& fp)
 {

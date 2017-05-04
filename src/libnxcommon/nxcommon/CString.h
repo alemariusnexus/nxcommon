@@ -29,6 +29,7 @@
 #include "strutil.h"
 #include "ByteArray.h"
 #include <string>
+#include <ostream>
 
 #ifdef NXCOMMON_QT_SUPPORT_ENABLED
 #include <QtCore/QString>
@@ -117,5 +118,9 @@ CString CString::format(const char* fmt, Args... args)
 	snprintf(buf, len+1, fmt, args...);
 	return CString::from(buf, len, len+1);
 }
+
+
+
+std::ostream& operator<<(std::ostream& stream, const CString& cstr);
 
 #endif /* NXCOMMON_CSTRING_H_ */
