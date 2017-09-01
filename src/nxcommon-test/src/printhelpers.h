@@ -36,12 +36,7 @@
 using std::ostream;
 
 
-ostream& operator<<(ostream& stream, const CString& cstr);
 ostream& operator<<(ostream& stream, const FilePath& fp);
 ostream& operator<<(ostream& stream, const File& f);
-
-#ifdef NXCOMMON_UNICODE_ENABLED
-ostream& operator<<(ostream& stream, const UString& cstr);
-#endif
 
 #endif /* PRINTHELPERS_H_ */

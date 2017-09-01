@@ -30,6 +30,7 @@
 #include <unicode/uchar.h>
 #include <unicode/utf16.h>
 #include <unicode/ustring.h>
+#include <ostream>
 
 #ifdef NXCOMMON_QT_SUPPORT_ENABLED
 #include <QtCore/QString>
@@ -91,5 +92,10 @@ protected:
 	static UString convertFromULongLong(unsigned long long val, unsigned int base);
 	static UString convertFromDouble(double val);
 };
+
+
+
+
+std::ostream& operator<<(std::ostream& stream, const UString& cstr);
 
 #endif /* NXCOMMON_USTRING_H_ */

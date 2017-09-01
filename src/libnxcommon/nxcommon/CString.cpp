@@ -99,3 +99,10 @@ CString CString::convertFromDouble(double val)
 
 
 
+std::ostream& operator<<(std::ostream& stream, const CString& cstr)
+{
+	return stream << cstr.get();
+}
+
+
+
