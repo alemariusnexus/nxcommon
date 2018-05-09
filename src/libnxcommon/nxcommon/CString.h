@@ -81,6 +81,8 @@ public:
 	operator QString() const { return QString::fromUtf8(get(), length()); }
 #endif
 
+  operator std::string() const { return std::string(get(), length()); }
+
 	CString& lower() { ensureUniqueness(); strtolower(d.get(), d.get()); return *this; }
 	CString& upper() { ensureUniqueness(); strtoupper(d.get(), d.get()); return *this; }
 
