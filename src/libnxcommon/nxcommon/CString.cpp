@@ -28,9 +28,9 @@
 CString CString::fromFloatWithMaxPrecision(float val, int precision)
 {
 	const char* fmt = "%.*f";
-	int bufSize = snprintf(NULL, 0, fmt, val, (int) precision);
+	int bufSize = snprintf(NULL, 0, fmt, (int) precision, val);
 	char* buf = new char[bufSize+1];
-	snprintf(buf, bufSize+1, fmt, val, (int) precision);
+	snprintf(buf, bufSize+1, fmt, (int) precision, val);
 	CString str = CString::from(buf, bufSize, bufSize+1);
 
 	// TODO: This is not how you're supposed to implement different decimal point chars...

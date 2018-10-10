@@ -88,6 +88,7 @@ public:
 	float normalize();
 	const Vector3 normalized() const { Vector3 cpy(*this); cpy.normalize(); return cpy; }
 	float angle(const Vector3& other) const;
+	Vector3 lerp(const Vector3& other, float t) const { return other*t + (*this)*(1.0f-t); }
 
 private:
 	float data[3];

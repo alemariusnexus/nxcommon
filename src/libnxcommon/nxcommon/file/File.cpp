@@ -501,9 +501,13 @@ ByteArray File::readAll(ifstream::openmode mode) const
 
 	in->read(content, sz);
 
+	// NOTE: Sometimes numRead != sz, because things like newline conversion might be involved.
+	// This was the cause of a long-standing bug in libnxcommon...
+	std::streamsize numRead = in->gcount();
+
 	delete in;
 
-	return ByteArray::from(content, sz);
+	return ByteArray::from(content, numRead, sz);
 }
 
 

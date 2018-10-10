@@ -98,7 +98,7 @@ TEST(FileTest, HierarchyTest)
 
 		ASSERT_TRUE(testdir.exists()) << "Test directory " << testRootPath << " does not exist!";
 
-		CString testdirConts[] = {"subdir 1", "file1", "Datei 2", "subdir2", CString()};
+		CString testdirConts[] = {"subdir 1", "file1", "Datei 2", "subdir2", "newlinetest", CString()};
 		TestFileIterator(testdir, testdirConts);
 
 		CString subdir2Conts[] = {"sdir2", "foobar", "foobar32", CString()};
@@ -161,5 +161,31 @@ TEST(FileTest, MiscTest)
 
 			i++;
 		}
+	}
+}
+
+
+TEST(FileTest, ReadWriteTest)
+{
+	if (!testRootPath.isNull()) {
+		File testdir(testRootPath, "filetest");
+
+		ASSERT_TRUE(testdir.exists()) << "Test directory " << testRootPath << " does not exist!";
+
+		File newlinetestFile(testdir, "newlinetest");
+		size_t newlinetestFileSize = 66;
+		const char* newlinetestFileContent = "This\r\nfile\r\nuses\r\nCRLF\r\nnewlines\r\nand\r\nits\r\nlast\r\ncharacter\r\nis\r\nZ";
+
+		EXPECT_EQ(newlinetestFileSize, newlinetestFile.getSize());
+
+		ByteArray barr = newlinetestFile.readAll();
+
+		// This failed in previous versions, because File::readAll() didn't take newline conversion into account
+		EXPECT_EQ('Z', barr.get()[barr.length()-1]);
+
+		// In binary mode, no CRLF conversion should happen, so the size of the read data should match the file size
+		barr = newlinetestFile.readAll(ifstream::in | ifstream::binary);
+		EXPECT_EQ(newlinetestFileSize, barr.length());
+		EXPECT_EQ(ByteArray(newlinetestFileContent, strlen(newlinetestFileContent)), barr);
 	}
 }

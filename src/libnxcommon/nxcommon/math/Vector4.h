@@ -105,6 +105,7 @@ public:
 	float length() const { return sqrtf(lengthSq()); }
 	float normalize();
 	const Vector4 normalized() const { Vector4 cpy(*this); cpy.normalize(); return cpy; }
+	Vector4 lerp(const Vector4& other, float t) const { return other*t + (*this)*(1.0f-t); }
 
 private:
 	Vec4SF data;

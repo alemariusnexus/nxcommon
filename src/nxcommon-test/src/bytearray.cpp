@@ -23,8 +23,11 @@
 #include "global.h"
 #include <nxcommon/ByteArray.h>
 #include <nxcommon/CString.h>
-#include <nxcommon/UString.h>
 #include <cstdlib>
+
+#ifdef NXCOMMON_UNICODE_ENABLED
+#include <nxcommon/UString.h>
+#endif
 
 
 
@@ -72,6 +75,7 @@ TEST(ByteArrayTest, MainByteArrayTest)
 		EXPECT_EQ('\0', cstr2[42]);
 		EXPECT_EQ(cstr1, cstr2);
 
+#ifdef NXCOMMON_UNICODE_ENABLED
 		barr.squeeze();
 		UString ustr1(barr);
 		EXPECT_EQ(21, ustr1.size());
@@ -92,6 +96,7 @@ TEST(ByteArrayTest, MainByteArrayTest)
 		EXPECT_EQ(barr.get(), (const char*) ustr3.get());
 		EXPECT_TRUE(memcmp(barr.get(), ustr3.get(), 42) == 0);
 		EXPECT_EQ(UTF16_LITC('\0'), ustr3[21]);
+#endif
 	}
 
 	{
