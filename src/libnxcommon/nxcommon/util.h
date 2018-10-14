@@ -23,9 +23,17 @@
 #ifndef NXCOMMON_UTIL_H_
 #define NXCOMMON_UTIL_H_
 
+#ifndef GENERATE_LUAJIT_FFI_CDEF
 #include <nxcommon/config.h>
+#endif
+
+#include "script/luasysdefs.h"
+
+#ifndef GENERATE_LUAJIT_FFI_CDEF
+
 #include <cstdlib>
 #include <climits>
+
 
 
 #define PS() uint64_t psS = GetTickcount();
@@ -394,12 +402,19 @@ public:
 };
 
 
+extern "C"
+{
+
+#endif // defined(GENERATE_LUADEF_FFI_CDEF)
 
 
+LUASYS_EXPORT uint64_t GetTickcount();
+LUASYS_EXPORT uint64_t GetTickcountMicroseconds();
 
+#ifndef GENERATE_LUAJIT_FFI_CDEF
 
-uint64_t GetTickcount();
-uint64_t GetTickcountMicroseconds();
+}
+
 
 #ifdef _POSIX_VERSION
 uint64_t GetEpochTickcount();
@@ -433,6 +448,8 @@ inline unsigned int RoundToMultiple(unsigned int val, unsigned int multiple)
 }
 
 void SleepMilliseconds(unsigned int time);
+
+#endif
 
 
 #endif /* NXCOMMON_UTIL_H_ */

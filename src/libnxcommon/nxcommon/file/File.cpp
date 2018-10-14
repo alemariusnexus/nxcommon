@@ -23,6 +23,7 @@
 #include "_File.h"
 #include <cstdio>
 #include <cstring>
+#include <cassert>
 #include "../util.h"
 #include "FileException.h"
 #include "FileFinder.h"
@@ -826,6 +827,7 @@ File File::correctCase(const File& cdir) const
 
 	// Get a list of the path's components (excluding the root element)
 	FilePath partialPath = absFile.getPath();
+	assert(partialPath.isAbsolute());
 	while (!partialPath.isRoot()) {
 		components.push_front(partialPath.getFileName().lower());
 		partialPath = partialPath.getDirectoryPath();

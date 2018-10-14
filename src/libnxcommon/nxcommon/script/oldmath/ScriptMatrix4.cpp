@@ -20,9 +20,9 @@
 	GPLADDITIONS.
  */
 
-#include "ScriptMatrix4.h"
-#include "ScriptVector4.h"
-#include "ScriptVector3.h"
+#include <nxcommon/script/oldmath/ScriptMatrix4.h>
+#include <nxcommon/script/oldmath/ScriptVector3.h>
+#include <nxcommon/script/oldmath/ScriptVector4.h>
 
 
 

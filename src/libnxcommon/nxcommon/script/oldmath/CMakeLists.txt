@@ -18,11 +18,4 @@
 # Additional permissions are granted, which are listed in the file
 # GPLADDITIONS.
 
-IF(NXCOMMON_LUA_ENABLED)
-    ADD_SUBDIRECTORY(math)
-    ADD_SUBDIRECTORY(sql)
-
-    ADD_SOURCES(luasys ScriptObject)
-    
-    CREATE_RESOURCE(nxcommon_res scriptsys.lua scriptsys_script)
-ENDIF(NXCOMMON_LUA_ENABLED)
+ADD_SOURCES(ScriptMatrix4 ScriptVector3 ScriptVector4 luamath)

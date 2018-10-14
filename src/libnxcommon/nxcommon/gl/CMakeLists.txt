@@ -20,5 +20,13 @@
 
 
 IF(NXCOMMON_OPENGL_ENABLED)
-    ADD_SOURCES(gl GLException Shader ShaderProgram)
+    ADD_SOURCES(Camera gl GLException Shader ShaderProgram)
+    
+    IF(NXCOMMON_LUA_ENABLED)
+        ADD_SOURCES(Camera_lua)
+        
+        ADD_LUASYS_EXPORTS(nxcommon_luadefs Camera_lua.h)
+        CREATE_RESOURCE(nxcommon_res camera.lua Camera_api)
+        GENERATE_LUAJIT_CDEF_RESOURCE(nxcommon_res Camera_lua.h Camera_ffi)
+    ENDIF()
 ENDIF(NXCOMMON_OPENGL_ENABLED)

@@ -18,4 +18,5 @@
 # Additional permissions are granted, which are listed in the file
 # GPLADDITIONS.
 
-ADD_SOURCES(ScriptMatrix4 ScriptVector3 ScriptVector4 luamath)
+CREATE_RESOURCE(nxcommon_res matrix.lua matrix_script)
+CREATE_RESOURCE(nxcommon_res vector.lua vector_script)

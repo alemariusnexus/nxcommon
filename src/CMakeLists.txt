@@ -36,6 +36,8 @@ INCLUDE(TestBigEndian)
 INCLUDE(CheckTypeSize)
 INCLUDE(NxUtilities)
 INCLUDE(NxResourceCompiler)
+INCLUDE(NxLuaDefinitionsParser)
+INCLUDE(NxScriptUtilities)
 
 PROPAGATE_PARENT_SCOPE(NXCOMMON_CMAKE_MODULE_DIR CMAKE_MODULE_PATH)
 

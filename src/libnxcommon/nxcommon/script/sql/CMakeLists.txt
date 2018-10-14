@@ -18,4 +18,6 @@
 # Additional permissions are granted, which are listed in the file
 # GPLADDITIONS.
 
-ADD_SOURCES(ScriptSQLDatabase ScriptSQLPreparedStatement ScriptSQLResult luasql)
+IF(NXCOMMON_SQL_ENABLED)
+    ADD_SOURCES(ScriptSQLDatabase ScriptSQLPreparedStatement ScriptSQLResult luasql)
+ENDIF(NXCOMMON_SQL_ENABLED)

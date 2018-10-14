@@ -21,7 +21,24 @@
  */
 
 #include "luasys.h"
+#include "../exception.h"
 #include <res_scriptsys_script.h>
+#include <res_nxutil_ffi.h>
+#include <res_nxutil_api.h>
+#include <res_log_ffi.h>
+#include <res_log_api.h>
+#include <res_mathutil_script.h>
+#include <res_vector_script.h>
+#include <res_matrix_script.h>
+
+#ifdef NXCOMMON_OPENGL_ENABLED
+#include <res_Camera_ffi.h>
+#include <res_Camera_api.h>
+#endif
+
+
+bool _luasysForceKeepSymbolDummyCalled = false;
+void _LuasysForceKeepSymbolDummy();
 
 
 
@@ -29,6 +46,27 @@ void luaS_opencorelibs(lua_State* lua)
 {
 	luaL_loadbuffer(lua, (const char*) res_scriptsys_script_data, res_scriptsys_script_size, "scriptsys.lua");
 	lua_pcall(lua, 0, 0, 0);
+
+	luaL_loadbuffer(lua, (const char*) res_mathutil_script_data, res_mathutil_script_size, "mathutil.lua");
+	lua_pcall(lua, 0, 0, 0);
+
+	luaL_loadbuffer(lua, (const char*) res_vector_script_data, res_vector_script_size, "vector.lua");
+	lua_pcall(lua, 0, 0, 0);
+
+	luaL_loadbuffer(lua, (const char*) res_matrix_script_data, res_matrix_script_size, "matrix.lua");
+	lua_pcall(lua, 0, 0, 0);
+
+#ifdef NXCOMMON_OPENGL_ENABLED
+	luaS_loadffimodule(lua, "camera", res_Camera_ffi_asCString(), res_Camera_api_asCString());
+#endif
+
+	luaS_loadffimodule(lua, "nxutil", res_nxutil_ffi_asCString(), res_nxutil_api_asCString());
+	luaS_loadffimodule(lua, "log", res_log_ffi_asCString(), res_log_api_asCString());
+
+	if (!_luasysForceKeepSymbolDummyCalled) {
+		_LuasysForceKeepSymbolDummy();
+		_luasysForceKeepSymbolDummyCalled = true;
+	}
 }
 
 
@@ -233,6 +271,58 @@ bool luaS_checkinstanceof(lua_State* lua, const CString& clsName, int instArgIdx
 		return false;
 	} else {
 		return true;
+	}
+}
+
+
+void luaS_loadcdef(lua_State* lua, const CString& cdef)
+{
+	lua_getglobal(lua, "require");
+	lua_pushstring(lua, "ffi");
+
+	if (lua_pcall(lua, 1, 1, 0) != 0) {
+		const char* errmsg = lua_tostring(lua, -1);
+		lua_pop(lua, 1);
+		throw InvalidStateException(CString::format("Error calling require() for loading Lua Cdef: %s", errmsg),
+				__FILE__, __LINE__);
+	}
+
+	lua_getfield(lua, -1, "cdef");
+	lua_pushstring(lua, cdef.get());
+
+	if (lua_pcall(lua, 1, 0, 0) != 0) {
+		const char* errmsg = lua_tostring(lua, -1);
+		lua_pop(lua, 1);
+		throw InvalidStateException(CString::format("Error calling ffi.cdef() for loading Lua Cdef: %s", errmsg),
+				__FILE__, __LINE__);
+	}
+
+	lua_pop(lua, 1); // result of require("ffi")
+}
+
+
+void luaS_loadffimodule (
+		lua_State* lua, const CString& moduleName,
+		const CString& ffiCode, const CString& luaCode,
+		void (*loadFunction)(lua_State* lua)
+) {
+	luaS_loadcdef(lua, ffiCode);
+
+	// The module chunk itself is the loader function
+	if (luaL_loadstring(lua, luaCode.get()) != 0) {
+		const char* errmsg = lua_tostring(lua, -1);
+		throw InvalidStateException(CString::format("Error loading Lua module %s: %s", moduleName.get(), errmsg),
+				__FILE__, __LINE__);
+	}
+
+	lua_getglobal(lua, "package");
+	lua_getfield(lua, -1, "preload");
+	lua_pushvalue(lua, -3);
+	lua_setfield(lua, -2, moduleName.get());
+	lua_pop(lua, 3); // package.preload, package, loader function (module chunk)
+
+	if (loadFunction) {
+		loadFunction(lua);
 	}
 }
 

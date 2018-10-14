@@ -33,6 +33,7 @@ extern "C" {
 
 }
 
+#include "luasysdefs.h"
 #include "../CString.h"
 #include "_luasys_helpers.h"
 
@@ -68,6 +69,14 @@ bool luaS_instanceof(lua_State* lua, const CString& clsName, int instIdx);
 lua_Integer luaS_checkintrange(lua_State* lua, int arg, lua_Integer min, lua_Integer max);
 lua_Unsigned luaS_checkuintrange(lua_State* lua, int arg, lua_Unsigned min, lua_Unsigned max);
 bool luaS_checkinstanceof(lua_State* lua, const CString& clsName, int instArgIdx);
+
+void luaS_loadcdef(lua_State* lua, const CString& cdef);
+
+void luaS_loadffimodule (
+		lua_State* lua, const CString& moduleName,
+		const CString& ffiCode, const CString& luaCode,
+		void (*loadFunction)(lua_State* lua) = nullptr
+		);
 
 
 #if LUA_VERSION_NUM < 502

@@ -20,7 +20,7 @@
 	GPLADDITIONS.
  */
 
-#include "ScriptVector3.h"
+#include <nxcommon/script/oldmath/ScriptVector3.h>
 
 
 

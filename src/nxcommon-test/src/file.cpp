@@ -95,21 +95,22 @@ TEST(FileTest, HierarchyTest)
 {
 	if (!testRootPath.isNull()) {
 		File testdir(testRootPath, "filetest");
+		File ctestdir = testdir.getCanonicalFile();
 
 		ASSERT_TRUE(testdir.exists()) << "Test directory " << testRootPath << " does not exist!";
 
-		CString testdirConts[] = {"subdir 1", "file1", "Datei 2", "subdir2", "newlinetest", CString()};
+		CString testdirConts[] = {"subdir 1", "file1", "Datei 2", "subdir2", "newlinetest", ".gitattributes", CString()};
 		TestFileIterator(testdir, testdirConts);
 
 		CString subdir2Conts[] = {"sdir2", "foobar", "foobar32", CString()};
 		TestFileIterator(File(testdir, "subdir2"), subdir2Conts);
 
-		EXPECT_TRUE(File(testdir, "file1").getParent() == testdir);
-		EXPECT_TRUE(File(testdir, "subdir 1").getParent() == testdir);
-		EXPECT_TRUE(File(testdir, "subdir 1/fubar").getParent() == File(testdir, "subdir 1"));
-		EXPECT_FALSE(File(testdir, "subdir2/sdir2").getParent() == testdir);
-		EXPECT_FALSE(testdir.getParent() == testdir);
-		EXPECT_FALSE(testdir.getParent() == File(testdir, "subdir2"));
+		EXPECT_TRUE(File(ctestdir, "file1").getParent() == ctestdir);
+		EXPECT_TRUE(File(ctestdir, "subdir 1").getParent() == ctestdir);
+		EXPECT_TRUE(File(ctestdir, "subdir 1/fubar").getParent() == File(ctestdir, "subdir 1"));
+		EXPECT_FALSE(File(ctestdir, "subdir2/sdir2").getParent() == ctestdir);
+		EXPECT_FALSE(ctestdir.getParent() == ctestdir);
+		EXPECT_FALSE(ctestdir.getParent() == File(ctestdir, "subdir2"));
 
 #ifdef _POSIX_VERSION
 		EXPECT_TRUE(File("/home").getParent() == File("/"));
