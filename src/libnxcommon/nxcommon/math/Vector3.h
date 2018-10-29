@@ -52,7 +52,7 @@ public:
 	Vector3(const Vector3& other) { memcpy(data, other.data, 3*4); }
 	Vector3(const Vector4& other);
 	Vector3(float* data) { memcpy(this->data, data, 3*4); }
-	Vector3(float x, float y, float z) { data[0] = x; data[1] = y; data[2] = z; }
+	Vector3(float x, float y, float z = 1.0f) { data[0] = x; data[1] = y; data[2] = z; }
 
 #ifdef NXCOMMON_BULLET_SUPPORT_ENABLED
 	Vector3(const btVector3& other) { data[0] = other.getX(); data[1] = other.getY(); data[2] = other.getZ(); }

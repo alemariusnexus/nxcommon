@@ -46,6 +46,10 @@ public:
 
 public:
 	static Matrix3 fromEulerYZX(float x, float y, float z);
+	static Matrix3 translation(float x, float y);
+	static Matrix3 rotation(float a);
+	static Matrix3 scale(const Vector3& s);
+	static Matrix3 scale(float x, float y, float z) { return scale(Vector3(x, y, z)); }
 
 private:
 	friend class Matrix2;
