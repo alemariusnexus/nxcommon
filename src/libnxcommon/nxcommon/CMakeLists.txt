@@ -28,7 +28,7 @@ ADD_SUBDIRECTORY(script)
 ADD_SUBDIRECTORY(sql)
 ADD_SUBDIRECTORY(stream)
 
-ADD_SOURCES(util strutil CString CRC32 CLIParser Color4 encoding ErrorLog image log ByteArray tinyxml2)
+ADD_SOURCES(util strutil CString CRC32 CLIParser Color4 encoding ErrorLog image log ByteArray debug tinyxml2)
 
 IF(NXCOMMON_LUA_ENABLED)
     ADD_LUASYS_EXPORTS(nxcommon_luadefs util.h)
