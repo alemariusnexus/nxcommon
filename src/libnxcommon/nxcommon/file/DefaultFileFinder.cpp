@@ -37,6 +37,12 @@ DefaultFileFinder::DefaultFileFinder(const char* pattern, bool caseSensitive, bo
 }
 
 
+DefaultFileFinder::~DefaultFileFinder()
+{
+	delete[] pattern;
+}
+
+
 bool DefaultFileFinder::matches(const File& file)
 {
 	CString fname = file.getPath().getFileName();
