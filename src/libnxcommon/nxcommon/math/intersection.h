@@ -56,6 +56,17 @@ inline float DistanceRayPoint (
 	return (rayClosestPoint - pos).length();
 }
 
+inline float DistanceLinePoint (
+		const Vector3& lineA, const Vector3& lineB,
+		const Vector3& pos
+) {
+	Vector3 rayDir = lineB - lineA;
+	float lineLen = rayDir.normalize();
+	float r = std::min(std::max(-rayDir * (lineA - pos) / rayDir.dot(rayDir), 0.0f), lineLen);
+	Vector3 rayClosestPoint = lineA + rayDir * r;
+	return (rayClosestPoint - pos).length();
+}
+
 inline bool IntersectRaySphereSimple (
 		const Vector3& rayStart, const Vector3& rayDir,
 		const Vector3& sphereCenter, float sphereRadius
