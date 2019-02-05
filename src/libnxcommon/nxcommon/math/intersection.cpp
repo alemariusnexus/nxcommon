@@ -240,6 +240,101 @@ unsigned int IntersectRayAABox (
 }
 
 
+unsigned int IntersectRayAARect (
+		const Vector2& rayStart, const Vector2& rayDir,
+		const Vector2& rectMin, const Vector2& rectMax,
+		Vector2 intersectionPoints[2],
+		float intersectionRayR[2]
+)
+{
+	unsigned int intersectCount = 0;
+
+	float xMin = rectMin.getX();
+	float yMin = rectMin.getY();
+	float xMax = rectMax.getX();
+	float yMax = rectMax.getY();
+
+	float lenX = xMax-xMin;
+	float lenY = yMax-yMin;
+
+	float xRs = rayStart.getX();
+	float yRs = rayStart.getY();
+
+	float xRd = rayDir.getX();
+	float yRd = rayDir.getY();
+
+	if (xRd != 0.0f) {
+		// X Minimum Plane
+		float xMinR = (xMin-xRs) / xRd;
+		if (xMinR >= 0.0f) {
+			Vector2 xMinPos = rayStart + rayDir * xMinR;
+			float xMindy = xMinPos.getY() - yMin;
+			if (xMindy >= 0.0f  &&  xMindy <= lenY) {
+				intersectionPoints[intersectCount] = xMinPos;
+				intersectionRayR[intersectCount++] = xMinR;
+			}
+		}
+
+		// X Maximum Plane
+		float xMaxR = (xMax-xRs) / xRd;
+		if (xMaxR >= 0.0f) {
+			Vector2 xMaxPos = rayStart + rayDir * xMaxR;
+			float xMaxdy = xMaxPos.getY() - yMin;
+			if (xMaxdy >= 0.0f  &&  xMaxdy <= lenY) {
+				intersectionPoints[intersectCount] = xMaxPos;
+				intersectionRayR[intersectCount++] = xMaxR;
+			}
+		}
+	}
+
+	if (yRd != 0.0f) {
+		// Y Minimum Plane
+		float yMinR = (yMin-yRs) / yRd;
+		if (yMinR >= 0.0f) {
+			Vector3 yMinPos = rayStart + rayDir * yMinR;
+			float yMindx = yMinPos.getX() - xMin;
+			if (yMindx >= 0.0f  &&  yMindx <= lenX) {
+				if (intersectCount == 2)
+					return 1;
+
+				intersectionPoints[intersectCount] = yMinPos;
+				intersectionRayR[intersectCount++] = yMinR;
+			}
+		}
+
+
+
+		// Y Maximum Plane
+		float yMaxR = (yMax-yRs) / yRd;
+		if (yMaxR >= 0.0f) {
+			Vector3 yMaxPos = rayStart + rayDir * yMaxR;
+			float yMaxdx = yMaxPos.getX() - xMin;
+			if (yMaxdx >= 0.0f  &&  yMaxdx <= lenX) {
+				if (intersectCount == 2)
+					return 1;
+
+				intersectionPoints[intersectCount] = yMaxPos;
+				intersectionRayR[intersectCount++] = yMaxR;
+			}
+		}
+	}
+
+	if (intersectionRayR[0] > intersectionRayR[1]) {
+		// We have to swap results
+		float tmp = intersectionRayR[0];
+		intersectionRayR[0] = intersectionRayR[1];
+		intersectionRayR[1] = tmp;
+
+		Vector3 ptmp;
+		ptmp = intersectionPoints[0];
+		intersectionPoints[0] = intersectionPoints[1];
+		intersectionPoints[1] = ptmp;
+	}
+
+	return intersectCount;
+}
+
+
 bool IntersectRayBox (
 		const Vector3& rayStart, const Vector3& rayDir,
 		const Vector3& boxOrigin, const Vector3& boxExtX, const Vector3& boxExtY, const Vector3& boxExtZ,

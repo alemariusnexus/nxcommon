@@ -24,6 +24,7 @@
 #define INTERSECTION_H_
 
 #include <nxcommon/config.h>
+#include "Vector2.h"
 #include "Vector3.h"
 #include <cmath>
 #include <algorithm>
@@ -117,6 +118,28 @@ bool IntersectRayTriangle (
 		float& s, float& t,
 		float& rayR
 );
+
+unsigned int IntersectRayAARect (
+		const Vector2& rayStart, const Vector2& rayDir,
+		const Vector2& rectMin, const Vector2& rectMax,
+		Vector2 intersectionPoints[2],
+		float intersectionRayR[2]
+);
+
+/*bool IntersectRayCircle (
+		const Vector2& rayStart, const Vector2& rayDir,
+		const Vector2& center, float radius,
+		float& rayR1, float& rayR2
+) {
+
+}*/
+
+inline bool IntersectRayCircleSimple (
+		const Vector2& rayStart, const Vector2& rayDir,
+		const Vector2& center, float radius
+) {
+	return DistanceRayPoint(rayStart, rayDir, center) <= radius;
+}
 
 
 #endif /* INTERSECTION_H_ */
