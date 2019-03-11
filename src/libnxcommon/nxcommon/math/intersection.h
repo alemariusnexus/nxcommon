@@ -48,6 +48,16 @@ inline bool IntersectSphereSphere (
 	return (xd*xd + yd*yd + zd*zd) <= rLen*rLen;
 }
 
+inline bool IntersectCircleCircle (
+		float x1, float y1, float r1,
+		float x2, float y2, float r2
+) {
+	float xd = x2-x1;
+	float yd = y2-y1;
+	float rLen = r1+r2;
+	return (xd*xd + yd*yd) <= rLen*rLen;
+}
+
 inline float DistanceRayPoint (
 		const Vector3& rayStart, const Vector3& rayDir,
 		const Vector3& pos
