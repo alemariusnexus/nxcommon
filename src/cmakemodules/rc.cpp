@@ -22,8 +22,8 @@
 
 //#include <fstream>
 //#include <iomanip>
-#include <cctype>
 #include <cstring>
+#include <cctype>
 #include <cstdio>
 
 
