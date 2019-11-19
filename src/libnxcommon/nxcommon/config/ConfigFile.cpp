@@ -1,6 +1,7 @@
 #include "ConfigFile.h"
 #include "../exception.h"
 #include "../util.h"
+#include "../json.h"
 #include <rapidjson/error/en.h>
 #include <rapidjson/filereadstream.h>
 #include <rapidjson/pointer.h>
