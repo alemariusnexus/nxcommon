@@ -31,6 +31,7 @@
 #include "exception/InvalidStateException.h"
 #include "util.h"
 #include <memory>
+#include <function>
 
 using std::find;
 using std::map;
@@ -230,6 +231,15 @@ public:
 		 * 	@return The loaded entry, or NULL if it could not be found or loaded.
 		 */
 		virtual Entry* load(K key) = 0;
+	};
+
+	class SimpleEntryLoader : public EntryLoader {
+	public:
+		SimpleEntryLoader(std::function<Entry*(K)> loadFunc) : loadFunc(loadFunc) {}
+		virtual Entry* load(K key) { return loadFunc(key); }
+
+	private:
+		std::function<Entry*(K)> loadFunc;
 	};
 
 private:

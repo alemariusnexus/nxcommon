@@ -18,19 +18,5 @@
 # Additional permissions are granted, which are listed in the file
 # GPLADDITIONS.
 
-CONFIGURE_FILE(config.cmake.h "${CMAKE_CURRENT_BINARY_DIR}/config.h")
 
-ADD_SUBDIRECTORY(config)
-ADD_SUBDIRECTORY(exception)
-ADD_SUBDIRECTORY(file)
-ADD_SUBDIRECTORY(gl)
-ADD_SUBDIRECTORY(math)
-ADD_SUBDIRECTORY(script)
-ADD_SUBDIRECTORY(sql)
-ADD_SUBDIRECTORY(stream)
-
-ADD_SOURCES(util strutil CString CRC32 CLIParser Color4 encoding ErrorLog image ByteArray tinyxml2)
-
-IF(NXCOMMON_UNICODE_ENABLED)
-    ADD_SOURCES(UString unicodeutil)
-ENDIF(NXCOMMON_UNICODE_ENABLED)
+ADD_SOURCES(ConfigFile)
