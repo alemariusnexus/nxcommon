@@ -263,9 +263,9 @@ public:
 	UnitT* mget() { ensureUniqueness(); return d.get(); }
 
 
-	ptrdiff_t indexOf(UnitT u, size_t offset = 0);
+	ptrdiff_t indexOf(UnitT u, size_t offset = 0) const;
 
-	ptrdiff_t indexOf(const DerivedT& other, size_t offset = 0);
+	ptrdiff_t indexOf(const DerivedT& other, size_t offset = 0) const;
 
 
 	/**	\brief Append another buffer to the end of this buffer.
@@ -797,7 +797,7 @@ void AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::ensureUniqueness()
 
 
 template <typename DerivedT, typename UnitT, bool terminated, UnitT term>
-ptrdiff_t AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::indexOf(UnitT u, size_t offset)
+ptrdiff_t AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::indexOf(UnitT u, size_t offset) const
 {
 	UnitT* end = d.get() + msize;
 	UnitT* o = DerivedT::find(d.get() + offset, end, u);
@@ -806,7 +806,7 @@ ptrdiff_t AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::indexOf(UnitT
 
 
 template <typename DerivedT, typename UnitT, bool terminated, UnitT term>
-ptrdiff_t AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::indexOf(const DerivedT& other, size_t offset)
+ptrdiff_t AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::indexOf(const DerivedT& other, size_t offset) const
 {
 	UnitT* end = d.get() + msize;
 	UnitT* o = DerivedT::find(d.get() + offset, end, other.get(), other.length());

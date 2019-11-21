@@ -24,6 +24,7 @@
 #define INTERSECTION_H_
 
 #include <nxcommon/config.h>
+#include "Vector2.h"
 #include "Vector3.h"
 #include <cmath>
 #include <algorithm>
@@ -47,12 +48,33 @@ inline bool IntersectSphereSphere (
 	return (xd*xd + yd*yd + zd*zd) <= rLen*rLen;
 }
 
+inline bool IntersectCircleCircle (
+		float x1, float y1, float r1,
+		float x2, float y2, float r2
+) {
+	float xd = x2-x1;
+	float yd = y2-y1;
+	float rLen = r1+r2;
+	return (xd*xd + yd*yd) <= rLen*rLen;
+}
+
 inline float DistanceRayPoint (
 		const Vector3& rayStart, const Vector3& rayDir,
 		const Vector3& pos
 ) {
 	float r = -rayDir * (rayStart - pos) / rayDir.dot(rayDir);
 	Vector3 rayClosestPoint = rayStart + rayDir * std::max(0.0f, r);
+	return (rayClosestPoint - pos).length();
+}
+
+inline float DistanceLinePoint (
+		const Vector3& lineA, const Vector3& lineB,
+		const Vector3& pos
+) {
+	Vector3 rayDir = lineB - lineA;
+	float lineLen = rayDir.normalize();
+	float r = std::min(std::max(-rayDir * (lineA - pos) / rayDir.dot(rayDir), 0.0f), lineLen);
+	Vector3 rayClosestPoint = lineA + rayDir * r;
 	return (rayClosestPoint - pos).length();
 }
 
@@ -106,6 +128,28 @@ bool IntersectRayTriangle (
 		float& s, float& t,
 		float& rayR
 );
+
+unsigned int IntersectRayAARect (
+		const Vector2& rayStart, const Vector2& rayDir,
+		const Vector2& rectMin, const Vector2& rectMax,
+		Vector2 intersectionPoints[2],
+		float intersectionRayR[2]
+);
+
+/*bool IntersectRayCircle (
+		const Vector2& rayStart, const Vector2& rayDir,
+		const Vector2& center, float radius,
+		float& rayR1, float& rayR2
+) {
+
+}*/
+
+inline bool IntersectRayCircleSimple (
+		const Vector2& rayStart, const Vector2& rayDir,
+		const Vector2& center, float radius
+) {
+	return DistanceRayPoint(rayStart, rayDir, center) <= radius;
+}
 
 
 #endif /* INTERSECTION_H_ */

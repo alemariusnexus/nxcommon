@@ -20,10 +20,10 @@
 	GPLADDITIONS.
  */
 
-#include "luamath.h"
-#include "ScriptVector3.h"
-#include "ScriptVector4.h"
-#include "ScriptMatrix4.h"
+#include <nxcommon/script/oldmath/luamath.h>
+#include <nxcommon/script/oldmath/ScriptMatrix4.h>
+#include <nxcommon/script/oldmath/ScriptVector3.h>
+#include <nxcommon/script/oldmath/ScriptVector4.h>
 
 
 

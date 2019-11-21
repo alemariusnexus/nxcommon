@@ -31,6 +31,7 @@
 class DefaultFileFinder : public FileFinder {
 public:
 	DefaultFileFinder(const char* pattern, bool caseSensitive = true, bool exactMatch = true);
+	virtual ~DefaultFileFinder();
 	void setExactMatch(bool em) { exactMatch = em; }
 	bool isCaseSensitive() const { return caseSensitive; }
 	bool isExactMatch() const { return exactMatch; }

@@ -44,6 +44,10 @@
 #       added as a dependency to the given TARGET, which is usually a simple custom target created specifically
 #       for the resource files.
 
+IF(NOT NX_BUILD_COMPILER_INCLUDED)
+    INCLUDE("${CMAKE_CURRENT_LIST_DIR}/NxBuildCompiler.cmake")
+ENDIF()
+
 
 SET(RES_DESTDIR "${CMAKE_CURRENT_BINARY_DIR}/resources")
 SET(RES_CPP_COMPILER "${CMAKE_CURRENT_LIST_DIR}/rc.cpp")
@@ -52,16 +56,7 @@ INCLUDE_DIRECTORIES(${RES_DESTDIR})
 
 
 MACRO(INITIALIZE_RESOURCE_COMPILER)
-    IF(CMAKE_CROSSCOMPILING)
-        # TODO: Add auto-detection
-        SET(BUILD_CXX_COMPILER "" CACHE FILEPATH "Path to C++ compiler that can be used to build programs running on the build machine.")
-    ELSE()
-        SET(BUILD_CXX_COMPILER "${CMAKE_CXX_COMPILER}")
-    ENDIF()
-    
-    IF(NOT EXISTS "${BUILD_CXX_COMPILER}")
-        MESSAGE(SEND_ERROR "Variable BUILD_CXX_COMPILER does not point to a valid build compiler!")
-    ENDIF()
+    FIND_BUILD_COMPILER()
 
     IF(NOT TARGET nxcommon_rcc)
         ADD_CUSTOM_COMMAND (

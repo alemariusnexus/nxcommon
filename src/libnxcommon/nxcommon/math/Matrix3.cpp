@@ -245,3 +245,35 @@ void Matrix3::printDebug()
 	printf("(\t%f\t%f\t%f\n\t%f\t%f\t%f\n\t%f\t%f\t%f\n)\n", data[0], data[1], data[2],
 			data[3], data[4], data[5], data[6], data[7], data[8]);
 }
+
+
+Matrix3 Matrix3::translation(float x, float y)
+{
+	return Matrix3 (
+			1.0f,	0.0f,	0.0f,
+			0.0f,	1.0f,	0.0f,
+			x,		y,		1.0f
+	);
+}
+
+
+Matrix3 Matrix3::rotation(float a)
+{
+	float s = sinf(a);
+	float c = cosf(a);
+	return Matrix3 (
+			c,			s,			0.0f,
+			-s,			c,			0.0f,
+			0.0f,		0.0f,		1.0f
+	);
+}
+
+
+Matrix3 Matrix3::scale(const Vector3& s)
+{
+	return Matrix3 (
+			s.getX(),	0.0f,		0.0f,
+			0.0f,		s.getY(),	0.0f,
+			0.0f,		0.0f,		s.getZ()
+	);
+}
