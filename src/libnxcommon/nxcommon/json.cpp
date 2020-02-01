@@ -20,27 +20,5 @@
 	GPLADDITIONS.
  */
 
-#ifndef DEFAULTFILEFINDER_H_
-#define DEFAULTFILEFINDER_H_
+#include "json.h"
 
-#include <nxcommon/config.h>
-#include "FileFinder.h"
-
-
-
-class DefaultFileFinder : public FileFinder {
-public:
-	DefaultFileFinder(const char* pattern, bool caseSensitive = true, bool exactMatch = true);
-	virtual ~DefaultFileFinder();
-	void setExactMatch(bool em) { exactMatch = em; }
-	bool isCaseSensitive() const { return caseSensitive; }
-	bool isExactMatch() const { return exactMatch; }
-	virtual bool matches(const File& file);
-
-private:
-	char* pattern;
-	bool caseSensitive;
-	bool exactMatch;
-};
-
-#endif /* DEFAULTFILEFINDER_H_ */

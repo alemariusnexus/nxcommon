@@ -112,6 +112,7 @@ float Vector2::normalize()
 float Vector2::angle(const Vector2& other) const
 {
 	float d = dot(other);
+	d /= length()*other.length();
 
 	if (d > 1.0f)
 		d = 1.0f;
@@ -119,4 +120,14 @@ float Vector2::angle(const Vector2& other) const
 		d = -1.0f;
 
 	return acosf(d);
+}
+
+
+float Vector2::angleXY(const Vector2& other) const
+{
+	// See: https://stackoverflow.com/a/16544330
+	float dotv = dot(other);
+	float detv = data[0]*other.data[1] - data[1]*other.data[0];
+	float a = atan2f(detv, dotv);
+	return a - 2.0f*M_PI * floorf(a / (2.0f*M_PI)); // Wrap to range [0, 2*M_PI]
 }

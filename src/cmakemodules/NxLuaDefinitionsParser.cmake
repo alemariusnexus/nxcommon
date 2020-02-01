@@ -18,8 +18,8 @@
 # Additional permissions are granted, which are listed in the file
 # GPLADDITIONS.
 
-SET(LUA_DEF_PARSER "${CMAKE_CURRENT_LIST_DIR}/luadefparser.cpp")
-SET(LUA_DEF_GENFILE "${CMAKE_CURRENT_BINARY_DIR}/luadefs.cpp")
+SET(LUA_DEF_PARSER "${CMAKE_CURRENT_LIST_DIR}/luadefparser.c")
+SET(LUA_DEF_GENFILE "${CMAKE_CURRENT_BINARY_DIR}/luadefs.c")
 
 
 MACRO(ADD_LUASYS_EXPORTS TARGET) #SRCFILE)
@@ -47,7 +47,7 @@ MACRO(RUN_LUASYS_EXPORTS_PARSER TARGET OUTSRCFILE)
     IF(NOT TARGET nxcommon_ldp)
         ADD_CUSTOM_COMMAND (
             OUTPUT "${CMAKE_BINARY_DIR}/luadefparser"
-            COMMAND "${BUILD_CXX_COMPILER}" -o "${CMAKE_BINARY_DIR}/luadefparser" "${LUA_DEF_PARSER}"
+            COMMAND "${BUILD_C_COMPILER}" -o "${CMAKE_BINARY_DIR}/luadefparser" "${LUA_DEF_PARSER}"
             MAIN_DEPENDENCY "${LUA_DEF_PARSER}"
             COMMENT "Compiling Luasys exports parser"
             VERBATIM

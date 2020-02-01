@@ -34,7 +34,7 @@
 #
 #   #include <res_ALIAS.h>
 #
-# In cross-compiling mode, a variable BUILD_CXX_COMPILER must be set to a valid compiler that can be used to
+# In cross-compiling mode, a variable BUILD_C_COMPILER must be set to a valid compiler that can be used to
 # create programs running on the build machine.
 #
 #
@@ -50,7 +50,7 @@ ENDIF()
 
 
 SET(RES_DESTDIR "${CMAKE_CURRENT_BINARY_DIR}/resources")
-SET(RES_CPP_COMPILER "${CMAKE_CURRENT_LIST_DIR}/rc.cpp")
+SET(RES_C_COMPILER "${CMAKE_CURRENT_LIST_DIR}/rc.c")
 INCLUDE_DIRECTORIES(${RES_DESTDIR})
 
 
@@ -61,8 +61,8 @@ MACRO(INITIALIZE_RESOURCE_COMPILER)
     IF(NOT TARGET nxcommon_rcc)
         ADD_CUSTOM_COMMAND (
             OUTPUT "${CMAKE_BINARY_DIR}/rcc"
-            COMMAND "${BUILD_CXX_COMPILER}" -o "${CMAKE_BINARY_DIR}/rcc" "${RES_CPP_COMPILER}"
-            MAIN_DEPENDENCY "${RES_CPP_COMPILER}"
+            COMMAND "${BUILD_C_COMPILER}" -o "${CMAKE_BINARY_DIR}/rcc" "${RES_C_COMPILER}"
+            MAIN_DEPENDENCY "${RES_C_COMPILER}"
             COMMENT "Compiling resource compiler"
             VERBATIM
             )

@@ -106,9 +106,9 @@ public:
 	using BaseClass::indexOf;
 
 	template <typename OutputIterator>
-	void split(OutputIterator out, UnitT separator);
+	void split(OutputIterator out, UnitT separator) const;
 
-	std::vector<ImplT> split(UnitT separator) { std::vector<ImplT> v; split(std::back_inserter(v), separator); return v; }
+	std::vector<ImplT> split(UnitT separator) const { std::vector<ImplT> v; split(std::back_inserter(v), separator); return v; }
 
 	ImplT& operator<<(UnitT c) { return append(c); }
 	ImplT& operator<<(const ImplT& other) { return append(other); }
@@ -252,7 +252,7 @@ bool AbstractSharedString<ImplT, UnitT, term>::endsWith(const ImplT& other)
 
 template <typename ImplT, typename UnitT, UnitT term>
 template <typename OutputIterator>
-void AbstractSharedString<ImplT, UnitT, term>::split(OutputIterator out, UnitT separator)
+void AbstractSharedString<ImplT, UnitT, term>::split(OutputIterator out, UnitT separator) const
 {
 	ptrdiff_t prevIdx = 0;
 	ptrdiff_t idx = 0;
