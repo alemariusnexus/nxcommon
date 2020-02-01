@@ -18,4 +18,7 @@
 # Additional permissions are granted, which are listed in the file
 # GPLADDITIONS.
 
-ADD_SOURCES(DefaultFileFinder File FileChildList FilePath FileSystem)
+
+IF(NOT NXCOMMON_C_ONLY)
+    ADD_SOURCES(DefaultFileFinder File FileChildList FilePath FileSystem)
+ENDIF()

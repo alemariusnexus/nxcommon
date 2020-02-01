@@ -20,7 +20,13 @@
 
 CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
 
-PROJECT(nxcommon-parent C CXX)
+SET(NXCOMMON_C_ONLY OFF CACHE BOOL "If true, all C++ portions of nxcommon will be disabled.")
+
+IF(NXCOMMON_C_ONLY)
+    PROJECT(nxcommon-parent C)
+ELSE()
+    PROJECT(nxcommon-parent C CXX)
+ENDIF()
 
 SET(NXCOMMON_INSTALL_ENABLED OFF CACHE BOOL "If true, CMake INSTALL commands will be run for nxcommon.")
 
@@ -64,7 +70,11 @@ ELSE(NXCOMMON_VERSION_SVNREV)
 ENDIF(NXCOMMON_VERSION_SVNREV)
 
 
-SET(NXCOMMON_TEST_BUILD OFF CACHE BOOL "Whether you want to build the unit tests")
+IF(NXCOMMON_C_ONLY)
+    SET(NXCOMMON_TEST_BUILD OFF)
+ELSE()
+    SET(NXCOMMON_TEST_BUILD OFF CACHE BOOL "Whether you want to build the unit tests")
+ENDIF()
 
 ADD_SUBDIRECTORY(libnxcommon)
 

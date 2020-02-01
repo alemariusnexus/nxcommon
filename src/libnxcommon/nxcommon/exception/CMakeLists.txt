@@ -19,4 +19,6 @@
 # GPLADDITIONS.
 
 
-ADD_SOURCES(Exception OutOfBoundsException)
+IF(NOT NXCOMMON_C_ONLY)
+    ADD_SOURCES(Exception OutOfBoundsException)
+ENDIF()

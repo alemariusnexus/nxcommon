@@ -19,7 +19,9 @@
 # GPLADDITIONS.
 
 
-ADD_SOURCES(Vector2 Vector3 Vector4 Matrix2 Matrix3 Matrix4 intersection Quaternion project Frustum)
+IF(NOT NXCOMMON_C_ONLY)
+    ADD_SOURCES(Vector2 Vector3 Vector4 Matrix2 Matrix3 Matrix4 intersection Quaternion project Frustum)
+ENDIF()
 
 IF(NXCOMMON_LUA_ENABLED)
     CREATE_RESOURCE(nxcommon_res mathutil.lua mathutil_script)
