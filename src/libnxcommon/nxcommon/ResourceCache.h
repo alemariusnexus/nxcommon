@@ -31,7 +31,7 @@
 #include "exception/InvalidStateException.h"
 #include "util.h"
 #include <memory>
-#include <function>
+#include <functional>
 
 using std::find;
 using std::map;
