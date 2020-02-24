@@ -24,6 +24,7 @@
 #include "ScriptSQLResult.h"
 #include "../../sql/SQLException.h"
 #include "../../sql/SQLResult.h"
+#include <cmath>
 
 
 
