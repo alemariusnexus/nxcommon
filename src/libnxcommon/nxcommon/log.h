@@ -3,20 +3,21 @@
 
 #include "script/luasysdefs.h"
 
-#ifndef GENERATE_LUAJIT_FFI_CDEF
-
-#include <nxcommon/config.h>
-#include "file/File.h"
-#include <cstdarg>
-#include <ctime>
-
-#endif
-
-
-#ifndef GENERATE_LUAJIT_FFI_CDEF
+#ifdef __cplusplus
 extern "C"
 {
 #endif
+
+#ifndef GENERATE_LUAJIT_FFI_CDEF
+
+#include <nxcommon/config.h>
+#include <stdarg.h>
+#include <time.h>
+#include <stdio.h>
+#include <stdbool.h>
+
+#endif
+
 
 enum
 {
@@ -30,10 +31,7 @@ enum
 
 extern int logLevel;
 
-
-#ifndef GENERATE_LUAJIT_FFI_CDEF
-void OpenLogFile(const File& logfile);
-#endif
+void OpenLogFile(FILE* file);
 
 LUASYS_EXPORT void SetLogLevel(int level);
 
@@ -55,14 +53,14 @@ LUASYS_EXPORT const char* GetLogLevelName(int level);
 // We provide separate non-inline versions for Lua below.
 #ifndef GENERATE_LUAJIT_FFI_CDEF
 
-inline bool IsLogLevelActive(int level)
+static inline bool IsLogLevelActive(int level)
 {
 	return logLevel >= level;
 }
 
 void _LogMessagevl(int level, const char* fmt, va_list args);
 
-inline void _LogMessagev(int level, const char* fmt, ...)
+static inline void _LogMessagev(int level, const char* fmt, ...)
 {
 	va_list args;
 	va_start(args, fmt);
@@ -75,14 +73,14 @@ inline void _LogMessagev(int level, const char* fmt, ...)
 // Let's try to do the checking in an inline function, so if the log level is disabled, we might not need
 // a function call.
 
-inline void LogMessagevl(int level, const char* fmt, va_list args)
+static inline void LogMessagevl(int level, const char* fmt, va_list args)
 {
 	if (IsLogLevelActive(level)) {
 		_LogMessagevl(level, fmt, args);
 	}
 }
 
-inline void LogMessagev(int level, const char* fmt, ...)
+static inline void LogMessagev(int level, const char* fmt, ...)
 {
 	if (IsLogLevelActive(level)) {
 		va_list args;
@@ -95,45 +93,19 @@ inline void LogMessagev(int level, const char* fmt, ...)
 #endif
 
 
-
-
 LUASYS_EXPORT bool _LuaIsLogLevelActive(int level);
 
 LUASYS_EXPORT void _LuaLogMessagev(int level, const char* fmt, ...);
 
 
-#ifndef GENERATE_LUAJIT_FFI_CDEF
-}
+#ifdef __cplusplus
+} // END extern "C"
 #endif
 
 
-
-
-
-#ifndef GENERATE_LUAJIT_FFI_CDEF
-
-template <typename... Args>
-void _LogMessage(int level, const char* fmt, Args... args)
-{
-	_LogMessagev(level, fmt, std::forward<Args>(args)...);
-}
-
-template <typename... Args>
-inline void LogMessage(int level, const char* fmt, Args... args)
-{
-	if (IsLogLevelActive(level)) {
-		_LogMessage(level, fmt, args...);
-	}
-}
-
+#ifdef __cplusplus
+#include "logcpp.h"
 #endif
 
-
-/*extern "C"
-{
-
-void LuaLogMessage(const char* msg);
-
-}*/
 
 #endif /* NXCOMMON_LOG_H_ */

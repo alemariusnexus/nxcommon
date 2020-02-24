@@ -14,6 +14,9 @@ using std::unique_ptr;
 
 
 
+// TODO: Now that we've ported this to C (ringbuf.h/.c), maybe it's best to rewrite it using the C version
+// as a backend?
+
 
 /**
  * Data structure implementing a ring buffer. A ring buffer implements a queue, where elements are

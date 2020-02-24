@@ -1,18 +1,16 @@
 #include "log.h"
-#include "exception.h"
 #include "util.h"
-#include "CString.h"
-#include "stream/IOException.h"
+#include <string.h>
 #include <pthread.h>
 
 
 
-FILE* _mainLogfile = nullptr;
+FILE* _mainLogfile = NULL;
 int logLevel = LOG_LEVEL_INFO;
-pthread_mutex_t _logMutex;
+pthread_mutex_t _logMutex = PTHREAD_MUTEX_INITIALIZER;
 
 
-void OpenLogFile(const File& logfile)
+void OpenLogFile(FILE* file)
 {
 	char errbuf[256];
 
@@ -20,12 +18,9 @@ void OpenLogFile(const File& logfile)
 		fclose(_mainLogfile);
 	}
 
-	_mainLogfile = fopen(logfile.toString().get(), "a");
-	if (!_mainLogfile) {
-		throw IOException("Error opening log file", __FILE__, __LINE__);
-	}
+	_mainLogfile = file;
 
-	pthread_mutex_init(&_logMutex, nullptr);
+	//pthread_mutex_init(&_logMutex, nullptr);
 }
 
 
@@ -128,7 +123,7 @@ void _LogMessagevl(int level, const char* fmt, va_list args)
 {
 	// Don't check for log level. This is done by LogMessage()
 
-	time_t t = time(nullptr);
+	time_t t = time(NULL);
 
 	const char* typeCode = "[???]";
 

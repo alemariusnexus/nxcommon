@@ -29,10 +29,10 @@ ADD_SUBDIRECTORY(script)
 ADD_SUBDIRECTORY(sql)
 ADD_SUBDIRECTORY(stream)
 
-ADD_SOURCES(ringbuf)
+ADD_SOURCES(ringbuf util log)
 
 IF(NOT NXCOMMON_C_ONLY)
-    ADD_SOURCES(util strutil CString CRC32 CLIParser Color4 encoding ErrorLog image log ByteArray debug json tinyxml2)
+    ADD_SOURCES(strutil CString CRC32 CLIParser Color4 encoding ErrorLog image logcpp ByteArray debug json tinyxml2)
 ENDIF()
 
 IF(NXCOMMON_LUA_ENABLED)

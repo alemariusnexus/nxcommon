@@ -21,15 +21,29 @@
  */
 
 #include "util.h"
-#include <cctype>
-#include <cstring>
-#include <cstdlib>
+#include <ctype.h>
+#include <string.h>
+#include <stdlib.h>
 
 #ifdef _POSIX_VERSION
 #include <unistd.h>
 #include <sys/time.h>
-#else
+#elif defined(_WIN32)
 #include <windows.h>
+#elif defined(ESP_PLATFORM)
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+#endif
+
+
+
+#ifdef ESP_PLATFORM
+static uint64_t (*_ESP32GetTickcountMicrosecondsImpl)() = NULL;
+
+void SetESP32GetTickcountMicrosecondsImplementation(uint64_t (*impl)())
+{
+	_ESP32GetTickcountMicrosecondsImpl = impl;
+}
 #endif
 
 
@@ -40,8 +54,16 @@ uint64_t GetTickcount()
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
 	return tv.tv_sec*1000 + tv.tv_usec/1000;
-#else
+#elif defined(_WIN32)
 	return GetTickCount();
+#elif defined(ESP_PLATFORM)
+	if (_ESP32GetTickcountMicrosecondsImpl) {
+		return _ESP32GetTickcountMicrosecondsImpl() / 1000;
+	} else {
+		return xTaskGetTickCount() * portTICK_PERIOD_MS;
+	}
+#else
+#error "GetTickcount() is not implemented for this platform!"
 #endif
 }
 
@@ -52,9 +74,17 @@ uint64_t GetTickcountMicroseconds()
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
 	return tv.tv_sec*1000000 + tv.tv_usec;
-#else
+#elif defined(_WIN32)
 	// TODO: Implement this correctly...
 	return GetTickcount() * 1000;
+#elif defined(ESP_PLATFORM)
+	if (_ESP32GetTickcountMicrosecondsImpl) {
+		return _ESP32GetTickcountMicrosecondsImpl();
+	} else {
+		return (xTaskGetTickCount() * portTICK_PERIOD_MS) * 1000;
+	}
+#else
+#error "GetTickcountMicroseconds() is not implemented for this platform!"
 #endif
 }
 
@@ -108,8 +138,12 @@ void SleepMilliseconds(unsigned int time)
 {
 #ifdef _POSIX_VERSION
 	usleep(time * 1000);
-#else
+#elif defined(_WIN32)
 	Sleep(time);
+#elif defined(ESP_PLATFORM)
+	vTaskDelay(time / portTICK_PERIOD_MS + portTICK_PERIOD_MS);
+#else
+#error "SleepMilliseconds() is not implemented for this platform!"
 #endif
 }
 

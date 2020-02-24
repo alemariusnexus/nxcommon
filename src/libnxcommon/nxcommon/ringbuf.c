@@ -1,9 +1,10 @@
 #include "ringbuf.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 
-inline size_t min_size(size_t a, size_t b) { return a < b ? a : b; }
+static inline size_t min_size(size_t a, size_t b) { return a < b ? a : b; }
 
 
 

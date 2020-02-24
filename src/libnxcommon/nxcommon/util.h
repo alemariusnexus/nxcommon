@@ -23,6 +23,12 @@
 #ifndef NXCOMMON_UTIL_H_
 #define NXCOMMON_UTIL_H_
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+
 #ifndef GENERATE_LUAJIT_FFI_CDEF
 #include <nxcommon/config.h>
 #endif
@@ -31,13 +37,16 @@
 
 #ifndef GENERATE_LUAJIT_FFI_CDEF
 
-#include <cstdlib>
-#include <climits>
+#include <stdlib.h>
+#include <limits.h>
+#include <stdbool.h>
 
 
 
+#ifndef ESP_PLATFORM
 #define PS() uint64_t psS = GetTickcount();
 #define PE(n) uint64_t psE = GetTickcount(); printf("%s took %d\n", (n), (int) (psE-psS));
+#endif
 
 
 //#ifdef __GNUC__
@@ -89,21 +98,6 @@ inline double SwapEndiannessF64(double val)
 }
 
 
-template <typename T>
-inline T SwapEndianness(T val);
-
-template <> inline uint8_t SwapEndianness(uint8_t val) { return val; }
-template <> inline int8_t SwapEndianness(int8_t val) { return val; }
-template <> inline uint16_t SwapEndianness(uint16_t val) { return SwapEndianness16(val); }
-template <> inline int16_t SwapEndianness(int16_t val) { return SwapEndianness16(val); }
-template <> inline uint32_t SwapEndianness(uint32_t val) { return SwapEndianness32(val); }
-template <> inline int32_t SwapEndianness(int32_t val) { return SwapEndianness32(val); }
-template <> inline uint64_t SwapEndianness(uint64_t val) { return SwapEndianness64(val); }
-template <> inline int64_t SwapEndianness(int64_t val) { return SwapEndianness64(val); }
-template <> inline float SwapEndianness(float val) { return SwapEndiannessF32(val); }
-template <> inline double SwapEndianness(double val) { return SwapEndiannessF64(val); }
-
-
 #ifdef NXCOMMON_LITTLE_ENDIAN
 
 #define ToLittleEndian16(v) (v)
@@ -130,11 +124,6 @@ template <> inline double SwapEndianness(double val) { return SwapEndiannessF64(
 #define FromBigEndianF32(v) (SwapEndiannessF32((v)))
 #define FromBigEndianF64(v) (SwapEndiannessF64((v)))
 
-template <typename T> inline T ToLittleEndian(T val) { return val; }
-template <typename T> inline T ToBigEndian(T val) { return SwapEndianness<T>(val); }
-template <typename T> inline T FromLittleEndian(T val) { return val; }
-template <typename T> inline T FromBigEndian(T val) { return SwapEndianness<T>(val); }
-
 #else
 
 #define ToLittleEndian16(v) (SwapEndianness16((v)))
@@ -160,11 +149,6 @@ template <typename T> inline T FromBigEndian(T val) { return SwapEndianness<T>(v
 #define FromBigEndian64(v) (v)
 #define FromBigEndianF32(v) (v)
 #define FromBigEndianF64(v) (v)
-
-template <typename T> inline T ToLittleEndian(T val) { return SwapEndianness<T>(val); }
-template <typename T> inline T ToBigEndian(T val) { return val; }
-template <typename T> inline T FromLittleEndian(T val) { return SwapEndianness<T>(val); }
-template <typename T> inline T FromBigEndian(T val) { return val; }
 
 #endif
 
@@ -316,6 +300,98 @@ template <typename T> inline T FromBigEndian(T val) { return val; }
 
 
 
+#endif // defined(GENERATE_LUADEF_FFI_CDEF)
+
+
+#ifdef ESP_PLATFORM
+void SetESP32GetTickcountMicrosecondsImplementation(uint64_t (*impl)());
+#endif
+
+
+LUASYS_EXPORT uint64_t GetTickcount();
+LUASYS_EXPORT uint64_t GetTickcountMicroseconds();
+
+#ifndef GENERATE_LUAJIT_FFI_CDEF
+
+
+#ifdef _POSIX_VERSION
+uint64_t GetEpochTickcount();
+#endif
+
+float RandomFloat(float min, float max);
+
+bool RandomBool();
+
+bool IsTimeBetween(int8_t timeH, int8_t timeM, int8_t startH, int8_t startM, int8_t endH, int8_t endM);
+
+inline unsigned int GetNextPowerOfTwo(unsigned int v)
+{
+	v--;
+	unsigned int i;
+	for (i = 1 ; i < sizeof(unsigned int) * 8 ; i <<= 1)
+		v |= v >> i;
+	return v+1;
+}
+
+inline unsigned int RoundToMultiple(unsigned int val, unsigned int multiple)
+{
+	if (multiple == 0)
+		return val;
+
+	unsigned int rem = val % multiple;
+
+	if (rem == 0)
+		return val;
+
+	return val + multiple - rem;
+}
+
+void SleepMilliseconds(unsigned int time);
+
+#endif
+
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
+
+
+
+
+#ifdef __cplusplus
+
+template <typename T>
+inline T SwapEndianness(T val);
+
+template <> inline uint8_t SwapEndianness(uint8_t val) { return val; }
+template <> inline int8_t SwapEndianness(int8_t val) { return val; }
+template <> inline uint16_t SwapEndianness(uint16_t val) { return SwapEndianness16(val); }
+template <> inline int16_t SwapEndianness(int16_t val) { return SwapEndianness16(val); }
+template <> inline uint32_t SwapEndianness(uint32_t val) { return SwapEndianness32(val); }
+template <> inline int32_t SwapEndianness(int32_t val) { return SwapEndianness32(val); }
+template <> inline uint64_t SwapEndianness(uint64_t val) { return SwapEndianness64(val); }
+template <> inline int64_t SwapEndianness(int64_t val) { return SwapEndianness64(val); }
+template <> inline float SwapEndianness(float val) { return SwapEndiannessF32(val); }
+template <> inline double SwapEndianness(double val) { return SwapEndiannessF64(val); }
+
+
+#ifdef NXCOMMON_LITTLE_ENDIAN
+
+template <typename T> inline T ToLittleEndian(T val) { return val; }
+template <typename T> inline T ToBigEndian(T val) { return SwapEndianness<T>(val); }
+template <typename T> inline T FromLittleEndian(T val) { return val; }
+template <typename T> inline T FromBigEndian(T val) { return SwapEndianness<T>(val); }
+
+#else
+
+template <typename T> inline T ToLittleEndian(T val) { return SwapEndianness<T>(val); }
+template <typename T> inline T ToBigEndian(T val) { return val; }
+template <typename T> inline T FromLittleEndian(T val) { return SwapEndianness<T>(val); }
+template <typename T> inline T FromBigEndian(T val) { return val; }
+
+#endif
+
+
 
 // Zero-length arrays are illegal, and MSVC actually throws an error for them.
 #ifdef NXCOMMON_LITTLE_ENDIAN
@@ -323,24 +399,6 @@ template <typename T> inline T FromBigEndian(T val) { return val; }
 #else
 #define _DECLNUM(n,t) struct { char _p_##n[sizeof(uint64_t)-sizeof(t) + 1]; t n; }
 #endif
-
-
-/*union VariantNum {
-	_DECLNUM(ui64, uint64_t);
-	_DECLNUM(i64, int64_t);
-
-	_DECLNUM(ui32, uint32_t);
-	_DECLNUM(i32, int32_t);
-
-	_DECLNUM(ui16, uint16_t);
-	_DECLNUM(i16, int16_t);
-
-	_DECLNUM(ui8, uint8_t);
-	_DECLNUM(i8, int8_t);
-
-	_DECLNUM(f, float);
-	_DECLNUM(d, double);
-};*/
 
 
 class VariantNum
@@ -400,54 +458,6 @@ public:
 	NopDeleter() {}
 	void operator()(T*) const {}
 };
-
-
-extern "C"
-{
-
-#endif // defined(GENERATE_LUADEF_FFI_CDEF)
-
-
-LUASYS_EXPORT uint64_t GetTickcount();
-LUASYS_EXPORT uint64_t GetTickcountMicroseconds();
-
-#ifndef GENERATE_LUAJIT_FFI_CDEF
-
-}
-
-
-#ifdef _POSIX_VERSION
-uint64_t GetEpochTickcount();
-#endif
-
-float RandomFloat(float min, float max);
-
-bool RandomBool();
-
-bool IsTimeBetween(int8_t timeH, int8_t timeM, int8_t startH, int8_t startM, int8_t endH, int8_t endM);
-
-inline unsigned int GetNextPowerOfTwo(unsigned int v)
-{
-	v--;
-	for (unsigned int i = 1 ; i < sizeof(unsigned int) * 8 ; i <<= 1)
-		v |= v >> i;
-	return v+1;
-}
-
-inline unsigned int RoundToMultiple(unsigned int val, unsigned int multiple)
-{
-	if (multiple == 0)
-		return val;
-
-	unsigned int rem = val % multiple;
-
-	if (rem == 0)
-		return val;
-
-	return val + multiple - rem;
-}
-
-void SleepMilliseconds(unsigned int time);
 
 #endif
 
