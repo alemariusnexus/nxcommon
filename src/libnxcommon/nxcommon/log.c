@@ -1,19 +1,32 @@
 #include "log.h"
 #include "util.h"
 #include <string.h>
+#include <time.h>
 #include <pthread.h>
+
+#ifdef __ZEPHYR__
+#include <zephyr.h>
+#endif
 
 
 
 FILE* _mainLogfile = NULL;
 int logLevel = LOG_LEVEL_INFO;
+
+#ifdef __ZEPHYR__
+// Zephyr does not have PTHREAD_MUTEX_INITIALIZER, but supplies the non-standard PTHREAD_MUTEX_DEFINE()
+PTHREAD_MUTEX_DEFINE(_logMutex);
+#else
 pthread_mutex_t _logMutex = PTHREAD_MUTEX_INITIALIZER;
+#endif
+
+const char* logFormat = "%Y-%m-%d %H:%M:%S";
+bool freeLogFormat = false;
 
 
+#ifndef __ZEPHYR__
 void OpenLogFile(FILE* file)
 {
-	char errbuf[256];
-
 	if (_mainLogfile) {
 		fclose(_mainLogfile);
 	}
@@ -22,6 +35,7 @@ void OpenLogFile(FILE* file)
 
 	//pthread_mutex_init(&_logMutex, nullptr);
 }
+#endif
 
 
 void SetLogLevel(int level)
@@ -59,6 +73,17 @@ const char* GetLogLevelName(int level)
 	}
 
 	return "[INVALID]";
+}
+
+
+void SetLogTimeFormat(const char* format)
+{
+	if (freeLogFormat) {
+		free((char*) logFormat);
+	}
+	logFormat = malloc(strlen(format)+1);
+	strcpy((char*) logFormat, format);
+	freeLogFormat = true;
 }
 
 
@@ -123,7 +148,9 @@ void _LogMessagevl(int level, const char* fmt, va_list args)
 {
 	// Don't check for log level. This is done by LogMessage()
 
+#ifndef __ZEPHYR__
 	time_t t = time(NULL);
+#endif
 
 	const char* typeCode = "[???]";
 
@@ -146,10 +173,14 @@ void _LogMessagevl(int level, const char* fmt, va_list args)
 	}
 
 	char timeStr[64];
-	ctime_r(&t, timeStr);
 
-	// Strip the trailing newline. Not entirely sure if this is legal...
-	timeStr[strlen(timeStr)-1] = '\0';
+#ifdef __ZEPHYR__
+	sprintf(timeStr, "(%llu)", (long long unsigned) k_uptime_get());
+#else
+	struct tm localTime;
+	localtime_r(&t, &localTime);
+	strftime(timeStr, sizeof(timeStr), logFormat, &localTime);
+#endif
 
 	FILE* outStreams[] = { _mainLogfile, stdout };
 

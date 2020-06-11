@@ -84,6 +84,10 @@ extern "C"
 
 #endif
 
+
+// TODO: This was just excluded on Zephyr to silence strict-aliasing warnings (yeah, I know...)
+#ifndef __ZEPHYR__
+
 inline float SwapEndiannessF32(float val)
 {
 	uint32_t uswp = SwapEndianness32(*((uint32_t*) &val));
@@ -96,6 +100,8 @@ inline double SwapEndiannessF64(double val)
 	uint64_t uswp = SwapEndianness64(*((uint64_t*) &val));
 	return *((double*) &uswp);
 }
+
+#endif
 
 
 #ifdef NXCOMMON_LITTLE_ENDIAN

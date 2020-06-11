@@ -24,6 +24,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
+#include <math.h>
 
 #ifdef _POSIX_VERSION
 #include <unistd.h>
@@ -33,6 +34,8 @@
 #elif defined(ESP_PLATFORM)
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
+#elif defined(__ZEPHYR__)
+#include <zephyr.h>
 #endif
 
 
@@ -51,9 +54,6 @@ uint64_t GetTickcount()
 {
 #ifdef _POSIX_VERSION
 	return GetEpochTickcount();
-	struct timeval tv;
-	gettimeofday(&tv, NULL);
-	return tv.tv_sec*1000 + tv.tv_usec/1000;
 #elif defined(_WIN32)
 	return GetTickCount();
 #elif defined(ESP_PLATFORM)
@@ -62,6 +62,8 @@ uint64_t GetTickcount()
 	} else {
 		return xTaskGetTickCount() * portTICK_PERIOD_MS;
 	}
+#elif defined(__ZEPHYR__)
+	return (uint64_t) k_uptime_get();
 #else
 #error "GetTickcount() is not implemented for this platform!"
 #endif
@@ -73,7 +75,7 @@ uint64_t GetTickcountMicroseconds()
 #ifdef _POSIX_VERSION
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
-	return tv.tv_sec*1000000 + tv.tv_usec;
+	return ((uint64_t) tv.tv_sec)*1000000 + tv.tv_usec;
 #elif defined(_WIN32)
 	// TODO: Implement this correctly...
 	return GetTickcount() * 1000;
@@ -83,6 +85,8 @@ uint64_t GetTickcountMicroseconds()
 	} else {
 		return (xTaskGetTickCount() * portTICK_PERIOD_MS) * 1000;
 	}
+#elif defined(__ZEPHYR__)
+	return ((uint64_t) k_uptime_get()) * 1000;
 #else
 #error "GetTickcountMicroseconds() is not implemented for this platform!"
 #endif
@@ -99,7 +103,7 @@ uint64_t GetEpochTickcount()
 #ifdef _POSIX_VERSION
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
-	return tv.tv_sec*1000 + tv.tv_usec/1000;
+	return ((uint64_t) tv.tv_sec)*1000 + ((uint64_t) tv.tv_usec)/1000;
 #else
 	return GetTickCount();
 #endif
@@ -142,6 +146,8 @@ void SleepMilliseconds(unsigned int time)
 	Sleep(time);
 #elif defined(ESP_PLATFORM)
 	vTaskDelay(time / portTICK_PERIOD_MS + portTICK_PERIOD_MS);
+#elif defined(__ZEPHYR__)
+	k_sleep(time);
 #else
 #error "SleepMilliseconds() is not implemented for this platform!"
 #endif

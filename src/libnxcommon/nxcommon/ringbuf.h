@@ -5,16 +5,23 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+
 #ifndef __STDC_NO_ATOMICS__
 #define _NX_HAVE_ATOMICS
 #endif
 
 #ifdef _NX_HAVE_ATOMICS
-#include <stdatomic.h>
+#include "c11atomic.h"
 #endif
 
 #ifdef _NX_HAVE_ATOMICS
 #define RINGBUF_IS_THREADSAFE
+#endif
+
+
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 
@@ -50,5 +57,10 @@ size_t ringbuf_advance_read(ringbuf_t* rbuf, size_t num_elems);
 size_t ringbuf_peek(ringbuf_t* rbuf, void* elems, size_t num_elems);
 
 void ringbuf_clear(ringbuf_t* rbuf);
+
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif /* RINGBUF_H_ */

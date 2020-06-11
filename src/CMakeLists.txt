@@ -20,12 +20,20 @@
 
 CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
 
-SET(NXCOMMON_C_ONLY OFF CACHE BOOL "If true, all C++ portions of nxcommon will be disabled.")
+IF(NOT DEFINED NXCOMMON_C_ONLY)
+    SET(NXCOMMON_C_ONLY OFF CACHE BOOL "If true, all C++ portions of nxcommon will be disabled.")
+ENDIF()
 
 IF(NXCOMMON_C_ONLY)
     PROJECT(nxcommon-parent C)
 ELSE()
     PROJECT(nxcommon-parent C CXX)
+ENDIF()
+
+IF(NXCOMMON_C_ONLY)
+    MESSAGE(STATUS "Building nxcommon in C-only mode")
+ELSE()
+    MESSAGE(STATUS "Building nxcommon in C++ mode")
 ENDIF()
 
 SET(NXCOMMON_INSTALL_ENABLED OFF CACHE BOOL "If true, CMake INSTALL commands will be run for nxcommon.")

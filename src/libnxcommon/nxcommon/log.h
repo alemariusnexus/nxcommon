@@ -31,13 +31,17 @@ enum
 
 extern int logLevel;
 
+#ifndef __ZEPHYR__
 void OpenLogFile(FILE* file);
+#endif
 
 LUASYS_EXPORT void SetLogLevel(int level);
 
 LUASYS_EXPORT int GetLogLevel();
 
 LUASYS_EXPORT const char* GetLogLevelName(int level);
+
+LUASYS_EXPORT void SetLogTimeFormat(const char* format);
 
 
 #define LogError(...) LogMessage(LOG_LEVEL_ERROR, __VA_ARGS__)
@@ -89,6 +93,14 @@ static inline void LogMessagev(int level, const char* fmt, ...)
 		va_end(args);
 	}
 }
+
+
+#ifdef NXCOMMON_C_ONLY
+
+#define _LogMessage(level,fmt,...) _LogMessagev(level,fmt,__VA_ARGS__)
+#define LogMessage(level,fmt,...) _LogMessage(level,fmt,__VA_ARGS__)
+
+#endif
 
 #endif
 

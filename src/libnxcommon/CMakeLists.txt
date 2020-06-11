@@ -262,8 +262,13 @@ ENDIF()
 TARGET_LINK_LIBRARIES(nxcommon PUBLIC ${LIBRARIES})
 TARGET_INCLUDE_DIRECTORIES(nxcommon PUBLIC ${INCLUDES} $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}> $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 
+IF(NXCOMMON_BUILD_ZEPHYR)
+    TARGET_LINK_LIBRARIES(nxcommon zephyr_interface)
+    TARGET_INCLUDE_DIRECTORIES(nxcommon PUBLIC "$ENV{ZEPHYR_BASE}/include/posix")
+ENDIF()
+
 IF(NOT NXCOMMON_C_ONLY)
-    TARGET_COMPILE_OPTIONS(nxcommon PUBLIC --std=gnu++11) # --std=c++11 is usually enough, but GTest sometimes complains on MinGW when we don't enable GNU extensions.
+    TARGET_COMPILE_OPTIONS(nxcommon PUBLIC $<$<COMPILE_LANGUAGE:CXX>:--std=gnu++11>) # --std=c++11 is usually enough, but GTest sometimes complains on MinGW when we don't enable GNU extensions.
 ENDIF()
 
 TARGET_COMPILE_DEFINITIONS(nxcommon PUBLIC -D__STDC_LIMIT_MACROS -DUCHAR_TYPE=char16_t $<INSTALL_INTERFACE:__CMAKE_DUMMY_EXPORT_IS_INSTALLED>)
