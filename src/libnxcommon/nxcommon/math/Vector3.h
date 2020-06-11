@@ -33,8 +33,8 @@
 #endif
 
 #ifdef NXCOMMON_QT_SUPPORT_ENABLED
-#include <QtCore/QPoint>
-#include <QtCore/QPointF>
+#include <QPoint>
+#include <QPointF>
 #endif
 
 

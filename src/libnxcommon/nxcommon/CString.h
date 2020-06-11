@@ -32,7 +32,7 @@
 #include <ostream>
 
 #ifdef NXCOMMON_QT_SUPPORT_ENABLED
-#include <QtCore/QString>
+#include <QString>
 #endif
 
 
