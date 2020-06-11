@@ -200,7 +200,7 @@ char* wrapText(const char* src, int cpl);
  * 	string uses only \n as line terminator.
  * 	Note that the indentation string is NOT added to the beginning of the string.
  */
-char* indent(const char* src, const char* indStr);
+char* indent(const char* src, const char* indStr, bool indentStart = false, const char* newline = "\n");
 
 
 bool WildcardMatch(const char* pattern, const char* text);

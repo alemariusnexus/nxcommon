@@ -32,6 +32,12 @@
 #include <LinearMath/btVector3.h>
 #endif
 
+#ifdef NXCOMMON_QT_SUPPORT_ENABLED
+#include <QtCore/QPoint>
+#include <QtCore/QPointF>
+#endif
+
+
 class Vector4;
 
 
@@ -60,6 +66,11 @@ public:
 	operator btVector3() const { return btVector3(data[0], data[1], data[2]); }
 #endif
 
+#ifdef NXCOMMON_QT_SUPPORT_ENABLED
+	Vector3(const QPoint& p, float z = 0.0f) { data[0] = (float) p.x(); data[1] = (float) p.y(); data[2] = z; }
+	Vector3(const QPointF& p, float z = 0.0f) { data[0] = (float) p.x(); data[1] = (float) p.y(); data[2] = z; }
+#endif
+
 	const float* toArray() const { return data; }
 	float* toArray() { return data; }
 	float getX() const { return data[0]; }
@@ -80,6 +91,8 @@ public:
 	Vector3& operator*=(float rhv);
 	const Vector3 operator*(float rhv) const { return Vector3(*this) *= rhv; }
 	float operator*(const Vector3& rhv) const { return dot(rhv); }
+	Vector3& operator/=(float rhv) { return *this *= (1.0f/rhv); }
+	const Vector3 operator/(float rhv) { return Vector3(*this) /= rhv; }
 	const Vector3 operator-() const;
 	float dot(const Vector3& rhv) const;
 	const Vector3 cross(const Vector3& rhv) const;

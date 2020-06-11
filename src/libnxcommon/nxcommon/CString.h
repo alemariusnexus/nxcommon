@@ -96,6 +96,10 @@ public:
 	CString& trim(const char* chars) { rtrim(chars); ltrim(chars); return *this; }
 	CString& trim() { return trim(" \t\r\n"); }
 
+	CString& indent(const CString& indent, bool indentStart = false, const CString& newline = CString::readAlias("\n"))
+			{ return *this = indented(indent, indentStart, newline); }
+	CString indented(const CString& indent, bool indentStart = false, const CString& newline = CString::readAlias("\n")) const;
+
 	ASS_DEFINE_PROTECTED_CONSTRUCTORS(CString)
 
 protected:

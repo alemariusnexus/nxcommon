@@ -29,6 +29,11 @@
 #include "Vector2.h"
 #include "Vector3.h"
 
+#ifdef NXCOMMON_QT_SUPPORT_ENABLED
+#include <QtCore/QPoint>
+#include <QtCore/QPointF>
+#endif
+
 
 #ifdef __GNUCBLA__
 typedef float v4sf __attribute__((vector_size(16)));
@@ -78,6 +83,14 @@ public:
 			{ data.f[0] = other.data[0]; data.f[1] = other.data[1]; data.f[2] = z; data.f[3] = w; }
 	Vector4(float* data) { memcpy(this->data.f, data, 4*4); }
 	Vector4(float x, float y, float z, float w = 1.0f) { data.f[0] = x; data.f[1] = y; data.f[2] = z; data.f[3] = w; }
+
+#ifdef NXCOMMON_QT_SUPPORT_ENABLED
+	Vector4(const QPoint& p, float z = 0.0f, float w = 1.0f)
+			{ data.f[0] = (float) p.x(); data.f[1] = (float) p.y(); data.f[2] = z; data.f[3] = w; }
+	Vector4(const QPointF& p, float z = 0.0f, float w = 1.0f)
+			{ data.f[0] = (float) p.x(); data.f[1] = (float) p.y(); data.f[2] = z; data.f[3] = w; }
+#endif
+
 	const float* toArray() const { return data.f; }
 	float* toArray() { return data.f; }
 	float getX() const { return data.f[0]; }
@@ -99,6 +112,8 @@ public:
 	const Vector4 operator-(const Vector4& rhv) const { return Vector4(*this) -= rhv; }
 	Vector4& operator*=(float rhv);
 	const Vector4 operator*(float rhv) const { return Vector4(*this) *= rhv; }
+	Vector4& operator/=(float rhv) { return *this *= (1.0f/rhv); }
+	const Vector4 operator/(float rhv) { return Vector4(*this) /= rhv; }
 	const Vector4 operator-() const;
 	float dot(const Vector4& rhv) const;
 	float lengthSq() const { return data.f[0]*data.f[0] + data.f[1]*data.f[1] + data.f[2]*data.f[2] + data.f[3]*data.f[3]; }

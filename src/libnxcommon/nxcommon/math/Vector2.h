@@ -27,6 +27,12 @@
 #include <cstring>
 #include <cmath>
 
+#ifdef NXCOMMON_QT_SUPPORT_ENABLED
+#include <QtCore/QPoint>
+#include <QtCore/QPointF>
+#endif
+
+
 class Vector3;
 class Vector4;
 
@@ -50,6 +56,11 @@ public:
 	Vector2(float* data) { this->data[0] = data[0]; this->data[1] = data[1]; }
 	Vector2(float x, float y) { data[0] = x; data[1] = y; }
 
+#ifdef NXCOMMON_QT_SUPPORT_ENABLED
+	Vector2(const QPoint& p) { data[0] = (float) p.x(); data[1] = (float) p.y(); }
+	Vector2(const QPointF& p) { data[0] = (float) p.x(); data[1] = (float) p.y(); }
+#endif
+
 	const float* toArray() const { return data; }
 	float* toArray() { return data; }
 	float getX() const { return data[0]; }
@@ -67,6 +78,8 @@ public:
 	Vector2& operator*=(float rhv);
 	const Vector2 operator*(float rhv) const { return Vector2(*this) *= rhv; }
 	float operator*(const Vector2& rhv) const { return dot(rhv); }
+	Vector2& operator/=(float rhv) { return *this *= (1.0f/rhv); }
+	const Vector2 operator/(float rhv) { return Vector2(*this) /= rhv; }
 	const Vector2 operator-() const;
 	float dot(const Vector2& rhv) const;
 	float lengthSq() const { return data[0]*data[0] + data[1]*data[1]; }

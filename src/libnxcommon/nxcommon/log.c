@@ -1,6 +1,7 @@
 #include "log.h"
 #include "util.h"
 #include <string.h>
+#include <assert.h>
 #include <pthread.h>
 
 
@@ -62,63 +63,6 @@ const char* GetLogLevelName(int level)
 }
 
 
-/*void LogMessagev(int level, const char* fmt, ...)
-{
-	// Don't check for log level. This is done by LogMessage()
-
-	time_t t = time(nullptr);
-
-	const char* typeCode = "[???]";
-
-	switch (level) {
-	case LOG_LEVEL_ERROR:
-		typeCode = "[ERR]";
-		break;
-	case LOG_LEVEL_WARNING:
-		typeCode = "[WRN]";
-		break;
-	case LOG_LEVEL_INFO:
-		typeCode = "[INF]";
-		break;
-	case LOG_LEVEL_DEBUG:
-		typeCode = "[DBG]";
-		break;
-	case LOG_LEVEL_VERBOSE:
-		typeCode = "[VRB]";
-		break;
-	}
-
-	char timeStr[64];
-	ctime_r(&t, timeStr);
-
-	// Strip the trailing newline. Not entirely sure if this is legal...
-	timeStr[strlen(timeStr)-1] = '\0';
-
-	FILE* outStreams[] = { _mainLogfile, stdout };
-
-	for (size_t i = 0 ; i < sizeof(outStreams) / sizeof(FILE*) ; i++) {
-		FILE* out = outStreams[i];
-
-		if (out) {
-			pthread_mutex_lock(&_logMutex);
-
-			fprintf(out, "%s %s - ", typeCode, timeStr);
-
-			va_list args;
-			va_start(args, fmt);
-			vfprintf(out, fmt, args);
-			va_end(args);
-
-			fprintf(out, "\n");
-
-			pthread_mutex_unlock(&_logMutex);
-
-			fflush(out);
-		}
-	}
-}*/
-
-
 void _LogMessagevl(int level, const char* fmt, va_list args)
 {
 	// Don't check for log level. This is done by LogMessage()
@@ -176,6 +120,93 @@ void _LogMessagevl(int level, const char* fmt, va_list args)
 }
 
 
+void _LogMessageMultivl(int level, const char* fmt, va_list args)
+{
+	// Don't check for log level. This is done by LogMessageMulti()
+
+	time_t t = time(NULL);
+
+	const char* typeCode = "[???]";
+
+	switch (level) {
+	case LOG_LEVEL_ERROR:
+		typeCode = "[ERR]";
+		break;
+	case LOG_LEVEL_WARNING:
+		typeCode = "[WRN]";
+		break;
+	case LOG_LEVEL_INFO:
+		typeCode = "[INF]";
+		break;
+	case LOG_LEVEL_DEBUG:
+		typeCode = "[DBG]";
+		break;
+	case LOG_LEVEL_VERBOSE:
+		typeCode = "[VRB]";
+		break;
+	}
+
+	char timeStr[64];
+	ctime_r(&t, timeStr);
+
+	// Strip the trailing newline. Not entirely sure if this is legal...
+	timeStr[strlen(timeStr)-1] = '\0';
+
+	FILE* outStreams[] = { _mainLogfile, stdout };
+
+	char staticMsgBuf[256];
+	char* msgBuf = staticMsgBuf;
+
+	va_list argsCpy;
+	va_copy(argsCpy, args);
+	int msgLen = vsnprintf(NULL, 0, fmt, argsCpy);
+	va_end(argsCpy);
+
+	if (msgLen >= sizeof(staticMsgBuf)) {
+		msgBuf = malloc(msgLen+1);
+	}
+
+	va_copy(argsCpy, args);
+	int actualMsgLen = vsnprintf(msgBuf, msgLen+1, fmt, argsCpy);
+	va_end(argsCpy);
+
+	assert(actualMsgLen == msgLen);
+
+	for (size_t i = 0 ; i < sizeof(outStreams) / sizeof(FILE*) ; i++) {
+		FILE* out = outStreams[i];
+
+		if (out) {
+			pthread_mutex_lock(&_logMutex);
+
+			char* bufBegin = msgBuf;
+
+			do {
+				fprintf(out, "%s %s - ", typeCode, timeStr);
+
+				char* nlPos = strchr(bufBegin, '\n');
+
+				if (nlPos) {
+					*nlPos = '\0';
+					fprintf(out, "%s\n", bufBegin);
+					bufBegin = nlPos+1;
+				} else {
+					fprintf(out, "%s\n", bufBegin);
+					bufBegin = NULL;
+				}
+			} while (bufBegin != NULL);
+
+			pthread_mutex_unlock(&_logMutex);
+
+			fflush(out);
+		}
+	}
+
+	if (msgBuf != staticMsgBuf) {
+		free(msgBuf);
+	}
+}
+
+
 bool _LuaIsLogLevelActive(int level)
 {
 	return IsLogLevelActive(level);
@@ -188,6 +219,17 @@ void _LuaLogMessagev(int level, const char* fmt, ...)
 		va_list args;
 		va_start(args, fmt);
 		_LogMessagevl(level, fmt, args);
+		va_end(args);
+	}
+}
+
+
+void _LuaLogMessageMultiv(int level, const char* fmt, ...)
+{
+	if (IsLogLevelActive(level)) {
+		va_list args;
+		va_start(args, fmt);
+		_LogMessageMultivl(level, fmt, args);
 		va_end(args);
 	}
 }
