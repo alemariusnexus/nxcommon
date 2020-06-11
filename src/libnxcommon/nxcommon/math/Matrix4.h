@@ -89,7 +89,7 @@ public:
 			float m02, float m12, float m22, float m32,
 			float m03, float m13, float m23, float m33);
 
-	Matrix4(Vector4 c0, Vector4 c1, Vector4 c2, Vector4 c3);
+	Matrix4(const Vector4& c0, const Vector4& c1, const Vector4& c2, const Vector4& c3);
 
 	/**	\brief Constructs a matrix from a float array containing it's elements.
 	 *
@@ -189,6 +189,9 @@ public:
 	 * 	@return The resulting vector.
 	 */
 	const Vector4 operator*(const Vector4& rhv) const;
+
+	Matrix4& operator/=(float rhv) { return *this *= (1.0f/rhv); }
+	const Matrix4 operator/(float rhv) { return Matrix4(*this) /= rhv; }
 
 	/**	\brief Returns the vector containing elements of a specific row.
 	 *

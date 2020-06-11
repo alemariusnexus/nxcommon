@@ -177,34 +177,54 @@ char* wrapText(const char* src, int cpl)
 }
 
 
-char* indent(const char* src, const char* indStr)
+char* indent(const char* src, const char* indStr, bool indentStart, const char* newline)
 {
 	const char* srcStart = src;
 	int srcLen = strlen(src);
 	int indStrLen = strlen(indStr);
+	int newlineLen = strlen(newline);
 
 	int numLines = 1;
 
-	while (*src != '\0') {
-		if (*src++ == '\n') {
+	while (src) {
+		if ((src = strstr(src, newline)) != NULL) {
 			numLines++;
+			src += newlineLen;
 		}
 	}
 
+	int numIndents = numLines;
+	if (!indentStart) {
+		numIndents--;
+	}
+
 	src = srcStart;
-	char* dest = new char[srcLen + (numLines-1)*indStrLen + 1];
+	char* dest = new char[srcLen + numIndents*indStrLen + 1];
 	char* destStart = dest;
 
-	do {
-		dest[0] = *src;
-		dest++;
+	if (indentStart) {
+		strcpy(dest, indStr);
+		dest += indStrLen;
+	}
 
-		if (*src == '\n') {
+	while (src != NULL) {
+		const char* nlPos = strstr(src, newline);
+
+		if (nlPos) {
+			int lineLen = nlPos-src + newlineLen;
+
+			strncpy(dest, src, lineLen);
+			dest += lineLen;
+
 			strcpy(dest, indStr);
 			dest += indStrLen;
-		}
 
-	} while (*src++ != '\0');
+			src += lineLen;
+		} else {
+			strcpy(dest, src);
+			src = NULL;
+		}
+	}
 
 	return destStart;
 }

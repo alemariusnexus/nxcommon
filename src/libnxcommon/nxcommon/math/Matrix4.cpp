@@ -107,7 +107,7 @@ Matrix4::Matrix4(	float m00, float m10, float m20, float m30,
 }
 
 
-Matrix4::Matrix4(Vector4 c0, Vector4 c1, Vector4 c2, Vector4 c3)
+Matrix4::Matrix4(const Vector4& c0, const Vector4& c1, const Vector4& c2, const Vector4& c3)
 {
 	data[0] = c0.getX();
 	data[1] = c0.getY();

@@ -50,6 +50,12 @@ LUASYS_EXPORT void SetLogTimeFormat(const char* format);
 #define LogDebug(...) LogMessage(LOG_LEVEL_DEBUG, __VA_ARGS__)
 #define LogVerbose(...) LogMessage(LOG_LEVEL_VERBOSE, __VA_ARGS__)
 
+#define LogMultiError(...) LogMessageMulti(LOG_LEVEL_ERROR, __VA_ARGS__)
+#define LogMultiWarning(...) LogMessageMulti(LOG_LEVEL_WARNING, __VA_ARGS__)
+#define LogMultiInfo(...) LogMessageMulti(LOG_LEVEL_INFO, __VA_ARGS__)
+#define LogMultiDebug(...) LogMessageMulti(LOG_LEVEL_DEBUG, __VA_ARGS__)
+#define LogMultiVerbose(...) LogMessageMulti(LOG_LEVEL_VERBOSE, __VA_ARGS__)
+
 
 
 // Most of them are inline, which I'm not sure is valid to use with FFI (if the function is not called
@@ -63,12 +69,21 @@ static inline bool IsLogLevelActive(int level)
 }
 
 void _LogMessagevl(int level, const char* fmt, va_list args);
+void _LogMessageMultivl(int level, const char* fmt, va_list args);
 
 static inline void _LogMessagev(int level, const char* fmt, ...)
 {
 	va_list args;
 	va_start(args, fmt);
 	_LogMessagevl(level, fmt, args);
+	va_end(args);
+}
+
+static inline void _LogMessageMultiv(int level, const char* fmt, ...)
+{
+	va_list args;
+	va_start(args, fmt);
+	_LogMessageMultivl(level, fmt, args);
 	va_end(args);
 }
 
@@ -84,6 +99,13 @@ static inline void LogMessagevl(int level, const char* fmt, va_list args)
 	}
 }
 
+static inline void LogMessageMultivl(int level, const char* fmt, va_list args)
+{
+	if (IsLogLevelActive(level)) {
+		_LogMessageMultivl(level, fmt, args);
+	}
+}
+
 static inline void LogMessagev(int level, const char* fmt, ...)
 {
 	if (IsLogLevelActive(level)) {
@@ -94,11 +116,23 @@ static inline void LogMessagev(int level, const char* fmt, ...)
 	}
 }
 
+static inline void LogMessageMultiv(int level, const char* fmt, ...)
+{
+	if (IsLogLevelActive(level)) {
+		va_list args;
+		va_start(args, fmt);
+		_LogMessageMultivl(level, fmt, args);
+		va_end(args);
+	}
+}
+
 
 #ifdef NXCOMMON_C_ONLY
 
 #define _LogMessage(level,fmt,...) _LogMessagev(level,fmt,__VA_ARGS__)
 #define LogMessage(level,fmt,...) _LogMessage(level,fmt,__VA_ARGS__)
+
+// TODO: Provide LogMulti*() in C-only mode
 
 #endif
 
@@ -108,6 +142,8 @@ static inline void LogMessagev(int level, const char* fmt, ...)
 LUASYS_EXPORT bool _LuaIsLogLevelActive(int level);
 
 LUASYS_EXPORT void _LuaLogMessagev(int level, const char* fmt, ...);
+
+LUASYS_EXPORT void _LuaLogMessageMultiv(int level, const char* fmt, ...);
 
 
 #ifdef __cplusplus

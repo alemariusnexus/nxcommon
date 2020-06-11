@@ -71,6 +71,8 @@ public:
 	Matrix2& operator*=(const Matrix2& rhv);
 	const Matrix2 operator*(const Matrix2& rhv) const { return Matrix2(*this) *= rhv; }
 	const Vector2 operator*(const Vector2& rhv) const;
+	Matrix2& operator/=(float rhv) { return *this *= (1.0f/rhv); }
+	const Matrix2 operator/(float rhv) { return Matrix2(*this) /= rhv; }
 	const Vector2 row(int i) const;
 	const Vector2 column(int i) const;
 	void transpose();

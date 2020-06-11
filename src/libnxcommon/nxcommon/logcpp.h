@@ -19,7 +19,7 @@ void OpenLogFile(const File& logfile);
 
 #ifndef GENERATE_LUAJIT_FFI_CDEF
 
-// TODO: Provide LogMessage() for C-only code in log.h as well
+// TODO: Provide LogMessage() and LogMessageMulti() for C-only code in log.h as well
 
 template <typename... Args>
 void _LogMessage(int level, const char* fmt, Args... args)
@@ -28,10 +28,24 @@ void _LogMessage(int level, const char* fmt, Args... args)
 }
 
 template <typename... Args>
+void _LogMessageMulti(int level, const char* fmt, Args... args)
+{
+	_LogMessageMultiv(level, fmt, std::forward<Args>(args)...);
+}
+
+template <typename... Args>
 inline void LogMessage(int level, const char* fmt, Args... args)
 {
 	if (IsLogLevelActive(level)) {
 		_LogMessage(level, fmt, args...);
+	}
+}
+
+template <typename... Args>
+inline void LogMessageMulti(int level, const char* fmt, Args... args)
+{
+	if (IsLogLevelActive(level)) {
+		_LogMessageMulti(level, fmt, args...);
 	}
 }
 

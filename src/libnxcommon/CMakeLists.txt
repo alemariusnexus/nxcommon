@@ -47,7 +47,7 @@ MACRO(SET_DEFAULT outvar defval typ docstr)
 ENDMACRO(SET_DEFAULT)
 
 IF(NOT NXCOMMON_C_ONLY)
-    SET_DEFAULT(NXCOMMON_EXCEPTION_POSITION_INFO OFF BOOL "If true, exception messages will include the name of the source file and the line in which the exception was thrown.")
+    SET_DEFAULT(NXCOMMON_EXCEPTION_POSITION_INFO ON BOOL "If true, exception messages will include the name of the source file and the line in which the exception was thrown.")
     SET_DEFAULT(NXCOMMON_EXCEPTION_POSITION_INFO_FULL OFF BOOL "If true, exception messages will include the full path to the source file (instead of just the name) and the line in which the exception was thrown.")
     SET_DEFAULT(NXCOMMON_EXCEPTION_VERBOSE_MESSAGES OFF BOOL "If true, exception messages will include the full stack trace, if available.")
     SET_DEFAULT(NXCOMMON_UNICODE_ENABLED ON BOOL "Enable Unicode support for nxcommon. Requires ICU.")
@@ -155,11 +155,12 @@ IF(NXCOMMON_PSQL_ENABLED)
 ENDIF(NXCOMMON_PSQL_ENABLED)
 
 IF(NXCOMMON_LUA_ENABLED)
-    FIND_PATH(LUA_INCLUDE_DIRS lua.h)
-    FIND_LIBRARY(LUA_LIBRARIES NAMES lua liblua)
+    FIND_PATH(LUA_INCLUDE_DIRS luajit.h PATH_SUFFIXES luajit luajit-2.1)
+    FIND_LIBRARY(LUA_LIBRARIES NAMES luajit libluajit luajit-5.1 libluajit-5.1)
 ENDIF(NXCOMMON_LUA_ENABLED)
 
 IF(NXCOMMON_OPENGL_ENABLED)
+    SET(OpenGL_GL_PREFERENCE LEGACY)
     FIND_PACKAGE(OpenGL)
     FIND_LIBRARY(GLEW_LIBRARIES NAMES GLEW libGLEW glew glew32 libglew libglew32)
     FIND_PATH(GLEW_INCLUDE_DIRS GL/glew.h)
@@ -179,7 +180,6 @@ ENDIF(NXCOMMON_BULLET_SUPPORT STREQUAL "on")
 
 
 SET(LIBRARIES "")
-SET(INCLUDES "${CMAKE_CURRENT_SOURCE_DIR}")
 
 IF(NXCOMMON_QT_SUPPORT_ENABLED)
     #SET(LIBRARIES ${LIBRARIES} ${QT_LIBRARIES})
@@ -206,8 +206,8 @@ IF(NXCOMMON_OPENGL_ENABLED)
 ENDIF(NXCOMMON_OPENGL_ENABLED)
 
 IF(NXCOMMON_QT_SUPPORT STREQUAL "qt5")
-    #SET(LIBRARIES ${LIBRARIES} Qt5::Core)
-    SET(INCLUDES ${INCLUDES} ${Qt5Core_INCLUDE_DIRS})
+    SET(LIBRARIES ${LIBRARIES} Qt5::Core)
+    #SET(INCLUDES ${INCLUDES} ${Qt5Core_INCLUDE_DIRS})
 ENDIF(NXCOMMON_QT_SUPPORT STREQUAL "qt5")
 
 IF(NXCOMMON_BULLET_SUPPORT STREQUAL "on")

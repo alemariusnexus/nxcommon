@@ -71,6 +71,8 @@ public:
 	Matrix3(float m00, float m10, float m20,
 			float m01, float m11, float m21,
 			float m02, float m12, float m22);
+	Matrix3(const Vector3& c0, const Vector3& c1, const Vector3& c2);
+
 	const float* toArray() const { return data; }
 	float* toArray() { return data; }
 	Matrix3& operator+=(const Matrix3& other);
@@ -82,6 +84,8 @@ public:
 	Matrix3& operator*=(const Matrix3& rhv);
 	const Matrix3 operator*(const Matrix3& rhv) const { return Matrix3(*this) *= rhv; }
 	const Vector3 operator*(const Vector3& rhv) const;
+	Matrix3& operator/=(float rhv) { return *this *= (1.0f/rhv); }
+	const Matrix3 operator/(float rhv) { return Matrix3(*this) /= rhv; }
 	const Vector3 row(int i) const;
 	const Vector3 column(int i) const;
 	void transpose();

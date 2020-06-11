@@ -148,27 +148,68 @@ TEST(StringTest, CheckStrutilAndCString)
 		const char* src;
 		const char* dst;
 		const char* ind;
+		bool indStart;
+		const char* nl;
 	};
 
 	IndentTest indents[] = {
 			{	"  Hallo Welt!\nDieser Text sollte\n  eingerueckt werden,\n\ndenke ich!",
 				"  Hallo Welt!\n  Dieser Text sollte\n    eingerueckt werden,\n  \n  denke ich!",
-				"  "
+				"  ",
+				false,
+				"\n"
+			},
+			{	"  Hallo Welt!\nDieser Text sollte\n  eingerueckt werden,\n\ndenke ich!",
+				"    Hallo Welt!\n  Dieser Text sollte\n    eingerueckt werden,\n  \n  denke ich!",
+				"  ",
+				true,
+				"\n"
 			},
 			{	"",
 				"",
-				"Franz"
+				"Franz",
+				false,
+				"\n"
 			},
 			{	"\n",
 				"\nHallo Welt!",
-				"Hallo Welt!"
+				"Hallo Welt!",
+				false,
+				"\n"
+			},
+			{	"\n",
+				"Hallo Welt!\nHallo Welt!",
+				"Hallo Welt!",
+				true,
+				"\n"
+			},
+			{
+				"This should be\nindented as two lines\r\nand not\nas four.",
+				"  This should be\nindented as two lines\r\n  and not\nas four.",
+				"  ",
+				true,
+				"\r\n"
 			}
 	};
 
 	for (unsigned int i = 0 ; i < sizeof(indents) / sizeof(IndentTest) ; i++) {
 		IndentTest& t = indents[i];
-		char* indRes = indent(t.src, t.ind);
+
+		char* indRes = indent(t.src, t.ind, t.indStart, t.nl);
 		EXPECT_STREQ(t.dst, indRes) << "indent() test #" << i << " failed!";
+
+		CString csrc1 = CString::readAlias(t.src);
+		CString cindRes1 = csrc1.indented(CString::readAlias(t.ind),
+				t.indStart, CString::readAlias(t.nl));
+		EXPECT_EQ(CString::readAlias(t.src), csrc1) << "CString::indented() test #" << i << ".1 failed!";
+		EXPECT_EQ(CString::readAlias(t.dst), cindRes1) << "CString::indented() test #" << i << ".2 failed!";
+
+		CString csrc2 = CString::readAlias(t.src);
+		CString cindRes2 = csrc2.indent(CString::readAlias(t.ind),
+				t.indStart, CString::readAlias(t.nl));
+		EXPECT_EQ(cindRes2, csrc2) << "CString::indent() test #" << i << ".1 failed!";
+		EXPECT_EQ(CString::readAlias(t.dst), cindRes2) << "CString::indent() test #" << i << ".2 failed!";
+
 		delete[] indRes;
 	}
 

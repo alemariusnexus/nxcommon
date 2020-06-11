@@ -98,6 +98,13 @@ CString CString::convertFromDouble(double val)
 }
 
 
+CString CString::indented(const CString& indent, bool indentStart, const CString& newline) const
+{
+	char* indStr = ::indent(get(), indent.get(), indentStart, newline.get());
+	return CString::from(indStr);
+}
+
+
 
 std::ostream& operator<<(std::ostream& stream, const CString& cstr)
 {

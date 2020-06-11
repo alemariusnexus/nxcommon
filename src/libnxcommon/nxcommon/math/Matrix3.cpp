@@ -82,6 +82,20 @@ Matrix3::Matrix3(	float m00, float m10, float m20,
 }
 
 
+Matrix3::Matrix3(const Vector3& c0, const Vector3& c1, const Vector3& c2)
+{
+	data[0] = c0[0];
+	data[1] = c0[1];
+	data[2] = c0[2];
+	data[3] = c1[0];
+	data[4] = c1[1];
+	data[5] = c1[2];
+	data[6] = c2[0];
+	data[7] = c2[1];
+	data[8] = c2[2];
+}
+
+
 Matrix3 Matrix3::fromEulerYZX(float x, float y, float z)
 {
 	float sx = sinf(x);
