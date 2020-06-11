@@ -749,6 +749,7 @@ void File::copyTo(const File& newFile) const
 {
 	istream* inStream = openInputStream(istream::binary);
 	newFile.copyFrom(inStream);
+	delete inStream;
 }
 
 

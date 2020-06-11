@@ -117,6 +117,8 @@ int Transcode(char* src, int srcBytes, char* dest, int destBytes, Encoding srcEn
 
 		int endLen = Transcode((char*) tmp, len, dest, destBytes, ISO8859_1, destEnc);
 
+		delete[] tmp;
+
 		if (srcBytes > destBytes) {
 			return ERR_INSUFFICIENT_BUFFER;
 		}
@@ -133,6 +135,9 @@ int Transcode(char* src, int srcBytes, char* dest, int destBytes, Encoding srcEn
 		}
 
 		int endLen = Transcode((char*) tmp, tmpSize, dest, destBytes, ISO8859_1, destEnc);
+
+		delete[] tmp;
+
 		return endLen;
 	}
 
@@ -152,6 +157,8 @@ int Transcode(char* src, int srcBytes, char* dest, int destBytes, Encoding srcEn
 		for (int i = 0 ; i < len ; i++) {
 			udest[i] = ISO88591ToGXT8Table[tmp[i]];
 		}
+
+		delete[] tmp;
 
 		if (insufficient) {
 			return ERR_INSUFFICIENT_BUFFER;
@@ -176,6 +183,8 @@ int Transcode(char* src, int srcBytes, char* dest, int destBytes, Encoding srcEn
 			udest[i*2] = ISO88591ToGXT8Table[tmp[i]];
 			udest[i*2+1] = '\0';
 		}
+
+		delete[] tmp;
 
 		if (insufficient) {
 			return ERR_INSUFFICIENT_BUFFER;
@@ -339,6 +348,7 @@ int Transcode(char* src, int srcBytes, char* dest, int destBytes, Encoding srcEn
 				// which should always fit perfect when converting a single-byte-encoding to UTF-16.
 				len = srcBytes*2;
 			} else if (len < 0) {
+				delete[] tmpBuf;
 				return len;
 			}
 
