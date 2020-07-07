@@ -3,7 +3,12 @@
 #include <string.h>
 #include <time.h>
 #include <assert.h>
+
+#ifdef _WIN32
+#include <windows.h>
+#else
 #include <pthread.h>
+#endif
 
 #ifdef __ZEPHYR__
 #include <zephyr.h>
@@ -17,12 +22,44 @@ int logLevel = LOG_LEVEL_INFO;
 #ifdef __ZEPHYR__
 // Zephyr does not have PTHREAD_MUTEX_INITIALIZER, but supplies the non-standard PTHREAD_MUTEX_DEFINE()
 PTHREAD_MUTEX_DEFINE(_logMutex);
+#elif defined(_WIN32)
+HANDLE _logMutex = NULL;
 #else
 pthread_mutex_t _logMutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
 const char* logFormat = "%Y-%m-%d %H:%M:%S";
 bool freeLogFormat = false;
+
+
+
+
+inline void LockMutexLock()
+{
+#ifdef _WIN32
+	if (!_logMutex) {
+		_logMutex = CreateMutex(NULL, false, NULL);
+	}
+	WaitForSingleObject(_logMutex, INFINITE);
+#else
+	pthread_mutex_lock(&_logMutex);
+#endif
+}
+
+
+inline void LockMutexUnlock()
+{
+#ifdef _WIN32
+	if (!_logMutex) {
+		_logMutex = CreateMutex(NULL, false, NULL);
+	}
+	ReleaseMutex(_logMutex);
+#else
+	pthread_mutex_lock(&_logMutex);
+#endif
+}
+
+
 
 
 #ifndef __ZEPHYR__
@@ -92,7 +129,7 @@ void _LogMessagevl(int level, const char* fmt, va_list args)
 {
 	// Don't check for log level. This is done by LogMessage()
 
-	#ifndef __ZEPHYR__
+#ifndef __ZEPHYR__
 	time_t t = time(NULL);
 #endif
 
@@ -122,7 +159,7 @@ void _LogMessagevl(int level, const char* fmt, va_list args)
 	sprintf(timeStr, "(%llu)", (long long unsigned) k_uptime_get());
 #else
 	struct tm localTime;
-	localtime_r(&t, &localTime);
+	localtime_s_nx(&t, &localTime);
 	strftime(timeStr, sizeof(timeStr), logFormat, &localTime);
 #endif
 
@@ -132,7 +169,7 @@ void _LogMessagevl(int level, const char* fmt, va_list args)
 		FILE* out = outStreams[i];
 
 		if (out) {
-			pthread_mutex_lock(&_logMutex);
+			LockMutexLock();
 
 			fprintf(out, "%s %s - ", typeCode, timeStr);
 
@@ -143,7 +180,7 @@ void _LogMessagevl(int level, const char* fmt, va_list args)
 
 			fprintf(out, "\n");
 
-			pthread_mutex_unlock(&_logMutex);
+			LockMutexUnlock();
 
 			fflush(out);
 		}
@@ -185,7 +222,7 @@ void _LogMessageMultivl(int level, const char* fmt, va_list args)
 	sprintf(timeStr, "(%llu)", (long long unsigned) k_uptime_get());
 #else
 	struct tm localTime;
-	localtime_r(&t, &localTime);
+	localtime_s_nx(&t, &localTime);
 	strftime(timeStr, sizeof(timeStr), logFormat, &localTime);
 #endif
 
@@ -213,7 +250,7 @@ void _LogMessageMultivl(int level, const char* fmt, va_list args)
 		FILE* out = outStreams[i];
 
 		if (out) {
-			pthread_mutex_lock(&_logMutex);
+			LockMutexLock();
 
 			char* bufBegin = msgBuf;
 
@@ -232,7 +269,7 @@ void _LogMessageMultivl(int level, const char* fmt, va_list args)
 				}
 			} while (bufBegin != NULL);
 
-			pthread_mutex_unlock(&_logMutex);
+			LockMutexUnlock();
 
 			fflush(out);
 		}

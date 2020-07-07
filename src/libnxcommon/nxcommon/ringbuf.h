@@ -7,7 +7,13 @@
 
 
 #ifndef __STDC_NO_ATOMICS__
+
+// MSVC does not support stdatomic.h, which is required in c11atomic.h
+// TODO: Find a way to implement it anyway.
+#ifndef _MSC_VER
 #define _NX_HAVE_ATOMICS
+#endif
+
 #endif
 
 #ifdef _NX_HAVE_ATOMICS

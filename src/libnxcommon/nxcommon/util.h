@@ -40,6 +40,7 @@ extern "C"
 #include <stdlib.h>
 #include <limits.h>
 #include <stdbool.h>
+#include <time.h>
 
 
 
@@ -353,6 +354,8 @@ inline unsigned int RoundToMultiple(unsigned int val, unsigned int multiple)
 }
 
 void SleepMilliseconds(unsigned int time);
+
+struct tm *localtime_s_nx(const time_t* timer, struct tm* buf);
 
 #endif
 

@@ -154,4 +154,16 @@ void SleepMilliseconds(unsigned int time)
 }
 
 
+struct tm *localtime_s_nx(const time_t* timer, struct tm* buf)
+{
+#ifdef _WIN32
+	// localtime_s() (which is a C11 standard function) exists on Windows, but has REVERSE PARAMETER ORDER
+	// and returns an error code instead of a copy of buf. What the fuck, Microsoft?
+	return localtime_s(buf, timer) == 0 ? buf : NULL;
+#else
+	return localtime_s(timer, buf);
+#endif
+}
+
+
 
