@@ -19,5 +19,5 @@
 # GPLADDITIONS.
 
 IF(NXCOMMON_SQL_ENABLED)
-    ADD_SOURCES(ScriptSQLDatabase ScriptSQLPreparedStatement ScriptSQLResult luasql)
+    ADD_SOURCES(ScriptSQLDatabase.cpp ScriptSQLPreparedStatement.cpp ScriptSQLResult.cpp luasql.cpp)
 ENDIF(NXCOMMON_SQL_ENABLED)

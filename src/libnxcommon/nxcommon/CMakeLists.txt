@@ -29,10 +29,10 @@ ADD_SUBDIRECTORY(script)
 ADD_SUBDIRECTORY(sql)
 ADD_SUBDIRECTORY(stream)
 
-ADD_SOURCES(ringbuf util log)
+ADD_SOURCES(ringbuf.c util.c log.c)
 
 IF(NOT NXCOMMON_C_ONLY)
-    ADD_SOURCES(strutil CString CRC32 CLIParser Color4 encoding ErrorLog image logcpp ByteArray debug json tinyxml2)
+    ADD_SOURCES(strutil.cpp CString.cpp CRC32.cpp CLIParser.cpp Color4.cpp encoding.cpp ErrorLog.cpp image.cpp logcpp.cpp ByteArray.cpp debug.cpp json.cpp tinyxml2.cpp)
 ENDIF()
 
 IF(NXCOMMON_LUA_ENABLED)
@@ -46,7 +46,7 @@ IF(NXCOMMON_LUA_ENABLED)
 ENDIF()
 
 IF(NXCOMMON_UNICODE_ENABLED)
-    ADD_SOURCES(UString unicodeutil)
+    ADD_SOURCES(UString.cpp unicodeutil.cpp)
 ENDIF(NXCOMMON_UNICODE_ENABLED)
 
 # Propagate upwards

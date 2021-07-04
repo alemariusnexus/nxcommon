@@ -20,5 +20,5 @@
 
 
 IF(NOT NXCOMMON_C_ONLY)
-    ADD_SOURCES(IOException streamutil)
+    ADD_SOURCES(IOException.cpp streamutil.cpp)
 ENDIF()

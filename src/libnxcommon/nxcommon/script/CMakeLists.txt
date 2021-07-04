@@ -22,7 +22,7 @@ IF(NXCOMMON_LUA_ENABLED)
     ADD_SUBDIRECTORY(math)
     ADD_SUBDIRECTORY(sql)
 
-    ADD_SOURCES(luasys ScriptObject)
+    ADD_SOURCES(luasys.cpp ScriptObject.cpp)
     
     CREATE_RESOURCE(nxcommon_res scriptsys.lua scriptsys_script)
 ENDIF(NXCOMMON_LUA_ENABLED)

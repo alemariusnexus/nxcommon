@@ -22,18 +22,18 @@ IF(NXCOMMON_SQL_ENABLED)
 
     ADD_SUBDIRECTORY(driver)
     
-    ADD_SOURCES(SQLDatabase SQLPreparedStatement SQLResult)
+    ADD_SOURCES(SQLDatabase.cpp SQLPreparedStatement.cpp SQLResult.cpp)
     
     IF(NXCOMMON_SQLITE_ENABLED)
-        ADD_SOURCES(SQLiteDriver)
+        ADD_SOURCES(SQLiteDriver.cpp)
     ENDIF(NXCOMMON_SQLITE_ENABLED)
     
     IF(NXCOMMON_MYSQL_ENABLED)
-        ADD_SOURCES(MySQLDriver)
+        ADD_SOURCES(MySQLDriver.cpp)
     ENDIF(NXCOMMON_MYSQL_ENABLED)
     
     IF(NXCOMMON_PSQL_ENABLED)
-        ADD_SOURCES(PSQLDriver)
+        ADD_SOURCES(PSQLDriver.cpp)
     ENDIF(NXCOMMON_PSQL_ENABLED)
     
 ENDIF(NXCOMMON_SQL_ENABLED)

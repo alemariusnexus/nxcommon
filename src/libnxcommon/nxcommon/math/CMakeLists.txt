@@ -20,7 +20,7 @@
 
 
 IF(NOT NXCOMMON_C_ONLY)
-    ADD_SOURCES(Vector2 Vector3 Vector4 Matrix2 Matrix3 Matrix4 intersection Quaternion project Frustum mathutil)
+    ADD_SOURCES(Vector2.cpp Vector3.cpp Vector4.cpp Matrix2.cpp Matrix3.cpp Matrix4.cpp intersection.cpp Quaternion.cpp project.cpp Frustum.cpp mathutil.cpp)
 ENDIF()
 
 IF(NXCOMMON_LUA_ENABLED)

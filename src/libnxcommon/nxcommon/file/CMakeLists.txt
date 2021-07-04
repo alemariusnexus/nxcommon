@@ -20,5 +20,5 @@
 
 
 IF(NOT NXCOMMON_C_ONLY)
-    ADD_SOURCES(DefaultFileFinder File FileChildList FilePath FileSystem)
+    ADD_SOURCES(DefaultFileFinder.cpp File.cpp FileChildList.cpp FilePath.cpp FileSystem.cpp)
 ENDIF()

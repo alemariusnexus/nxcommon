@@ -20,5 +20,5 @@
 
 
 IF(NOT NXCOMMON_C_ONLY)
-    ADD_SOURCES(Exception OutOfBoundsException)
+    ADD_SOURCES(Exception.cpp OutOfBoundsException.cpp)
 ENDIF()

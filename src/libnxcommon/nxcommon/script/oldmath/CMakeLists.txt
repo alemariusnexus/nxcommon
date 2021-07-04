@@ -18,4 +18,4 @@
 # Additional permissions are granted, which are listed in the file
 # GPLADDITIONS.
 
-ADD_SOURCES(ScriptMatrix4 ScriptVector3 ScriptVector4 luamath)
+ADD_SOURCES(ScriptMatrix4.cpp ScriptVector3.cpp ScriptVector4.cpp luamath.cpp)

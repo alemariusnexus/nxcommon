@@ -18,17 +18,17 @@
 # Additional permissions are granted, which are listed in the file
 # GPLADDITIONS.
 
-ADD_SOURCES(SQLDatabaseImpl SQLPreparedStatementImpl sqlutils)
+ADD_SOURCES(SQLDatabaseImpl.cpp SQLPreparedStatementImpl.cpp sqlutils.cpp)
 
 IF(NXCOMMON_SQLITE_ENABLED)
-    ADD_SOURCES(SQLiteDatabaseImpl SQLitePreparedStatementImpl SQLiteResultImpl sqliteutils sqlite3)
+    ADD_SOURCES(SQLiteDatabaseImpl.cpp SQLitePreparedStatementImpl.cpp SQLiteResultImpl.cpp sqliteutils.cpp sqlite3.c)
 ENDIF(NXCOMMON_SQLITE_ENABLED)
 
 IF(NXCOMMON_MYSQL_ENABLED)
-    ADD_SOURCES(MySQLPreparedStatementImpl MySQLDatabaseImpl MySQLResultImpl MySQLPreparedStatementResultImpl
-            MySQLPreparedStatementResultInstanceImpl mysqlutils)
+    ADD_SOURCES(MySQLPreparedStatementImpl.cpp MySQLDatabaseImpl.cpp MySQLResultImpl.cpp MySQLPreparedStatementResultImpl.cpp
+            MySQLPreparedStatementResultInstanceImpl.cpp mysqlutils.cpp)
 ENDIF(NXCOMMON_MYSQL_ENABLED)
 
 IF(NXCOMMON_PSQL_ENABLED)
-    ADD_SOURCES(PSQLPreparedStatementImpl PSQLDatabaseImpl PSQLResultImpl psqlutils)
+    ADD_SOURCES(PSQLPreparedStatementImpl.cpp PSQLDatabaseImpl.cpp PSQLResultImpl.cpp psqlutils.cpp)
 ENDIF(NXCOMMON_PSQL_ENABLED)
