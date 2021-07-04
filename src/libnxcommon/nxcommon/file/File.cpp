@@ -498,9 +498,9 @@ ByteArray File::readAll(ifstream::openmode mode) const
 	filesize sz = getSize();
 	istream* in = openInputStream(mode);
 
-	char* content = new char[sz];
+	uint8_t* content = new uint8_t[sz];
 
-	in->read(content, sz);
+	in->read((char*) content, sz);
 
 	// NOTE: Sometimes numRead != sz, because things like newline conversion might be involved.
 	// This was the cause of a long-standing bug in libnxcommon...

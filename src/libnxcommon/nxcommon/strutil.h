@@ -192,7 +192,7 @@ const char* ltrim(const char* str, char chr);
  * 	@param src The text to be wrapped.
  * 	@param cpl Maximum number of characters per line.
  */
-char* wrapText(const char* src, int cpl);
+char* wrapText(const char* src, size_t cpl);
 
 /**	\brief Indents a text.
  *

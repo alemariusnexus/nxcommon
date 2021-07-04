@@ -34,7 +34,7 @@ public:
 	~ErrorLog();
 	void log(const char* message);
 	char* nextMessage();
-	int getMessageCount() { return data.size(); }
+	size_t getMessageCount() { return data.size(); }
 
 private:
 	queue<char*> data;

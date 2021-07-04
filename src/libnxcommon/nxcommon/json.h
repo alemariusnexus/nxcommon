@@ -69,7 +69,7 @@ void CascadeJSON(GenericValue& base, GenericValue& ovr, typename GenericValue::A
     					if (ovrChild.IsArray()) {
     						// Append all values in the array
 
-    						for (size_t i = 0 ; i < ovrChild.Size() ; i++) {
+    						for (SizeType i = 0 ; i < ovrChild.Size() ; i++) {
 								baseChild.PushBack(Value(), alloc);
 								CascadeJSON(baseChild[baseChild.Size() - 1], ovrChild[i], alloc);
     						}
@@ -89,7 +89,7 @@ void CascadeJSON(GenericValue& base, GenericValue& ovr, typename GenericValue::A
     					if (ovrChild.IsString()) {
     						CString combined(baseChild.GetString(), baseChild.GetStringLength());
     						combined.append(CString::readAlias(ovrChild.GetString(), ovrChild.GetStringLength()));
-    						baseChild.SetString(combined.get(), combined.length(), alloc);
+    						baseChild.SetString(combined.get(), (SizeType) combined.length(), alloc);
     					} else {
     						// TODO: Report somehow
     						//LogError("Invalid type for config cascading append. Override option should be a string.");
@@ -101,11 +101,11 @@ void CascadeJSON(GenericValue& base, GenericValue& ovr, typename GenericValue::A
     			} else {
     				// Member does not exist in base -> this is a simple set operation
 
-    				base.AddMember(Value(baseName.get(), baseName.length(), alloc), Value(), alloc);
+    				base.AddMember(Value(baseName.get(), (SizeType) baseName.length(), alloc), Value(), alloc);
     				CascadeJSON(base[baseName.get()], ovrChild, alloc);
     			}
     		} else if (ovrChildName.endsWith("__remove")) {
-    			CString baseName = ovrChildName.substr(0, ovrChildName.length() - strlen("__remove"));
+    			CString baseName = ovrChildName.substr(0, (SizeType) ovrChildName.length() - strlen("__remove"));
     			base.EraseMember(baseName.get());
     		} else {
     			if (base.HasMember(ovrChildName.get())) {
@@ -114,7 +114,7 @@ void CascadeJSON(GenericValue& base, GenericValue& ovr, typename GenericValue::A
     			} else {
     				// A new member was added. We need to cascade further instead of copying, because
     				// we have to resolve __append and __remove elements
-    				base.AddMember(Value(ovrChildName.get(), ovrChildName.length(), alloc), Value(), alloc);
+    				base.AddMember(Value(ovrChildName.get(), (SizeType) ovrChildName.length(), alloc), Value(), alloc);
     				CascadeJSON(base[ovrChildName.get()], ovrChild, alloc);
     			}
     		}

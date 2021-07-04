@@ -39,7 +39,7 @@ int CLIParser::addOption(char name, const char* longName, const char* descriptio
 	opt.takesArgument = takesArgument;
 	opt.argName = argName;
 	options.push_back(opt);
-	return options.size();
+	return (int) options.size();
 }
 
 
@@ -50,7 +50,7 @@ int CLIParser::parse(int& argc, char**& argv, char*& argument)
 	}
 
 	char*& arg = argv[0];
-	int len = strlen(arg);
+	size_t len = strlen(arg);
 
 	if (len < 2) {
 		// Too few characters for an option.

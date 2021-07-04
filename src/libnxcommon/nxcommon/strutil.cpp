@@ -96,25 +96,25 @@ char* rtrim(char* str, const char* chrs)
 
 const char* ltrim(const char* str, char chr)
 {
-	int len = strlen(str);
+	size_t len = strlen(str);
 	while (str != str+len  &&  *str == chr) str++;
 	return str;
 }
 
 
-char* wrapText(const char* src, int cpl)
+char* wrapText(const char* src, size_t cpl)
 {
 	string out;
 	const char* lastWordStart = src;
-	int numCharsInLine = 0;
+	size_t numCharsInLine = 0;
 
 	do {
-		if (src-lastWordStart > cpl) {
+		if (size_t(src-lastWordStart) > cpl) {
 			// The currently parsed word is yet so long that it doesn't fit into a single line at all. This
 			// means it will have to be split in the middle, which we do here. We put as many characters of
 			// the word as possible into the current line.
 
-			int charsLeft = cpl-numCharsInLine;
+			size_t charsLeft = cpl-numCharsInLine;
 			out.append(lastWordStart, charsLeft);
 			out += '\n';
 
@@ -127,8 +127,8 @@ char* wrapText(const char* src, int cpl)
 		}
 
 		if (*src == '\0'  ||  *src == ' '  ||  *src == '\n') {
-			int wordLen = src-lastWordStart; // Without space
-			int charsLeft = cpl-numCharsInLine;
+			size_t wordLen = src-lastWordStart; // Without space
+			size_t charsLeft = cpl-numCharsInLine;
 
 			if (charsLeft < wordLen) {
 				// Not enough space for the word -> Create a newline
@@ -180,11 +180,11 @@ char* wrapText(const char* src, int cpl)
 char* indent(const char* src, const char* indStr, bool indentStart, const char* newline)
 {
 	const char* srcStart = src;
-	int srcLen = strlen(src);
-	int indStrLen = strlen(indStr);
-	int newlineLen = strlen(newline);
+	size_t srcLen = strlen(src);
+	size_t indStrLen = strlen(indStr);
+	size_t newlineLen = strlen(newline);
 
-	int numLines = 1;
+	size_t numLines = 1;
 
 	while (src) {
 		if ((src = strstr(src, newline)) != NULL) {
@@ -193,7 +193,7 @@ char* indent(const char* src, const char* indStr, bool indentStart, const char* 
 		}
 	}
 
-	int numIndents = numLines;
+	size_t numIndents = numLines;
 	if (!indentStart) {
 		numIndents--;
 	}
@@ -211,7 +211,7 @@ char* indent(const char* src, const char* indStr, bool indentStart, const char* 
 		const char* nlPos = strstr(src, newline);
 
 		if (nlPos) {
-			int lineLen = nlPos-src + newlineLen;
+			size_t lineLen = nlPos-src + newlineLen;
 
 			strncpy(dest, src, lineLen);
 			dest += lineLen;
@@ -434,7 +434,7 @@ T _StringToIntTExtended(const char* str, size_t len, int base, bool* success)
 
 		char c = *cstr;
 
-		T unitVal = 0xFF; // Anything invalid initially
+		T unitVal = std::numeric_limits<T>::max(); // Anything invalid initially
 
 		if (c >= '0'  &&  c <= '9') {
 			unitVal = c-'0';
@@ -444,7 +444,7 @@ T _StringToIntTExtended(const char* str, size_t len, int base, bool* success)
 			unitVal = c-'a' + 10;
 		}
 
-		if (unitVal >= base) {
+		if (unitVal >= (T) base) {
 			if (success) {
 				*success = false;
 			}
@@ -539,11 +539,11 @@ double StringToDouble(const char* str, size_t len, bool* success)
 
 float StringToFloat(const char* str, bool* success)
 {
-	return StringToDouble(str, success);
+	return (float) StringToDouble(str, success);
 }
 
 
 float StringToFloat(const char* str, size_t len, bool* success)
 {
-	return StringToDouble(str, len, success);
+	return (float) StringToDouble(str, len, success);
 }

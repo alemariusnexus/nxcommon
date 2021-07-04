@@ -78,7 +78,7 @@ public:
 #ifdef NXCOMMON_QT_SUPPORT_ENABLED
 	CString(const QString& str) : CString(str.toUtf8().constData()) {}
 
-	operator QString() const { return QString::fromUtf8(get(), length()); }
+	operator QString() const { return QString::fromUtf8(get(), (int) length()); }
 #endif
 
   operator std::string() const { return std::string(get(), length()); }

@@ -26,6 +26,7 @@
 #include <nxcommon/config.h>
 #include "AbstractSharedBuffer.h"
 #include <cstring>
+#include <stdint.h>
 
 #ifdef NXCOMMON_QT_SUPPORT_ENABLED
 #include <QString>
@@ -44,58 +45,59 @@
  *	@see CString
  *	@see UString
  */
-class ByteArray : public AbstractSharedBuffer<ByteArray, char>
+class ByteArray : public AbstractSharedBuffer<ByteArray, uint8_t>
 {
 public:
 	template <typename Deleter>
-	static ByteArray fromCustomDelete(char* s, size_t size, size_t bufSize, Deleter del)
+	static ByteArray fromCustomDelete(uint8_t* s, size_t size, size_t bufSize, Deleter del)
 			{ return ByteArray(s, size, bufSize, del); }
-	static ByteArray from(char* s, size_t size, size_t bufSize)
-			{ return fromCustomDelete(s, size, bufSize, default_delete<char[]>()); }
-	static ByteArray fromMalloc(char* s, size_t size, size_t bufSize)
+	static ByteArray from(uint8_t* s, size_t size, size_t bufSize)
+			{ return fromCustomDelete(s, size, bufSize, default_delete<uint8_t[]>()); }
+	static ByteArray fromMalloc(uint8_t* s, size_t size, size_t bufSize)
 			{ return fromCustomDelete(s, size, bufSize, MallocFreeDeleter()); }
 
 	template <typename Deleter>
-	static ByteArray fromCustomDelete(char* s, size_t size, Deleter del)
+	static ByteArray fromCustomDelete(uint8_t* s, size_t size, Deleter del)
 			{ return fromCustomDelete(s, size, size, del); }
-	static ByteArray from(char* s, size_t size)
-			{ return fromCustomDelete(s, size, default_delete<char[]>()); }
-	static ByteArray fromMalloc(char* s, size_t size)
+	static ByteArray from(uint8_t* s, size_t size)
+			{ return fromCustomDelete(s, size, default_delete<uint8_t[]>()); }
+	static ByteArray fromMalloc(uint8_t* s, size_t size)
 			{ return fromCustomDelete(s, size, MallocFreeDeleter()); }
 
-	static ByteArray writeAlias(char* s, size_t size, size_t bufSize)
+	static ByteArray writeAlias(uint8_t* s, size_t size, size_t bufSize)
 			{ return ByteArray(s, size, bufSize, false, false); }
-	static ByteArray writeAlias(char* s, size_t size)
+	static ByteArray writeAlias(uint8_t* s, size_t size)
 			{ return writeAlias(s, size, size); }
 
-	static ByteArray readAlias(const char* s, size_t size)
+	static ByteArray readAlias(const uint8_t* s, size_t size)
 			{ return ByteArray(s, size, false, false, false); }
 
 public:
 	ByteArray() : AbstractSharedBuffer() {}
-	ByteArray(const char* data, size_t size, size_t capacity) : AbstractSharedBuffer(data, size, capacity) {}
-	ByteArray(const char* data, size_t size) : AbstractSharedBuffer(data, size) {}
+	ByteArray(size_t capacity) : AbstractSharedBuffer(capacity) {}
+	ByteArray(const uint8_t* data, size_t size, size_t capacity) : AbstractSharedBuffer(data, size, capacity) {}
+	ByteArray(const uint8_t* data, size_t size) : AbstractSharedBuffer(data, size) {}
 
 	template <typename ODerivedT, typename OUnitT, bool oterminated, OUnitT oterm>
 	ByteArray(const AbstractSharedBuffer<ODerivedT, OUnitT, oterminated, oterm>& other)
-			: AbstractSharedBuffer(other.d, other.msize*sizeof(OUnitT), other.mcapacity*sizeof(OUnitT),
-					other.readAliasDummy, other.isnull) {}
+			: AbstractSharedBuffer(std::reinterpret_pointer_cast<uint8_t>(other.d), other.msize*sizeof(OUnitT), other.mcapacity*sizeof(OUnitT),
+					std::reinterpret_pointer_cast<uint8_t>(other.readAliasDummy), other.isnull) {}
 
 	ByteArray(const ByteArray& other) : AbstractSharedBuffer(other) {}
 
 #ifdef NXCOMMON_QT_SUPPORT_ENABLED
-	ByteArray(const QByteArray& barr) : ByteArray(barr.data(), barr.length()) {}
+	ByteArray(const QByteArray& barr) : ByteArray((const uint8_t*) barr.data(), barr.length()) {}
 	ByteArray(const QString& str) : ByteArray(str.toUtf8()) {}
 
-	operator QString() const { return QString::fromUtf8(get()); }
-	operator QByteArray() const { return QByteArray(get(), length()); }
+	operator QString() const { return QString::fromUtf8((const char*) get()); }
+	operator QByteArray() const { return QByteArray((const char*) get(), (int) length()); }
 #endif
 
 	ByteArray& append(const ByteArray& other) { AbstractSharedBuffer::append(other); return *this; }
-	ByteArray& append(char c) { AbstractSharedBuffer::append(c); return *this; }
+	ByteArray& append(uint8_t c) { AbstractSharedBuffer::append(c); return *this; }
 
 	ByteArray& prepend(const ByteArray& other) { AbstractSharedBuffer::prepend(other); return *this; }
-	ByteArray& prepend(char c) { AbstractSharedBuffer::prepend(c); return *this; }
+	ByteArray& prepend(uint8_t c) { AbstractSharedBuffer::prepend(c); return *this; }
 
 	bool operator<(const ByteArray& other) const { return memcmp(d.get(), other.d.get(), msize) < 0; }
 	bool operator>(const ByteArray& other) const { return memcmp(d.get(), other.d.get(), msize) > 0; }
@@ -106,17 +108,17 @@ public:
 
 private:
 	template <typename Deleter>
-	ByteArray(char* data, size_t size, size_t bufSize, Deleter del = default_delete<char[]>())
+	ByteArray(uint8_t* data, size_t size, size_t bufSize, Deleter del = default_delete<uint8_t[]>())
 			: AbstractSharedBuffer(data, size, bufSize, del)
 	{
 	}
 
-	ByteArray(char* data, size_t size, size_t bufSize, bool, bool)
+	ByteArray(uint8_t* data, size_t size, size_t bufSize, bool, bool)
 			: AbstractSharedBuffer(data, size, bufSize, false)
 	{
 	}
 
-	ByteArray(const char* data, size_t size, bool, bool, bool)
+	ByteArray(const uint8_t* data, size_t size, bool, bool, bool)
 			: AbstractSharedBuffer(data, size, false, false)
 	{
 	}

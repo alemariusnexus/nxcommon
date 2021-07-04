@@ -89,9 +89,9 @@ int main(int argc, char** argv)
 	fprintf(out, "%s", endl);
 
 	fprintf(out, "#define res_%s_size (sizeof(res_%s_data) - 1)%s", argv[3], argv[3], endl);
-	fprintf(out, "#define res_%s_asCString() (CString::readAlias((const char*) res_%s_data, res_%s_size))%s",
+	fprintf(out, "#define res_%s_asCString() (CString::readAlias((const uint8_t*) res_%s_data, res_%s_size))%s",
 			argv[3], argv[3], argv[3], endl);
-	fprintf(out, "#define res_%s_asByteArray() (ByteArray::readAlias((const char*) res_%s_data, res_%s_size))%s",
+	fprintf(out, "#define res_%s_asByteArray() (ByteArray::readAlias((const uint8_t*) res_%s_data, res_%s_size))%s",
 			argv[3], argv[3], argv[3], endl);
 	fprintf(out, "%s", endl);
 

@@ -189,7 +189,7 @@ FileChildList::Iterator& FileChildList::Iterator::operator++()
 				impl->currentFile = File();
 				impl->curIdx = -1;
 			} else {
-				int len = strlen(fdata.cFileName);
+				size_t len = strlen(fdata.cFileName);
 
 				if (len == 1  &&  fdata.cFileName[0] == '.') {
 					continue;

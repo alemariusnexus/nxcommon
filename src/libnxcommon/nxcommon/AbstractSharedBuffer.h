@@ -29,6 +29,7 @@
 #include <cstdio>
 #include <memory>
 #include <algorithm>
+#include <vector>
 #include "util.h"
 
 using std::shared_ptr;
@@ -318,6 +319,13 @@ public:
 	DerivedT& insert(size_t index, UnitT u);
 
 
+	/**	\brief Return an std::vector containing the data.
+	 *
+	 * 	@return A copy of the data as an std::vector, excluding the terminator (if any).
+	 */
+	operator std::vector<UnitT>() const { return std::vector<UnitT>(d.get(), d.get()+msize); }
+
+
 	/**	\brief Return the UnitT at the given index.
 	 *
 	 * 	There is no variant of the method returning a reference, because that would lend itself to accidentally copying
@@ -500,7 +508,7 @@ protected:
 	static int compare(const UnitT* a, const UnitT* b, size_t aLen, size_t bLen)
 	{
 		int res = DerivedT::compare(a, b, min(aLen, bLen));
-		return (res != 0) ? res : aLen-bLen;
+		return (res != 0) ? res : (int) (aLen-bLen);
 	}
 
 	static int compare(const DerivedT& a, const DerivedT& b)
@@ -520,7 +528,7 @@ protected:
 
 		UnitT* mbeg = beg;
 
-		while ((end-mbeg) > size  &&  (mbeg = DerivedT::find(mbeg, end, d)) != end) {
+		while (size_t(end-mbeg) > size  &&  (mbeg = DerivedT::find(mbeg, end, d)) != end) {
 			mbeg++;
 			if (DerivedT::compare(mbeg, data, size) == 0) {
 				return mbeg-1;

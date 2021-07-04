@@ -187,6 +187,6 @@ TEST(FileTest, ReadWriteTest)
 		// In binary mode, no CRLF conversion should happen, so the size of the read data should match the file size
 		barr = newlinetestFile.readAll(ifstream::in | ifstream::binary);
 		EXPECT_EQ(newlinetestFileSize, barr.length());
-		EXPECT_EQ(ByteArray(newlinetestFileContent, strlen(newlinetestFileContent)), barr);
+		EXPECT_EQ(ByteArray((const uint8_t*) newlinetestFileContent, strlen(newlinetestFileContent)), barr);
 	}
 }

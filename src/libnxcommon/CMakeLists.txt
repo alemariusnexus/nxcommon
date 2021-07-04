@@ -268,7 +268,9 @@ IF(NXCOMMON_BUILD_ZEPHYR)
 ENDIF()
 
 IF(NOT NXCOMMON_C_ONLY)
-    TARGET_COMPILE_OPTIONS(nxcommon PUBLIC $<$<COMPILE_LANGUAGE:CXX>:--std=gnu++11>) # --std=c++11 is usually enough, but GTest sometimes complains on MinGW when we don't enable GNU extensions.
+	IF(CMAKE_CXX_COMPILER_ID STREQUAL "GNU"  OR  CMAKE_CXX_COMPILER_ID STREQUAL "Clang"  OR  CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
+    	TARGET_COMPILE_OPTIONS(nxcommon PUBLIC $<$<COMPILE_LANGUAGE:CXX>:--std=gnu++11>) # --std=c++11 is usually enough, but GTest sometimes complains on MinGW when we don't enable GNU extensions.
+	ENDIF()
 ENDIF()
 
 TARGET_COMPILE_DEFINITIONS(nxcommon PUBLIC -D__STDC_LIMIT_MACROS -DUCHAR_TYPE=char16_t $<INSTALL_INTERFACE:__CMAKE_DUMMY_EXPORT_IS_INSTALLED>)

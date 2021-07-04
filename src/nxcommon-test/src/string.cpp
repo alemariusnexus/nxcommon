@@ -478,15 +478,15 @@ TEST(StringTest, CheckStrutilAndCString)
 
 		ByteArray barr(tstr);
 		EXPECT_EQ(tstr.length(), barr.length());
-		EXPECT_EQ(tstr.get(), barr.get());
+		EXPECT_EQ(tstr.get(), (const char*) barr.get());
 		barr += 'X';
-		EXPECT_NE(tstr.get(), barr.get());
+		EXPECT_NE(tstr.get(), (const char*) barr.get());
 
 		tstr.reserve(64);
 		ByteArray barr2(tstr);
-		EXPECT_EQ(tstr.get(), barr2.get());
+		EXPECT_EQ(tstr.get(), (const char*) barr2.get());
 		barr2.append('X');
-		EXPECT_NE(tstr.get(), barr2.get());
+		EXPECT_NE(tstr.get(), (const char*) barr2.get());
 	}
 
 	{
@@ -503,7 +503,7 @@ TEST(StringTest, CheckStrutilAndCString)
 
 	EXPECT_EQ(CString("123.457"), CString::fromFloatWithMaxPrecision(123.456789f, 3));
 	EXPECT_EQ(CString("123.456"), CString::fromFloatWithMaxPrecision(123.456123f, 3));
-	EXPECT_EQ(CString("0.15"), CString::fromFloatWithMaxPrecision(0.15, 3));
+	EXPECT_EQ(CString("0.15"), CString::fromFloatWithMaxPrecision(0.15f, 3));
 	EXPECT_EQ(CString("0.101"), CString::fromFloatWithMaxPrecision(0.10101f, 3));
 	EXPECT_EQ(CString("0.101"), CString::fromFloatWithMaxPrecision(0.10101f, 4));
 	EXPECT_EQ(CString("13.0"), CString::fromFloatWithMaxPrecision(13.0f, 4));

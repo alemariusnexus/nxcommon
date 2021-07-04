@@ -331,15 +331,6 @@ bool RandomBool();
 
 bool IsTimeBetween(int8_t timeH, int8_t timeM, int8_t startH, int8_t startM, int8_t endH, int8_t endM);
 
-inline unsigned int GetNextPowerOfTwo(unsigned int v)
-{
-	v--;
-	unsigned int i;
-	for (i = 1 ; i < sizeof(unsigned int) * 8 ; i <<= 1)
-		v |= v >> i;
-	return v+1;
-}
-
 inline unsigned int RoundToMultiple(unsigned int val, unsigned int multiple)
 {
 	if (multiple == 0)
@@ -368,6 +359,18 @@ struct tm *localtime_s_nx(const time_t* timer, struct tm* buf);
 
 
 #ifdef __cplusplus
+
+
+template <typename UIntT>
+inline UIntT GetNextPowerOfTwo(UIntT v)
+{
+	v--;
+	UIntT i;
+	for (i = 1 ; i < sizeof(UIntT) * 8 ; i <<= 1)
+		v |= v >> i;
+	return v+1;
+}
+
 
 template <typename T>
 inline T SwapEndianness(T val);
