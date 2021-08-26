@@ -163,7 +163,7 @@ void _LogMessagevl(int level, const char* fmt, va_list args)
 	strftime(timeStr, sizeof(timeStr), logFormat, &localTime);
 #endif
 
-	FILE* outStreams[] = { _mainLogfile, stdout };
+	FILE* outStreams[] = { _mainLogfile, stderr };
 
 	for (size_t i = 0 ; i < sizeof(outStreams) / sizeof(FILE*) ; i++) {
 		FILE* out = outStreams[i];
@@ -226,7 +226,7 @@ void _LogMessageMultivl(int level, const char* fmt, va_list args)
 	strftime(timeStr, sizeof(timeStr), logFormat, &localTime);
 #endif
 
-	FILE* outStreams[] = { _mainLogfile, stdout };
+	FILE* outStreams[] = { _mainLogfile, stderr };
 
 	char staticMsgBuf[256];
 	char* msgBuf = staticMsgBuf;
