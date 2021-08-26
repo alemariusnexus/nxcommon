@@ -160,6 +160,9 @@ struct tm *localtime_s_nx(const time_t* timer, struct tm* buf)
 	// localtime_s() (which is a C11 standard function) exists on Windows, but has REVERSE PARAMETER ORDER
 	// and returns an error code instead of a copy of buf. What the fuck, Microsoft?
 	return localtime_s(buf, timer) == 0 ? buf : NULL;
+#elif defined(__NEWLIB__)
+	// Newlib doesn't have localtime_s(), but has localtime_r().
+	return localtime_r(timer, buf);
 #else
 	return localtime_s(timer, buf);
 #endif

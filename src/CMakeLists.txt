@@ -63,7 +63,9 @@ PROPAGATE_PARENT_SCOPE(NXCOMMON_CMAKE_MODULE_DIR CMAKE_MODULE_PATH)
 
 # Get Git revision info
 
-GET_GIT_HEAD_REVISION(NXCOMMON_GIT_REFSPEC NXCOMMON_GIT_SHA1)
+# NOTE: The third argument is needed for the ESP-IDF-modified version of GetGitRevisionDescription, where
+# it's the repository directory. Doesn't hurt to include it for non-ESP-IDF versions as well
+GET_GIT_HEAD_REVISION(NXCOMMON_GIT_REFSPEC NXCOMMON_GIT_SHA1 "${CMAKE_CURRENT_SOURCE_DIR}")
 
 SET(GIT_SHORT_SHA1_LENGTH 7)
 
