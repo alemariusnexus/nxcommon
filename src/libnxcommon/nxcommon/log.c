@@ -34,7 +34,7 @@ bool freeLogFormat = false;
 
 
 
-inline void LockMutexLock()
+static void LockMutexLock()
 {
 #ifdef _WIN32
 	if (!_logMutex) {
@@ -47,7 +47,7 @@ inline void LockMutexLock()
 }
 
 
-inline void LockMutexUnlock()
+static void LockMutexUnlock()
 {
 #ifdef _WIN32
 	if (!_logMutex) {
@@ -55,7 +55,7 @@ inline void LockMutexUnlock()
 	}
 	ReleaseMutex(_logMutex);
 #else
-	pthread_mutex_lock(&_logMutex);
+	pthread_mutex_unlock(&_logMutex);
 #endif
 }
 

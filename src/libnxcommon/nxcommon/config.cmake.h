@@ -47,9 +47,6 @@
 // disable them.
 #define NOMINMAX
 
-// To define things like M_PI
-#define _USE_MATH_DEFINES
-
 #endif
 
 #ifdef _MSC_VER

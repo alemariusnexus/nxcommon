@@ -56,16 +56,16 @@ FileChildList::Iterator::Iterator(const File& file)
 
 		posixNext();
 #else
-		WIN32_FIND_DATA fdata;
+		WIN32_FIND_DATAA fdata;
 		char* pattern = new char[file.getPath().toString().length() + 3];
 		strcpy(pattern, file.getPath().toString().get());
 		strcat(pattern, "/*");
-		impl->dirHandle = FindFirstFile(pattern, &fdata);
+		impl->dirHandle = FindFirstFileA(pattern, &fdata);
 
 		bool empty = false;
 
 		while(strcmp(fdata.cFileName, ".") == 0  ||  strcmp(fdata.cFileName, "..") == 0) {
-			if (FindNextFile(impl->dirHandle, &fdata) == 0) {
+			if (FindNextFileA(impl->dirHandle, &fdata) == 0) {
 				empty = true;
 				break;
 			}
@@ -182,10 +182,10 @@ FileChildList::Iterator& FileChildList::Iterator::operator++()
 #ifdef _POSIX_VERSION
 		posixNext();
 #else
-		WIN32_FIND_DATA fdata;
+		WIN32_FIND_DATAA fdata;
 
 		while (true) {
-			if (FindNextFile(impl->dirHandle, &fdata) == 0) {
+			if (FindNextFileA(impl->dirHandle, &fdata) == 0) {
 				impl->currentFile = File();
 				impl->curIdx = -1;
 			} else {

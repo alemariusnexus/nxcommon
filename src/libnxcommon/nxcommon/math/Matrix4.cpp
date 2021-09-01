@@ -22,16 +22,13 @@
 
 #include "Matrix4.h"
 #include "Matrix3.h"
+#include "mathdefines.h"
 #include <cstring>
 #include <cmath>
 #include <cstdlib>
 #include <cstdio>
 
 #define GET_RC(r,c) data[(c)*4+(r)]
-
-#ifndef M_PI_2
-# define M_PI_2		1.57079632679489661923
-#endif
 
 
 const Matrix4 Matrix4::Identity = Matrix4();
@@ -533,12 +530,12 @@ void Matrix4::toEuler(float& x, float& y, float& z) // b, h, a
 {
 	if (GET_RC(1, 0) > 0.998f) {
 		y = atan2f(GET_RC(0, 2), GET_RC(2, 2));
-		z = (float) M_PI_2;
+		z = (float) NXCOMMON_M_PI_2;
 		x = 0.0f;
 		return;
 	} else if (GET_RC(1, 0) < -0.998f) {
 		y = atan2f(GET_RC(0, 2), GET_RC(2, 2));
-		z = - (float) M_PI_2;
+		z = - (float) NXCOMMON_M_PI_2;
 		x = 0.0f;
 		return;
 	}

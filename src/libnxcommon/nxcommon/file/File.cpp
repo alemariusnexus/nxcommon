@@ -102,7 +102,7 @@ File File::getCurrentDirectory()
 #elif defined(_WIN32)
 	DWORD size = GetCurrentDirectory(0, NULL);
 	char* buf = new char[size+1];
-	GetCurrentDirectory(size+1, buf);
+	GetCurrentDirectoryA(size+1, buf);
 	return File(CString::from(buf));
 #endif
 }
@@ -115,7 +115,7 @@ void File::setCurrentDirectory(const File& cdir)
 		throw FileException("Error calling chdir(const char*)!", __FILE__, __LINE__);
 	}
 #elif defined(_WIN32)
-	if (SetCurrentDirectory(cdir.getPath().toString().get()) == 0) {
+	if (SetCurrentDirectoryA(cdir.getPath().toString().get()) == 0) {
 		throw FileException("Error calling SetCurrentDirectory()!", __FILE__, __LINE__);
 	}
 #endif
@@ -147,7 +147,7 @@ File File::createTemporaryFile()
 #elif defined(_WIN32)
 	DWORD status;
 	char tmpPath[512];
-	if ((status = GetTempPath(sizeof(tmpPath), tmpPath))  ==  0) {
+	if ((status = GetTempPathA(sizeof(tmpPath), tmpPath))  ==  0) {
 		char* errmsg = new char[128];
 		sprintf(errmsg, "Internal error creating temporary file (in GetTempPath()): %d.", (int) status);
 		FileException ex(errmsg, __FILE__, __LINE__);
@@ -155,7 +155,7 @@ File File::createTemporaryFile()
 		throw ex;
 	}
 	char tmpFilePath[1024];
-	if ((status = GetTempFileName(tmpPath, "nxc", 0, tmpFilePath))  ==  0) {
+	if ((status = GetTempFileNameA(tmpPath, "nxc", 0, tmpFilePath))  ==  0) {
 		char* errmsg = new char[128];
 		sprintf(errmsg, "Internal error creating temporary file (in GetTempFileName()): %d.", (int) status);
 		FileException ex(errmsg, __FILE__, __LINE__);
@@ -194,7 +194,7 @@ File File::createTemporaryDirectory()
 #elif defined(_WIN32)
 	DWORD status;
 	char tmpPath[512];
-	if ((status = GetTempPath(sizeof(tmpPath), tmpPath))  ==  0) {
+	if ((status = GetTempPathA(sizeof(tmpPath), tmpPath))  ==  0) {
 		char* errmsg = new char[128];
 		sprintf(errmsg, "Internal error creating temporary file (in GetTempPath()): %d.", (int) status);
 		FileException ex(errmsg, __FILE__, __LINE__);
@@ -208,12 +208,12 @@ File File::createTemporaryDirectory()
 
 	char* uuidStr;
 
-	UuidToString(&uuid, (unsigned char**) &uuidStr);
+	UuidToStringA(&uuid, (unsigned char**) &uuidStr);
 
 	char tmpDirPath[1024];
 	sprintf(tmpDirPath, "%s/nxc-%s.TMP", tmpPath, uuidStr);
 
-	RpcStringFree((unsigned char**) &uuidStr);
+	RpcStringFreeA((unsigned char**) &uuidStr);
 
 	File dir(tmpDirPath);
 	dir.mkdir();
@@ -240,7 +240,7 @@ File File::getExecutableFile()
 #elif defined(_WIN32)
 	char path[MAX_PATH];
 
-	GetModuleFileName(NULL, path, sizeof(path));
+	GetModuleFileNameA(NULL, path, sizeof(path));
 
 	return File(path);
 #endif
@@ -253,7 +253,7 @@ bool File::physicallyExists() const
 	struct stat fileInfo;
 	return stat(path.toString().get(), &fileInfo) == 0;
 #elif defined(_WIN32)
-	DWORD attribs = GetFileAttributes(path.toString().get());
+	DWORD attribs = GetFileAttributesA(path.toString().get());
 	return attribs != 0xFFFFFFFF;
 #endif
 }
@@ -303,7 +303,7 @@ FileType File::getType() const
 		return TYPE_OTHER;
 	}
 #elif defined(_WIN32)
-	DWORD attribs = GetFileAttributes(path.toString().get());
+	DWORD attribs = GetFileAttributesA(path.toString().get());
 
 	if (attribs == INVALID_FILE_ATTRIBUTES) {
 		return TYPE_ERROR;
@@ -362,7 +362,7 @@ File File::getCanonicalFile(const File& cdir) const
 #elif defined(_WIN32)
 			char absPath[MAX_PATH];
 
-			if (GetFullPathName(path.toString().get(), sizeof(absPath), absPath, NULL) == 0) {
+			if (GetFullPathNameA(path.toString().get(), sizeof(absPath), absPath, NULL) == 0) {
 				throw FileException("Error getting canonical path via GetFullPathName()!", __FILE__, __LINE__);
 			}
 
@@ -589,7 +589,7 @@ bool File::mkdir() const
 #ifdef _POSIX_VERSION
 	return ::mkdir(path.toString().get(), S_IRWXU | S_IRWXG | S_IRWXO) == 0;
 #elif defined(_WIN32)
-	return CreateDirectory(path.toString().get(), NULL) != 0;
+	return CreateDirectoryA(path.toString().get(), NULL) != 0;
 #endif
 }
 
@@ -619,7 +619,7 @@ void File::resize(filesize size) const
 #ifdef _POSIX_VERSION
 	truncate(path.toString().get(), size);
 #elif defined(_WIN32)
-	HANDLE fhandle = CreateFile(path.toString().get(), GENERIC_WRITE, 0, NULL, OPEN_ALWAYS,
+	HANDLE fhandle = CreateFileA(path.toString().get(), GENERIC_WRITE, 0, NULL, OPEN_ALWAYS,
 			FILE_ATTRIBUTE_NORMAL, NULL);
 	LARGE_INTEGER sizeVal;
 	sizeVal.QuadPart = size;
@@ -646,7 +646,7 @@ uint64_t File::getModifyTime() const
 
 	return fileInfo.st_mtime*1000;
 #else
-	HANDLE handle = CreateFile(path.toString().get(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE
+	HANDLE handle = CreateFileA(path.toString().get(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE
 			| FILE_SHARE_DELETE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	FILETIME mtime;
 

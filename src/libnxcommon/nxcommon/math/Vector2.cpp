@@ -23,6 +23,7 @@
 #include "Vector2.h"
 #include "Vector3.h"
 #include "Vector4.h"
+#include "mathdefines.h"
 #include <cmath>
 #include <cstdio>
 
@@ -129,5 +130,5 @@ float Vector2::angleXY(const Vector2& other) const
 	float dotv = dot(other);
 	float detv = data[0]*other.data[1] - data[1]*other.data[0];
 	float a = atan2f(detv, dotv);
-	return a - 2.0f*M_PI * floorf(a / (2.0f*M_PI)); // Wrap to range [0, 2*M_PI]
+	return a - 2.0f*NXCOMMON_M_PI * floorf(a / (2.0f*NXCOMMON_M_PI)); // Wrap to range [0, 2*M_PI]
 }
