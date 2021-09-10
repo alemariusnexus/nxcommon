@@ -260,9 +260,11 @@ void _LogMessageMultivl(int level, const char* fmt, va_list args)
 				char* nlPos = strchr(bufBegin, '\n');
 
 				if (nlPos) {
+                    char tmpChar = *nlPos;
 					*nlPos = '\0';
 					fprintf(out, "%s\n", bufBegin);
 					bufBegin = nlPos+1;
+                    *nlPos = tmpChar;
 				} else {
 					fprintf(out, "%s\n", bufBegin);
 					bufBegin = NULL;
