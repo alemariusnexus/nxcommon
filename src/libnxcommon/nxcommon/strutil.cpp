@@ -21,6 +21,8 @@
  */
 
 #include "strutil.h"
+#include <algorithm>
+#include <limits>
 #include <string>
 #include <cstring>
 #include <cstdio>
