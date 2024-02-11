@@ -110,8 +110,8 @@ const Quaternion Quaternion::slerp(const Quaternion& other, float t) const
 		return *this;
 	}
 
-	float rs = 1.0 / sinTheta;
-	float f1 = sinf((1.0-t) * theta);
+	float rs = 1.0f / sinTheta;
+	float f1 = sinf((1.0f-t) * theta);
 	float f2 = sinf(t * theta);
 
 	if (dot(other) < 0.0f) {
