@@ -563,8 +563,10 @@ private:
 template <typename DerivedT, typename UnitT, bool terminated, UnitT term>
 const shared_ptr<UnitT> AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::_EmptyPtrTerm::value = shared_ptr<UnitT>(new UnitT[1] {term}, default_delete<UnitT[]>());
 
+// The UnitT array below used to be empty, but 0-length arrays aren't supported by all compilers. In particular, they
+// fail in MSVC with C++20 enabled...
 template <typename DerivedT, typename UnitT, bool terminated, UnitT term>
-const shared_ptr<UnitT> AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::_EmptyPtrNonterm::value = shared_ptr<UnitT>(new UnitT[0] {}, default_delete<UnitT[]>());
+const shared_ptr<UnitT> AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::_EmptyPtrNonterm::value = shared_ptr<UnitT>(new UnitT[1] {term}, default_delete<UnitT[]>());
 
 
 
@@ -796,7 +798,8 @@ void AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::growWithSplit(size
 template <typename DerivedT, typename UnitT, bool terminated, UnitT term>
 void AbstractSharedBuffer<DerivedT, UnitT, terminated, term>::ensureUniqueness()
 {
-	if (!d.unique()) {
+	// TODO: use_count() is dangerous in multithreaded environments. Let's be honest, this class was never thread-safe.
+    if (d.use_count() != 1) {
 		realloc(mcapacity);
 	} else {
 		isnull = false;

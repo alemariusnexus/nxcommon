@@ -23,4 +23,4 @@ FILE(MAKE_DIRECTORY "${nxcommon-test_BINARY_DIR}/includes/nxcommon-test")
 
 CONFIGURE_FILE(config.cmake.h "${nxcommon-test_BINARY_DIR}/includes/nxcommon-test/config.h")
 
-ADD_SOURCES(main printhelpers filepath file global string bytearray sql util)
+ADD_SOURCES(main.cpp printhelpers.cpp filepath.cpp file.cpp global.cpp string.cpp bytearray.cpp sql.cpp util.cpp)
